@@ -1,12 +1,13 @@
-import { Vector3, Group, Raycaster, type Bone, Mesh,
-  MeshBasicMaterial, DoubleSide, BufferAttribute, type WireframeGeometry, type BufferGeometry
+import {
+  Vector3, Group, Raycaster, type Bone, Mesh,
+  MeshBasicMaterial, DoubleSide
 } from 'three'
 
 import { Utility } from '../Utilities.js'
 import { SkeletonType } from '../enums/SkeletonType.js'
 import { AbstractAutoSkinSolver } from './AbstractAutoSkinSolver.js'
 import { Generators } from '../Generators.js'
-import BoneCalculationData from '../models/BoneCalculationData.js'
+import type BoneCalculationData from '../models/BoneCalculationData.js'
 
 /**
  * SolverDistanceChildTargeting
@@ -97,7 +98,6 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
       if (parent_bone_index === -1 || parent_bone_index === undefined) continue
       const parent_bone_position = this.cached_bone_positions[parent_bone_index]
 
-
       const direction_to_current_bone = new Vector3().subVectors(vertex_position, current_bone_position).normalize()
       const direction_to_parent_bone = new Vector3().subVectors(vertex_position, parent_bone_position).normalize()
 
@@ -179,8 +179,8 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
   }
 
   private objects_to_show_for_debugging (skin_indices: number[]): Group {
-    const weight_painted_mesh = this.create_weight_paint_debug_mesh(skin_indices, this.geometry)
-    const wireframe_mesh = this.create_wireframe_debug_mesh(this.geometry)
+    const weight_painted_mesh = Generators.create_weight_painted_mesh(skin_indices, this.geometry)
+    const wireframe_mesh = Generators.create_wireframe_mesh_from_geometry(this.geometry)
 
     const group = new Group()
     group.add(weight_painted_mesh)
@@ -188,66 +188,6 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
     group.name = 'DebuggingNormalGroup'
 
     return group
-  }
-
-  /**
-   * This function will create a mesh to show the weights of the vertices
-   * It will use the skin_indices to assign colors to the vertices
-   * @param skin_indices
-   */
-  private create_weight_paint_debug_mesh (skin_indices: number[], orig_geometry: BufferGeometry): Mesh {
-    // Clone the geometry to avoid modifying the original
-    const cloned_geometry = orig_geometry.clone()
-    const vertex_count = cloned_geometry.attributes.position.array.length / 3
-
-    // Assign a random color for each bone
-    const bone_colors: Vector3[] = this.generateDeterministicBoneColors(80)
-
-    // Loop through each vertex and assign color based on the bone index
-    const colors = new Float32Array(vertex_count * 3)
-    for (let i = 0; i < vertex_count; i++) {
-      const bone_index = skin_indices[i * 4] // Primary bone assignment
-      const color = bone_colors[bone_index]
-      colors[i * 3] = color.x // red
-      colors[i * 3 + 1] = color.y // green
-      colors[i * 3 + 2] = color.z // blue
-    }
-    cloned_geometry.setAttribute('color', new BufferAttribute(colors, 3))
-
-    // Create a mesh with vertex colors
-    const material = new MeshBasicMaterial({ vertexColors: true, wireframe: false, opacity: 1.0, transparent: false })
-    return new Mesh(cloned_geometry, material)
-  }
-
-  private generateDeterministicBoneColors (count: number): Vector3[] {
-    // base color, can be any value between 0 and 1
-    let r = 0.2
-    let g = 0.5
-    let b = 0.8
-
-    // Generate a list of colors based on the count
-    const colors: Vector3[] = []
-    const step = [-0.1, 0.1, 0.3]
-    for (let i = 0; i < count; i++) {
-      // Ensure values wrap between 0 and 1
-      r = (r + step[0] + 1) % 1
-      g = (g + step[1] + 1) % 1
-      b = (b + step[2] + 1) % 1
-      colors.push(new Vector3(r, g, b))
-    }
-    return colors
-  }
-
-  private create_wireframe_debug_mesh (orig_mesh: BufferGeometry): Mesh {
-    const wireframe_material = new MeshBasicMaterial({
-      color: 0xabd9ef, // light blue color
-      wireframe: true,
-      opacity: 1.0,
-      transparent: false
-    })
-
-    const cloned_geometry = orig_mesh.clone()
-    return new Mesh(cloned_geometry, wireframe_material)
   }
 
   private cast_intersection_ray_down_from_bone (bone: Bone): Vector3 | null {

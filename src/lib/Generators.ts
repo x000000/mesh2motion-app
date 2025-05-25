@@ -2,10 +2,9 @@ import {
   PerspectiveCamera, DoubleSide, DirectionalLight, GridHelper,
   Bone, MeshBasicMaterial, Skeleton, AmbientLight, PlaneGeometry, Mesh,
   SphereGeometry, MeshPhongMaterial, AxesHelper,
-  Vector3, PointsMaterial, BufferGeometry, Points, type Object3D, WebGLRenderer,
-  Group, Line, LineBasicMaterial
+  Vector3, BufferGeometry, type Object3D, type WebGLRenderer,
+  Group, Line, LineBasicMaterial, BufferAttribute
 } from 'three'
-
 
 import { CustomSkeletonHelper } from './CustomSkeletonHelper'
 
@@ -234,4 +233,68 @@ export class Generators {
 
     return plane_mesh
   }
+
+  static create_wireframe_mesh_from_geometry (orig_geometry: BufferGeometry): Mesh {
+    const wireframe_material = new MeshBasicMaterial({
+      color: 0xabd9ef, // light blue color
+      wireframe: true,
+      opacity: 1.0,
+      transparent: false
+    })
+
+    const cloned_geometry = orig_geometry.clone()
+    return new Mesh(cloned_geometry, wireframe_material)
+  }
+
+  /**
+   * This function will create a mesh to show the weights of the vertices
+   * It will use the skin_indices to assign colors to the vertices
+   * @param skin_indices
+   */
+  static create_weight_painted_mesh (skin_indices: number[], orig_geometry: BufferGeometry): Mesh {
+    // Clone the geometry to avoid modifying the original
+    const cloned_geometry = orig_geometry.clone()
+    const vertex_count = cloned_geometry.attributes.position.array.length / 3
+
+    // Assign a random color for each bone
+    const bone_count: number = skin_indices.length / 4 // each vertex can have 4 bones assigned to them (weights)
+    const bone_colors: Vector3[] = Generators.generate_deterministic_bone_colors(bone_count)
+
+    // Loop through each vertex and assign color based on the bone index
+    const colors = new Float32Array(vertex_count * 3)
+    for (let i = 0; i < vertex_count; i++) {
+      const bone_index = skin_indices[i * 4] // Primary bone assignment
+      const color = bone_colors[bone_index]
+      colors[i * 3] = color.x // red
+      colors[i * 3 + 1] = color.y // green
+      colors[i * 3 + 2] = color.z // blue
+    }
+    cloned_geometry.setAttribute('color', new BufferAttribute(colors, 3))
+
+    // Create a mesh with vertex colors
+    const material = new MeshBasicMaterial({ vertexColors: true, wireframe: false, opacity: 1.0, transparent: false })
+    return new Mesh(cloned_geometry, material)
+  }
+
+  static generate_deterministic_bone_colors (count: number): Vector3[] {
+    // base color, can be any value between 0 and 1
+    let r = 0.2
+    let g = 0.5
+    let b = 0.8
+
+    // Generate a list of colors based on the count
+    const colors: Vector3[] = []
+    const step = [-0.1, 0.1, 0.3]
+    for (let i = 0; i < count; i++) {
+      // Ensure values wrap between 0 and 1
+      r = (r + step[0] + 1) % 1
+      g = (g + step[1] + 1) % 1
+      b = (b + step[2] + 1) % 1
+      colors.push(new Vector3(r, g, b))
+    }
+    return colors
+  }
+
+
+
 }

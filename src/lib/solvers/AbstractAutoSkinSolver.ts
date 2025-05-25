@@ -24,6 +24,10 @@ export abstract class AbstractAutoSkinSolver {
     this.geometry = geom
   }
 
+  public get_geometry (): BufferGeometry {
+    return this.geometry
+  }
+
   public set_show_debug (debug_value: boolean): void {
     this.show_debug = debug_value
   }

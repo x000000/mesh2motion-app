@@ -216,12 +216,14 @@ export class Bootstrap {
     this.renderer.render(this.scene, this.camera)
   }
 
-  public changed_model_preview_display (display_type: ModelPreviewDisplay): void {
+  public changed_model_preview_display (mesh_textured_display_type: ModelPreviewDisplay): void {
     // show/hide loaded textured model depending on view
-    this.load_model_step.model_meshes().visible = display_type === ModelPreviewDisplay.Textured
+    this.load_model_step.model_meshes().visible = mesh_textured_display_type === ModelPreviewDisplay.Textured
 
-    if (display_type === ModelPreviewDisplay.WeightPainted) {
-      console.log('TODO: Logic to show weight painted model')
+    // weight paint preview model should probably be stored in the weight skin step
+
+    if (mesh_textured_display_type === ModelPreviewDisplay.WeightPainted) {
+      this.regenerate_weight_painted_preview_mesh()
     }
   }
 
@@ -270,26 +272,30 @@ export class Bootstrap {
     }
   }
 
+  private regenerate_weight_painted_preview_mesh (): void {
+    console.log('TODO: show the weight painted mesh logic here')
+  }
+
   private start_skin_weighting_step (): void {
     // we only need one binding skeleton. All skinned meshes will use this.
+    this.weight_skin_step.reset_all_skin_process_data() // clear out any existing skinned meshes in storage
+
     this.weight_skin_step.create_binding_skeleton()
 
-    this.weight_skin_step.clear_skinned_meshes() // clear out any existing skinned meshes in storage
-    this.load_model_step.models_geometry_list().forEach((mesh_geometry, index) => {
-      // we passed the bone test, so we can do the skinning process
-      this.weight_skin_step.set_mesh_geometry(mesh_geometry)
-      const [final_skin_indices, final_skin_weights]: number[][] = this.weight_skin_step.calculate_weights()
-
-      mesh_geometry.setAttribute('skinIndex', new THREE.Uint16BufferAttribute(final_skin_indices, 4))
-      mesh_geometry.setAttribute('skinWeight', new THREE.Float32BufferAttribute(final_skin_weights, 4))
-
-      // create a separate skinned skeleton and helper for the binding pose
-      // having a separate one will help us if we want to go back and edit the original skeleton
-      const mesh_material = this.load_model_step.models_material_list()[index]
-      this.weight_skin_step.create_skinned_mesh(mesh_geometry, mesh_material)
-
-      this.scene.add(...this.weight_skin_step.final_skinned_meshes())
+    // reset geometry data to skin
+    this.load_model_step.models_geometry_list().forEach((mesh_geometry, idx) => {
+      this.weight_skin_step.add_to_geometry_data_to_skin(mesh_geometry)
     })
+
+    // all mesh material data associated with the geometry data
+    this.load_model_step.models_material_list().forEach((mesh_material) => {
+      this.weight_skin_step.add_mesh_material(mesh_material)
+    })
+
+    // perform skinning operation
+    // this will take all the mesh geometry data we added above and create skinned meshes
+    this.weight_skin_step.calculate_weights_for_all_mesh_data()
+    this.scene.add(...this.weight_skin_step.final_skinned_meshes())
 
     // remember our skeleton position before we do the skinning process
     // that way if we revert to try again...we will have the original positions/rotations

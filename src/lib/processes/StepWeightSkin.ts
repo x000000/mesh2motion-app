@@ -1,7 +1,5 @@
 import { UI } from '../UI.ts'
 
-// import { BoneWeightsByEnvelope } from '../solvers/BoneWeightsByEnvelope.ts'
-// import BoneWeightsByMedianDistance from '../solvers/BoneWeightsByMedianDistance.ts'
 import BoneWeightsByDistance from '../solvers/BoneWeightsByDistance.ts'
 import BoneWeightsByDistanceChild from '../solvers/BoneWeightsByDistanceChild.ts'
 import SolverDistanceChildTargeting from '../solvers/SolverDistanceChildTargeting.ts'
@@ -10,7 +8,7 @@ import { SkinningFormula } from '../enums/SkinningFormula.ts'
 
 import { Generators } from '../Generators.ts'
 
-import { type BufferGeometry, type Material, type Object3D, type Skeleton, SkinnedMesh, type Scene } from 'three'
+import { BufferGeometry, type Material, type Object3D, type Skeleton, SkinnedMesh, type Scene, type Group, Uint16BufferAttribute, Float32BufferAttribute } from 'three'
 import BoneTesterData from '../models/BoneTesterData.ts'
 import { type SkeletonType } from '../enums/SkeletonType.ts'
 
@@ -23,6 +21,13 @@ export class StepWeightSkin extends EventTarget {
   private bone_skinning_formula: AbstractAutoSkinSolver | undefined
   private binding_skeleton: Skeleton | undefined
   private skinned_meshes: SkinnedMesh[] = []
+
+  // stores the geometry data for meshes we will skin
+  private all_mesh_geometry: BufferGeometry[] = []
+  private all_mesh_materials: Material[] = []
+
+  // weight painted mesh actually has multiple meshes that will go in a group
+  // private readonly weight_painted_mesh_preview: Group | null = null
 
   // debug options for bone skinning formula
   private show_debug: boolean = false
@@ -68,6 +73,21 @@ export class StepWeightSkin extends EventTarget {
     return this.binding_skeleton
   }
 
+  /**
+   * @param geometry Add in all mesh geometry data to be skinned.
+   */
+  public add_to_geometry_data_to_skin (geometry: BufferGeometry): void {
+    // add name to the geometry
+    geometry.name = 'Mesh ' + this.all_mesh_geometry.length
+    this.all_mesh_geometry.push(geometry)
+  }
+
+  public get_geometry_data_to_skin (): BufferGeometry[] {
+    return this.all_mesh_geometry
+  }
+
+  // This can happen multiple times, so we need a better way to handle this to store all geometries
+  // this will be useful when creating the weight painted mesh and that generation being done
   public set_mesh_geometry (geometry: BufferGeometry): void {
     if (this.bone_skinning_formula === undefined) {
       console.warn('Tried to set_mesh_geometry() in weight skinning step, but bone_skinning_formula is undefined!')
@@ -102,8 +122,19 @@ export class StepWeightSkin extends EventTarget {
     }
   }
 
-  public clear_skinned_meshes (): void {
+  /**
+   * We might need to do the skinnning process multiple times
+   * so we need to clear out the data from the previous
+   * skinned mesh process
+   */
+  public reset_all_skin_process_data (): void {
     this.skinned_meshes = []
+    this.all_mesh_materials = []
+    this.all_mesh_geometry = []
+  }
+
+  public add_mesh_material (material: Material): void {
+    this.all_mesh_materials.push(material)
   }
 
   public create_skinned_mesh (geometry: BufferGeometry, material: Material): void {
@@ -147,6 +178,37 @@ export class StepWeightSkin extends EventTarget {
       return [[], []]
     }
 
-    return this.bone_skinning_formula.calculate_indexes_and_weights()
+    const indices_and_weights: number[][] = this.bone_skinning_formula.calculate_indexes_and_weights()
+    return indices_and_weights
+  }
+
+  public calculate_weights_for_all_mesh_data (): void {
+    if (this.all_mesh_geometry.length === 0) {
+      console.warn('Tried to calculate_weights_for_all_mesh_data() but all_mesh_geometry is empty!')
+      return
+    }
+
+    if (this.bone_skinning_formula === undefined) {
+      console.warn('Tried to calculate_weights_for_all_mesh_data() but bone_skinning_formula is null for some reason!')
+      return
+    }
+
+    // loop through each mesh geometry and calculate the weights
+    this.all_mesh_geometry.forEach((geometry_data: BufferGeometry, idx: number) => {
+      this.bone_skinning_formula?.set_geometry(geometry_data)
+      const [final_skin_indices, final_skin_weights]: number[][] = this.calculate_weights()
+
+      geometry_data.setAttribute('skinIndex', new Uint16BufferAttribute(final_skin_indices, 4))
+      geometry_data.setAttribute('skinWeight', new Float32BufferAttribute(final_skin_weights, 4))
+
+      const associated_material: Material = this.all_mesh_materials[idx]
+
+      this.create_skinned_mesh(geometry_data, associated_material)
+    })
+
+  // private regenerate_weight_painted_mesh (indices: number[]): void {
+  //   const weight_painted_mesh = Generators.create_weight_painted_mesh(indices, this.geometry)
+  //   const wireframe_mesh = Generators.create_wireframe_mesh_from_geometry(this.geometry)
+  // }
   }
 }

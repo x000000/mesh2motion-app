@@ -277,7 +277,7 @@ export class StepLoadModel extends EventTarget {
     return this.final_mesh_data
   }
 
-  public models_geometry_list(): BufferGeometry[] {
+  public models_geometry_list (): BufferGeometry[] {
     // loop through final mesh data and return the geometeries
     const geometries_to_return: BufferGeometry[] = []
     this.final_mesh_data.traverse((child) => {

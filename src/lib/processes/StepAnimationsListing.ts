@@ -85,8 +85,20 @@ export class StepAnimationsListing extends EventTarget {
       this.ui.dom_skinned_mesh_animation_tools.style.display = 'flex'
     }
 
+    this.reset_step_data()
     this.add_event_listeners()
     this.update_download_button_enabled()
+  }
+
+  public reset_step_data (): void {
+    // reset previous state if we are re-entering this step
+    // this will happen if we are reskinning the mesh after changes
+    this.animation_clips_loaded = []
+    this.skinned_meshes_to_animate = []
+    this.animation_mixer = new AnimationMixer()
+    this.current_playing_index = 0
+    this.hip_bone_offset = new Vector3(0, 0, 0)
+    this.hip_bone_scale_factor_z = 1.0
   }
 
   public mixer (): AnimationMixer {
@@ -107,7 +119,13 @@ export class StepAnimationsListing extends EventTarget {
 
     this.skinned_meshes_to_animate.forEach((skinned_mesh) => {
       const clip_to_play: AnimationClip = this.animation_clips_loaded[this.current_playing_index]
+
       const anim_action: AnimationAction = this.animation_mixer.clipAction(clip_to_play, skinned_mesh)
+
+      if (anim_action === null) { 
+        console.info('No anim_action found for clipAction. Aborting. Clip name trying to play: :', clip_to_play.name, this.animation_mixer)
+        return
+      }
 
       const progress = Math.min(anim_action.time / clip_to_play.duration, 1)
       const progress_percent: number = progress * 100 // returns 0-100
@@ -323,7 +341,11 @@ export class StepAnimationsListing extends EventTarget {
   }
 
   private add_event_listeners (): void {
+    // make sure to only add the event listeners once
+    // this could be potentially called multiple times when going back and forth
+    // between editing skeleton and this step
     if (this.has_added_event_listeners) {
+      console.info('Event listeners already added to animation step. Skipping.')
       return
     }
 

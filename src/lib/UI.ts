@@ -35,6 +35,11 @@ export class UI {
   dom_show_skeleton_checkbox: HTMLElement | null = null
   dom_back_to_edit_skeleton_button: HTMLButtonElement | null = null
   dom_enable_skin_debugging: HTMLInputElement | null = null
+
+  dom_model_preview_textured_button: HTMLButtonElement | null = null
+  dom_model_preview_weight_painted_button: HTMLButtonElement | null = null
+
+  // animations listing UI controls
   dom_animation_clip_list: HTMLElement | null = null
   dom_export_button: HTMLButtonElement | null = null
 
@@ -76,8 +81,6 @@ export class UI {
     this.dom_rotate_model_z_button = document.querySelector('#rotate-model-z-button')
     this.dom_move_model_to_floor_button = document.querySelector('#move-model-to-floor-button')
 
-
-
     // UI controls for loading/working with skeleton
     this.dom_load_skeleton_tools = document.querySelector('#load-skeleton-tools')
     this.dom_load_skeleton_button = document.querySelector('#load-skeleton-button')
@@ -95,6 +98,9 @@ export class UI {
     this.dom_scale_skeleton_input_box = document.querySelector('#scale-input')
     this.dom_move_to_origin_button = document.querySelector('#action_move_to_origin')
     this.dom_skinning_algorithm_selection = document.querySelector('#skinning-algorithm-options')
+
+    this.dom_model_preview_textured_button = document.querySelector('#model-preview-textured-button')
+    this.dom_model_preview_weight_painted_button = document.querySelector('#model-preview-weight-painted-button')
 
     // UI controls for changing views
     this.dom_view_front_change = document.querySelector('#front-view-button')

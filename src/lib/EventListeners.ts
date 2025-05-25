@@ -1,4 +1,5 @@
 import { type Bootstrap } from '../script'
+import { ModelPreviewDisplay } from './enums/ModelPreviewDisplay'
 import { ProcessStep } from './enums/ProcessStep'
 import { Utility } from './Utilities'
 import { Object3D } from 'three'
@@ -118,6 +119,16 @@ export class EventListeners {
 
     this.bootstrap.ui.dom_transform_rotate_button?.addEventListener('click', () => {
       this.bootstrap.transform_controls.setMode('rotate')
+    })
+
+    // changing the 3d model preview while editing the skeleton bones
+    this.bootstrap.ui.dom_model_preview_textured_button?.addEventListener('click', () => {
+      console.log('change teo textured model preview')
+      this.bootstrap.changed_model_preview_display(ModelPreviewDisplay.Textured)
+    })
+
+    this.bootstrap.ui.dom_model_preview_weight_painted_button?.addEventListener('click', () => {
+      this.bootstrap.changed_model_preview_display(ModelPreviewDisplay.WeightPainted)
     })
   }
 }

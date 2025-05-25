@@ -23,6 +23,7 @@ import { SkeletonType } from './lib/enums/SkeletonType.ts'
 
 import { CustomSkeletonHelper } from './lib/CustomSkeletonHelper.ts'
 import { EventListeners } from './lib/EventListeners.ts'
+import { ModelPreviewDisplay } from './lib/enums/ModelPreviewDisplay.ts'
 
 export class Bootstrap {
   public readonly camera = Generators.create_camera()
@@ -206,13 +207,22 @@ export class Bootstrap {
     requestAnimationFrame(this.animate)
     const delta_time = this.clock.getDelta()
 
-    // if we are in the animation listing step, we can call 
+    // if we are in the animation listing step, we can call
     // render/update functions in that
     if (this.process_step === ProcessStep.AnimationsListing) {
       this.animations_listing_step.frame_change(delta_time)
     }
 
     this.renderer.render(this.scene, this.camera)
+  }
+
+  public changed_model_preview_display (display_type: ModelPreviewDisplay): void {
+    // show/hide loaded textured model depending on view
+    this.load_model_step.model_meshes().visible = display_type === ModelPreviewDisplay.Textured
+
+    if (display_type === ModelPreviewDisplay.WeightPainted) {
+      console.log('TODO: Logic to show weight painted model')
+    }
   }
 
   public handle_transform_controls_mouse_down (mouse_event: MouseEvent): void {

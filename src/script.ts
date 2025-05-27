@@ -294,7 +294,9 @@ export class Bootstrap {
 
     // perform skinning operation
     // this will take all the mesh geometry data we added above and create skinned meshes
-    this.weight_skin_step.calculate_weights_for_all_mesh_data()
+    // TODO: Always regenerate the weight painted mesh preview for now. This will change later
+    // when we have are in the "Weight Painted" display mode
+    this.weight_skin_step.calculate_weights_for_all_mesh_data(true)
     this.scene.add(...this.weight_skin_step.final_skinned_meshes())
 
     // remember our skeleton position before we do the skinning process

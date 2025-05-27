@@ -8,7 +8,7 @@ import { SkinningFormula } from '../enums/SkinningFormula.ts'
 
 import { Generators } from '../Generators.ts'
 
-import { BufferGeometry, type Material, type Object3D, type Skeleton, SkinnedMesh, type Scene, type Group, Uint16BufferAttribute, Float32BufferAttribute } from 'three'
+import { BufferGeometry, type Material, type Object3D, type Skeleton, SkinnedMesh, type Scene, Group, Uint16BufferAttribute, Float32BufferAttribute } from 'three'
 import BoneTesterData from '../models/BoneTesterData.ts'
 import { type SkeletonType } from '../enums/SkeletonType.ts'
 
@@ -27,7 +27,7 @@ export class StepWeightSkin extends EventTarget {
   private all_mesh_materials: Material[] = []
 
   // weight painted mesh actually has multiple meshes that will go in a group
-  // private readonly weight_painted_mesh_preview: Group | null = null
+  private readonly weight_painted_mesh_preview: Group | null = new Group()
 
   // debug options for bone skinning formula
   private show_debug: boolean = false
@@ -131,13 +131,14 @@ export class StepWeightSkin extends EventTarget {
     this.skinned_meshes = []
     this.all_mesh_materials = []
     this.all_mesh_geometry = []
+    this.weight_painted_mesh_preview.clear()
   }
 
   public add_mesh_material (material: Material): void {
     this.all_mesh_materials.push(material)
   }
 
-  public create_skinned_mesh (geometry: BufferGeometry, material: Material): void {
+  public create_skinned_mesh (geometry: BufferGeometry, material: Material): SkinnedMesh {
     if (this.binding_skeleton === undefined) {
       console.warn('Tried to create_skinned_mesh() but binding_skeleton is undefined!')
       return
@@ -152,8 +153,7 @@ export class StepWeightSkin extends EventTarget {
     skinned_mesh.add(this.binding_skeleton.bones[0])
     skinned_mesh.bind(this.binding_skeleton)
 
-    // keep track of all the skinned meshes we create to access later
-    this.skinned_meshes.push(skinned_mesh)
+    return skinned_mesh
   }
 
   public final_skinned_meshes (): SkinnedMesh[] {
@@ -182,7 +182,7 @@ export class StepWeightSkin extends EventTarget {
     return indices_and_weights
   }
 
-  public calculate_weights_for_all_mesh_data (): void {
+  public calculate_weights_for_all_mesh_data (regenerate_weight_painted_mesh: boolean = false): void {
     if (this.all_mesh_geometry.length === 0) {
       console.warn('Tried to calculate_weights_for_all_mesh_data() but all_mesh_geometry is empty!')
       return
@@ -203,12 +203,19 @@ export class StepWeightSkin extends EventTarget {
 
       const associated_material: Material = this.all_mesh_materials[idx]
 
-      this.create_skinned_mesh(geometry_data, associated_material)
+      // create skined mesh from the geometry and material
+      const temp_skinned_mesh: SkinnedMesh = this.create_skinned_mesh(geometry_data, associated_material)
+      this.skinned_meshes.push(temp_skinned_mesh) // add to skinned meshes references
+
+      // re-generate the weight painted mesh display if needed
+      if (regenerate_weight_painted_mesh) {
+        const weight_painted_mesh = Generators.create_weight_painted_mesh(final_skin_indices, geometry_data)
+        const wireframe_mesh = Generators.create_wireframe_mesh_from_geometry(geometry_data)
+        this.weight_painted_mesh_preview?.add(weight_painted_mesh, wireframe_mesh)
+      }
     })
 
-  // private regenerate_weight_painted_mesh (indices: number[]): void {
-  //   const weight_painted_mesh = Generators.create_weight_painted_mesh(indices, this.geometry)
-  //   const wireframe_mesh = Generators.create_wireframe_mesh_from_geometry(this.geometry)
-  // }
+    console.log('Final skinned meshes:', this.skinned_meshes)
+    console.log('Preview weight painted mesh re-generated:', this.weight_painted_mesh_preview)
   }
 }

@@ -287,7 +287,7 @@ export class Bootstrap {
     })
   }
 
-  private regenerate_weight_painted_preview_mesh (): void {
+  public regenerate_weight_painted_preview_mesh (): void {
     // needed for skinning process
     this.calculate_skin_weighting_for_models()
 
@@ -295,9 +295,6 @@ export class Bootstrap {
     if (this.scene.getObjectByName('Weight Painted Mesh') === undefined) {
       this.scene.add(this.weight_skin_step.weight_painted_mesh_group())
     }
-
-    // check to see how many weight painted meshes we hae
-    console.log('Weight Painted Meshes in scene:', this.scene.children)
   }
 
   private calculate_skin_weighting_for_models (): void {

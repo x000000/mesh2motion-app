@@ -30,9 +30,18 @@ export class EventListeners {
       }
     }, false)
 
+    // custom event listeners for the transform controls.
+    // we can know about the "mouseup" event with this
     this.bootstrap.transform_controls?.addEventListener('dragging-changed', (event: any) => {
       this.bootstrap.is_transform_controls_dragging = event.value
       this.bootstrap.controls.enabled = !event.value
+
+      // if we stopped dragging, that means a mouse up.
+      // if we are editing skeleton and viewing weight painted mesh, refresh the weight painting
+      if (this.bootstrap.process_step === ProcessStep.EditSkeleton &&
+        this.bootstrap.mesh_preview_display_type === ModelPreviewDisplay.WeightPainted) {
+        this.bootstrap.regenerate_weight_painted_preview_mesh()
+      }
     })
 
     this.bootstrap.load_model_step.addEventListener('modelLoaded', () => {

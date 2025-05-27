@@ -283,7 +283,7 @@ export class Generators {
     let b = 0.8
 
     // Darkening factor (0 < factor < 1)
-    const darken = 0.8
+    const darken = 0.6 // lower value is darker
 
     // Generate a list of colors based on the count
     const colors: Vector3[] = []

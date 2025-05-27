@@ -32,6 +32,7 @@ export class Bootstrap {
 
   public readonly transform_controls: TransformControls = new TransformControls(this.camera, this.renderer.domElement)
   public is_transform_controls_dragging: boolean = false
+  public readonly transform_controls_hover_distance: number = 0.03 // distance to hover over bones to select them
 
   // has UI elements on the HTML page that we will reference/use
   public readonly ui = new UI()
@@ -95,6 +96,9 @@ export class Bootstrap {
     this.controls.update()
 
     this.scene.add(this.transform_controls.getHelper())
+
+    // make transform control axis a bit smaller so they don't interfere with other points
+    this.transform_controls.size = 1.0
 
     // basic things in another group, to better isolate what we are working on
     this.environment_container.name = 'Setup objects'
@@ -245,7 +249,8 @@ export class Bootstrap {
     // primary click is made for rotating around 3d scene
     const is_primary_button_click = mouse_event.button === 0
 
-    if (is_primary_button_click) { return }
+    if (is_primary_button_click === false) { return }
+
     if (this.edit_skeleton_step.skeleton()?.bones === undefined) { return }
 
     // when we are done with skinned mesh, we shouldn't be editing transforms
@@ -268,7 +273,7 @@ export class Bootstrap {
 
     // only do selection if we are close
     // the orbit controls also have panning with alt-click, so we don't want to interfere with that
-    if (closest_distance === null || closest_distance > 0.1) {
+    if (closest_distance === null || closest_distance > this.transform_controls_hover_distance) {
       return
     }
 

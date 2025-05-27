@@ -15,7 +15,7 @@ export class EventListeners {
 
       // edit skeleton step logic that deals with hovering over bones
       if (this.bootstrap.process_step === ProcessStep.EditSkeleton) {
-        this.bootstrap.edit_skeleton_step.calculate_bone_hover_effect(event, this.bootstrap.camera)
+        this.bootstrap.edit_skeleton_step.calculate_bone_hover_effect(event, this.bootstrap.camera, this.bootstrap.transform_controls_hover_distance)
       }
     })
 

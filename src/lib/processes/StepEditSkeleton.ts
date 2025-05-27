@@ -270,7 +270,7 @@ export class StepEditSkeleton extends EventTarget {
    * the event listener was originally setup in the EventListener.ts file
    * it is needed for the edit skeleton step, so I added logic here
    */
-  public calculate_bone_hover_effect (event: MouseEvent, camera: Camera): void {
+  public calculate_bone_hover_effect (event: MouseEvent, camera: Camera, hover_distance: number): void {
     // create a raycaster to detect the bone that is being hovered over
     // we will only have a hover effect if the mouse is close enough to the bone
     const [closest_bone, closest_bone_index, closest_distance] =
@@ -278,7 +278,7 @@ export class StepEditSkeleton extends EventTarget {
 
     // only do selection if we are close
     // the orbit controls also have panning with alt-click, so we don't want to interfere with that
-    if (closest_distance === null || closest_distance > 0.1) {
+    if (closest_distance === null || closest_distance > hover_distance) {
       this.update_bone_hover_point_position(null)
       return
     }

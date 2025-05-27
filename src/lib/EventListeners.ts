@@ -41,7 +41,6 @@ export class EventListeners {
 
     this.bootstrap.load_skeleton_step.addEventListener('skeletonLoaded', () => {
       this.bootstrap.edit_skeleton_step.load_original_armature_from_model(this.bootstrap.load_skeleton_step.armature())
-      this.bootstrap.regenerate_skeleton_helper(this.bootstrap.edit_skeleton_step.skeleton())
       this.bootstrap.process_step = this.bootstrap.process_step_changed(ProcessStep.EditSkeleton)
     })
 
@@ -89,7 +88,6 @@ export class EventListeners {
       this.bootstrap.remove_skinned_meshes_from_scene() // clear any existing skinned meshes
       this.bootstrap.debugging_visual_object = Utility.regenerate_debugging_scene(this.bootstrap.scene)
       this.bootstrap.process_step = this.bootstrap.process_step_changed(ProcessStep.EditSkeleton)
-      this.bootstrap.regenerate_skeleton_helper(this.bootstrap.edit_skeleton_step.skeleton())
       this.bootstrap.load_model_step.model_meshes().visible = true
 
       // reset current bone selection for edit skeleton step

@@ -173,6 +173,7 @@ export class Bootstrap {
         this.load_skeleton_step.begin()
         break
       case ProcessStep.EditSkeleton:
+        this.regenerate_skeleton_helper(this.edit_skeleton_step.skeleton())
         process_step = ProcessStep.EditSkeleton
         this.edit_skeleton_step.begin()
         this.edit_skeleton_step.setup_scene(this.scene)
@@ -184,7 +185,9 @@ export class Bootstrap {
         this.weight_skin_step.begin()
         this.transform_controls.enabled = false // shouldn't be editing bones
         this.calculate_skin_weighting_for_models()
+        this.regenerate_skeleton_helper(this.weight_skin_step.skeleton())
         this.scene.add(...this.weight_skin_step.final_skinned_meshes()) // add final skinned mesh to scene
+        this.weight_skin_step.weight_painted_mesh_group().visible = false // hide weight painted mesh
         this.process_step_changed(ProcessStep.AnimationsListing)
         break
       case ProcessStep.AnimationsListing:
@@ -341,9 +344,6 @@ export class Bootstrap {
       console.warn('Tried to regenerate skeleton helper, but skeleton is undefined!')
       return
     }
-
-    // not sure why typescript linter cannot figure out that the skeleton is defined here as I did a check above
-    this.regenerate_skeleton_helper(this.weight_skin_step.skeleton())
 
     // we might want to test out the binding algorithm to see various hitboxes
     // if we are doing debugging, go to that view, if no debugging, go straight to thd animation listing step

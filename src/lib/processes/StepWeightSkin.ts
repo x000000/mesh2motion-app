@@ -27,12 +27,17 @@ export class StepWeightSkin extends EventTarget {
   private all_mesh_materials: Material[] = []
 
   // weight painted mesh actually has multiple meshes that will go in a group
-  private readonly weight_painted_mesh_preview: Group | null = new Group()
+  private readonly weight_painted_mesh_preview: Group = new Group()
 
   // debug options for bone skinning formula
   private show_debug: boolean = false
   private debug_scene_object: Object3D | undefined
   private bone_index_to_test: number = -1
+
+  constructor () {
+    super()
+    this.weight_painted_mesh_preview.name = 'Weight Painted Mesh Preview'
+  }
 
   public begin (): void {
     if (this.ui.dom_current_step_index !== null) {
@@ -113,13 +118,14 @@ export class StepWeightSkin extends EventTarget {
   }
 
   public create_binding_skeleton (): void {
-    if (this.skinning_armature !== undefined) {
-      // when we copy over the armature with the bind, we will lose the reference in the variable
-      this.binding_skeleton = Generators.create_skeleton(this.skinning_armature.children[0])
-      this.binding_skeleton.name = 'Mesh Binding Skeleton'
-    } else {
-      console.warn('Tried to create_binding_skeleton() but skinning_armature is undefined!')
+    if (this.skinning_armature === undefined) {
+      console.warn('Tried to create_binding_skeleton() but skinning_armature has no children!')
+      return
     }
+
+    // when we copy over the armature with the bind, we will lose the reference in the variable
+    this.binding_skeleton = Generators.create_skeleton(this.skinning_armature.children[0])
+    this.binding_skeleton.name = 'Mesh Binding Skeleton'
   }
 
   /**
@@ -158,6 +164,10 @@ export class StepWeightSkin extends EventTarget {
 
   public final_skinned_meshes (): SkinnedMesh[] {
     return this.skinned_meshes
+  }
+
+  public weight_painted_mesh_group (): Group | null {
+    return this.weight_painted_mesh_preview
   }
 
   public set_show_debug (value: boolean): void {

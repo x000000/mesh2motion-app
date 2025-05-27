@@ -48,6 +48,9 @@ export class Bootstrap {
   public skeleton_helper: CustomSkeletonHelper | undefined = undefined
   public debugging_visual_object: Group = new Group()
 
+  // when editing the skeleton, what type of mesh will we see
+  public mesh_preview_display_type: ModelPreviewDisplay = ModelPreviewDisplay.Textured
+
   private readonly clock = new THREE.Clock()
 
   private readonly environment_container: Group = new Group()
@@ -165,6 +168,7 @@ export class Bootstrap {
         this.load_model_step.begin()
         break
       case ProcessStep.LoadSkeleton:
+        this.scene.add(this.load_model_step.model_meshes())
         process_step = ProcessStep.LoadSkeleton
         this.load_skeleton_step.begin()
         break
@@ -179,7 +183,9 @@ export class Bootstrap {
         this.process_step = ProcessStep.BindPose
         this.weight_skin_step.begin()
         this.transform_controls.enabled = false // shouldn't be editing bones
-        this.start_skin_weighting_step()
+        this.calculate_skin_weighting_for_models()
+        this.scene.add(...this.weight_skin_step.final_skinned_meshes()) // add final skinned mesh to scene
+        this.process_step_changed(ProcessStep.AnimationsListing)
         break
       case ProcessStep.AnimationsListing:
         this.process_step = ProcessStep.AnimationsListing
@@ -217,14 +223,18 @@ export class Bootstrap {
   }
 
   public changed_model_preview_display (mesh_textured_display_type: ModelPreviewDisplay): void {
+    this.mesh_preview_display_type = mesh_textured_display_type
+
     // show/hide loaded textured model depending on view
-    this.load_model_step.model_meshes().visible = mesh_textured_display_type === ModelPreviewDisplay.Textured
+    this.load_model_step.model_meshes().visible = this.mesh_preview_display_type === ModelPreviewDisplay.Textured
 
-    // weight paint preview model should probably be stored in the weight skin step
-
-    if (mesh_textured_display_type === ModelPreviewDisplay.WeightPainted) {
+    if (this.mesh_preview_display_type === ModelPreviewDisplay.WeightPainted) {
       this.regenerate_weight_painted_preview_mesh()
     }
+
+    // show/hide weight painted mesh depending on view
+    this.weight_skin_step.weight_painted_mesh_group().visible =
+      this.mesh_preview_display_type === ModelPreviewDisplay.WeightPainted
   }
 
   public handle_transform_controls_mouse_down (mouse_event: MouseEvent): void {
@@ -272,18 +282,38 @@ export class Bootstrap {
     }
   }
 
-  private regenerate_weight_painted_preview_mesh (): void {
-    console.log('TODO: show the weight painted mesh logic here')
+  public remove_skinned_meshes_from_scene (): void {
+    const existing_skinned_meshes = this.scene.children.filter((child: Object3D) => child.name === 'Skinned Mesh')
+    existing_skinned_meshes.forEach((existing_skinned_mesh: Object3D) => {
+      Utility.remove_object_with_children(existing_skinned_mesh)
+    })
   }
 
-  private start_skin_weighting_step (): void {
+  private regenerate_weight_painted_preview_mesh (): void {
+    // needed for skinning process
+    this.calculate_skin_weighting_for_models()
+
+    // if the weight painted mesh is not in scene, add it
+    if (this.scene.getObjectByName('Weight Painted Mesh') === undefined) {
+      this.scene.add(this.weight_skin_step.weight_painted_mesh_group())
+    }
+
+    // check to see how many weight painted meshes we hae
+    console.log('Weight Painted Meshes in scene:', this.scene.children)
+  }
+
+  private calculate_skin_weighting_for_models (): void {
     // we only need one binding skeleton. All skinned meshes will use this.
     this.weight_skin_step.reset_all_skin_process_data() // clear out any existing skinned meshes in storage
 
+    // needed for skinning process if we change modes
+    this.weight_skin_step.create_bone_formula_object(this.edit_skeleton_step.armature(), this.edit_skeleton_step.algorithm(),
+      this.load_skeleton_step.skeleton_type())
+
     this.weight_skin_step.create_binding_skeleton()
 
-    // reset geometry data to skin
-    this.load_model_step.models_geometry_list().forEach((mesh_geometry, idx) => {
+    // add geometry data needed for skinning
+    this.load_model_step.models_geometry_list().forEach((mesh_geometry) => {
       this.weight_skin_step.add_to_geometry_data_to_skin(mesh_geometry)
     })
 
@@ -297,7 +327,10 @@ export class Bootstrap {
     // TODO: Always regenerate the weight painted mesh preview for now. This will change later
     // when we have are in the "Weight Painted" display mode
     this.weight_skin_step.calculate_weights_for_all_mesh_data(true)
-    this.scene.add(...this.weight_skin_step.final_skinned_meshes())
+
+    // TODO: maybe way to update references instead of removing and adding?
+    // this.remove_skinned_meshes_from_scene() // clear any existing skinned meshes in the scene
+    // this.scene.add(...this.weight_skin_step.final_skinned_meshes())
 
     // remember our skeleton position before we do the skinning process
     // that way if we revert to try again...we will have the original positions/rotations
@@ -318,7 +351,7 @@ export class Bootstrap {
       return
     }
 
-    this.process_step_changed(ProcessStep.AnimationsListing)
+    console.log('What does our scene look like after we are done skinning:', this.scene)
   }
 
   public test_bone_weighting_success (): boolean {

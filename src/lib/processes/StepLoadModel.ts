@@ -188,7 +188,7 @@ export class StepLoadModel extends EventTarget {
   private strip_out_all_unecessary_model_data (model_data: Scene): Scene {
     // create a new scene object, and only include meshes
     const new_scene = new Scene()
-    new_scene.name = 'New Scene'
+    new_scene.name = 'Imported Model'
 
     model_data.traverse((child) => {
       let new_mesh: Mesh
@@ -289,11 +289,11 @@ export class StepLoadModel extends EventTarget {
     return geometries_to_return
   }
 
-  public models_material_list(): Material[] {
+  public models_material_list (): Material[] {
     return this.material_list
   }
 
-  public rotate_model_by_axis(axis: string, angle: number): void {
+  public rotate_model_by_axis (axis: string, angle: number): void {
     this.final_mesh_data.traverse((obj) => {
       // if object is a mesh, rotate the geometry data
       if (obj.type === 'Mesh') {

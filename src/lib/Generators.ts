@@ -236,10 +236,10 @@ export class Generators {
 
   static create_wireframe_mesh_from_geometry (orig_geometry: BufferGeometry): Mesh {
     const wireframe_material = new MeshBasicMaterial({
-      color: 0xabd9ef, // light blue color
+      color: 0x337baa, // light blue color
       wireframe: true,
-      opacity: 1.0,
-      transparent: false
+      opacity: 0.2,
+      transparent: true
     })
 
     const cloned_geometry = orig_geometry.clone()
@@ -282,6 +282,9 @@ export class Generators {
     let g = 0.5
     let b = 0.8
 
+    // Darkening factor (0 < factor < 1)
+    const darken = 0.8
+
     // Generate a list of colors based on the count
     const colors: Vector3[] = []
     const step = [-0.1, 0.1, 0.3]
@@ -290,11 +293,10 @@ export class Generators {
       r = (r + step[0] + 1) % 1
       g = (g + step[1] + 1) % 1
       b = (b + step[2] + 1) % 1
-      colors.push(new Vector3(r, g, b))
+
+      // Apply darkening factor
+      colors.push(new Vector3(r * darken, g * darken, b * darken))
     }
     return colors
   }
-
-
-
 }

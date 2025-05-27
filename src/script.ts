@@ -255,16 +255,11 @@ export class Bootstrap {
     // we will change which skeleton we do an intersection test with
     // depending on what step we are on. We are either moving the setup skeleton
     // or moving the bind pose skeleton
-    let skeleton_to_test: Skeleton | undefined
+    const skeleton_to_test: Skeleton | undefined = this.edit_skeleton_step.skeleton()
 
-    if (this.process_step === ProcessStep.EditSkeleton) {
-      skeleton_to_test = this.edit_skeleton_step.skeleton()
-    } else {
-      skeleton_to_test = this.weight_skin_step.skeleton()
-    }
-
-    // ig no skeleton to test, abort
+    // if no skeleton to test, abort
     if (skeleton_to_test === undefined) {
+      console.warn('No skeleton to test for intersection, aborting transform controls mouse down')
       return
     }
 
@@ -279,7 +274,7 @@ export class Bootstrap {
     if (closest_bone !== null) {
       this.transform_controls.attach(closest_bone)
       this.edit_skeleton_step.set_currently_selected_bone(closest_bone)
-      this.weight_skin_step.set_bone_index_to_test(closest_bone_index)
+      //  this.weight_skin_step.set_bone_index_to_test(closest_bone_index)
     } else {
       this.edit_skeleton_step.set_currently_selected_bone(null)
     }

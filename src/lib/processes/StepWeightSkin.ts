@@ -37,6 +37,9 @@ export class StepWeightSkin extends EventTarget {
   constructor () {
     super()
     this.weight_painted_mesh_preview.name = 'Weight Painted Mesh Preview'
+
+    // helps skeleton mesh render on top of this
+    this.weight_painted_mesh_preview.renderOrder = -1
   }
 
   public begin (): void {

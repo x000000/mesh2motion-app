@@ -49,7 +49,7 @@ export class Bootstrap {
   public debugging_visual_object: Group = new Group()
 
   // when editing the skeleton, what type of mesh will we see
-  public mesh_preview_display_type: ModelPreviewDisplay = ModelPreviewDisplay.Textured
+  public mesh_preview_display_type: ModelPreviewDisplay = ModelPreviewDisplay.WeightPainted
 
   private readonly clock = new THREE.Clock()
 
@@ -179,6 +179,7 @@ export class Bootstrap {
         this.edit_skeleton_step.setup_scene(this.scene)
         this.transform_controls.enabled = true
         this.transform_controls.setMode('translate') // 'translate', 'rotate', or 'scale'
+        this.changed_model_preview_display(this.mesh_preview_display_type) // show weight painted mesh by default
         break
       case ProcessStep.BindPose:
         this.process_step = ProcessStep.BindPose

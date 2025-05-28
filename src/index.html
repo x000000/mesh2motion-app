@@ -120,7 +120,6 @@
 
             <span id="skeleton-step-actions">
 
-
                 <p class="step-instructions">Move bones into position.</p>
 
                  <p id="bone-selection-section">
@@ -129,8 +128,12 @@
                     <!-- controls to change transfrom mode between transform and rotation -->
                     <span style="display: flex; flex-direction: row; align-items: center; column-gap: 5px;">
                         <span>Controls:</span>
-                        <button id="translate-mode-button" class="secondary-button">Translate</button>
-                        <button id="rotate-mode-button" class="secondary-button">Rotate</button>
+                        <button id="translate-mode-button" class="secondary-button">
+                            <img src="images/icons/tool-move.svg" alt="Translate" width="20" height="20" title="translate" />
+                        </button>
+                        <button id="rotate-mode-button" class="secondary-button">
+                            <img src="images/icons/tool-rotate.svg" alt="Translate" width="20" height="20" title="translate" />
+                        </button>
                     </span>
                 </p>
 
@@ -145,8 +148,12 @@
                 <div style="display: flex; flex-direction: row; align-items: center; column-gap: 5px; ">
                     <span>Preview:</span>
                     <div id="texture-model-buttons-container" style="display: flex; gap: 5px;">
-                        <button class="secondary-button" id="model-preview-textured-button">Textured</button>
-                        <button class="secondary-button" id="model-preview-weight-painted-button">Weights</button>
+                        <button class="secondary-button" id="model-preview-textured-button">
+                            <img src="images/icons/display-textured.svg" alt="Textured" width="20" height="20" title="textured" />
+                        </button>
+                        <button class="secondary-button" id="model-preview-weight-painted-button">
+                            <img src="images/icons/display-weight-painted.svg" alt="Weights" width="20" height="20" title="weights" />
+                        </button>
                     </div>
                 </div>
 

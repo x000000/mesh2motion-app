@@ -67,7 +67,8 @@ input[type="number"] {
 button.secondary-button {
     background: #657a7638;
     border-radius: 3px;
-    border-width: 2px;
+    border-width: 1px;
+    border-color: grey;
     cursor: pointer;
     transition: all 0.1s ease-in-out;
 }

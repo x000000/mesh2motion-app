@@ -97,7 +97,6 @@ export class EventListeners {
       this.bootstrap.remove_skinned_meshes_from_scene() // clear any existing skinned meshes
       this.bootstrap.debugging_visual_object = Utility.regenerate_debugging_scene(this.bootstrap.scene)
       this.bootstrap.process_step = this.bootstrap.process_step_changed(ProcessStep.EditSkeleton)
-      this.bootstrap.load_model_step.model_meshes().visible = true
 
       // reset current bone selection for edit skeleton step
       this.bootstrap.edit_skeleton_step.set_currently_selected_bone(null)

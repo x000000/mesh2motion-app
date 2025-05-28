@@ -24,6 +24,7 @@ import { SkeletonType } from './lib/enums/SkeletonType.ts'
 import { CustomSkeletonHelper } from './lib/CustomSkeletonHelper.ts'
 import { EventListeners } from './lib/EventListeners.ts'
 import { ModelPreviewDisplay } from './lib/enums/ModelPreviewDisplay.ts'
+import { TransformControlType } from './lib/enums/TransformControlType.ts'
 
 export class Bootstrap {
   public readonly camera = Generators.create_camera()
@@ -51,6 +52,7 @@ export class Bootstrap {
 
   // when editing the skeleton, what type of mesh will we see
   public mesh_preview_display_type: ModelPreviewDisplay = ModelPreviewDisplay.WeightPainted
+  public transform_controls_type: TransformControlType = TransformControlType.Translation
 
   private readonly clock = new THREE.Clock()
 
@@ -182,7 +184,7 @@ export class Bootstrap {
         this.edit_skeleton_step.begin()
         this.edit_skeleton_step.setup_scene(this.scene)
         this.transform_controls.enabled = true
-        this.transform_controls.setMode('translate') // 'translate', 'rotate', or 'scale'
+        this.transform_controls.setMode(this.transform_controls_type) // 'translate', 'rotate'
         this.changed_model_preview_display(this.mesh_preview_display_type) // show weight painted mesh by default
         break
       case ProcessStep.BindPose:
@@ -243,6 +245,22 @@ export class Bootstrap {
     // show/hide weight painted mesh depending on view
     this.weight_skin_step.weight_painted_mesh_group().visible =
       this.mesh_preview_display_type === ModelPreviewDisplay.WeightPainted
+  }
+
+  public changed_transform_controls_mode (radio_button_selected: string): void {
+    switch (radio_button_selected) {
+      case 'translate':
+        this.transform_controls_type = TransformControlType.Translation
+        this.transform_controls.setMode('translate')
+        break
+      case 'rotation':
+        this.transform_controls_type = TransformControlType.Rotation
+        this.transform_controls.setMode('rotate')
+        break
+      default:
+        console.warn(`Unknown transform mode selected: ${radio_button_selected}`)
+        break
+    }
   }
 
   public handle_transform_controls_mouse_down (mouse_event: MouseEvent): void {

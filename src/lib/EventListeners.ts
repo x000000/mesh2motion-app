@@ -111,14 +111,15 @@ export class EventListeners {
     this.bootstrap.ui.dom_view_side_change?.addEventListener('click', () => { this.bootstrap.switchToView('side') })
     this.bootstrap.ui.dom_view_top_change?.addEventListener('click', () => { this.bootstrap.switchToView('top') })
 
-    // listen for transform mode changes form edit skeleton step
-    // change transform type for controls
-    this.bootstrap.ui.dom_transform_translate_button?.addEventListener('click', () => {
-      this.bootstrap.transform_controls.setMode('translate')
-    })
+    this.bootstrap.ui.dom_transform_type_radio_group?.addEventListener('change', (event: Event) => {
+      const radio_button_selected: string | null = event.target?.value
 
-    this.bootstrap.ui.dom_transform_rotate_button?.addEventListener('click', () => {
-      this.bootstrap.transform_controls.setMode('rotate')
+      if (radio_button_selected === null) {
+        console.warn('Null radio button selected for transform type change')
+        return
+      }
+
+      this.bootstrap.changed_transform_controls_mode(radio_button_selected)
     })
 
     // changing the 3d model preview while editing the skeleton bones

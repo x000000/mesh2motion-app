@@ -4,12 +4,12 @@
 
 fieldset {
     border: none;
+    margin: 0;
+    padding: 0;
 }
 
 .toggle {
-  margin: 0 0 1.5rem;
   box-sizing: border-box;
-  font-size: 0;
   display: flex;
   flex-flow: row nowrap;
   justify-content: flex-start;

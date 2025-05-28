@@ -125,34 +125,23 @@
 
                  <p id="bone-selection-section">
                     <span>Selected Bone: <span id="edit-selected-bone-label">None</span></span>
-
-                    <!-- controls to change transfrom mode between transform and rotation -->
-                    <span style="display: flex; flex-direction: row; align-items: center; column-gap: 5px;">
-                        <span>Controls:</span>
-                        <button id="translate-mode-button" class="secondary-button">
-                            <img src="images/icons/tool-move.svg" alt="Translate" width="20" height="20" title="translate" />
-                        </button>
-                        <button id="rotate-mode-button" class="secondary-button">
-                            <img src="images/icons/tool-rotate.svg" alt="Rotate" width="20" height="20" title="rotate" />
-                        </button>
-                    </span>
                 </p>
 
-
+                <!-- controls to change transfrom mode between transform and rotation -->
                 <fieldset>
-                    <div class="toggle">
+                    <div id="transform-control-type-group" class="toggle">
                         <input type="radio" name="transform-control-type" value="translate" id="transform-translate" checked="checked" />
                         <label for="transform-translate">
                             <img src="images/icons/tool-move.svg" alt="Translate" width="20" height="20" title="translate" />
                         </label>
                         <input type="radio" name="transform-control-type" value="rotation" id="transform-rotate" />
                         <label for="transform-rotate">
-                            <img src="images/icons/tool-rotate.svg" alt="Rotate" width="20" height="20" title="translate" />
+                            <img src="images/icons/tool-rotate.svg" alt="Rotate" width="20" height="20" title="rotate" />
                         </label>
                     </div>
                 </fieldset>
 
-
+                <hr />
 
                 <div class="styled-checkbox">
                     <input type="checkbox" id="mirror-skeleton" name="mirror-skeleton" value="mirror" checked>

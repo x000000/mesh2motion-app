@@ -9,9 +9,6 @@
 
 
 #skinned-step-animation-export-options {
-    top: 70px;
-    right: 20px;
-    background: #0b1822;
     width: 18rem;
 }
 
@@ -65,10 +62,12 @@ input[type="number"] {
 
 /* used for animation play options */
 button.secondary-button {
-    background: #657a7638;
+background: #529da1;
+background: linear-gradient(0deg, rgba(82, 157, 161, 0.62) 0%, rgba(77, 97, 168, 0.52) 100%);
+
+
     border-radius: 3px;
-    border-width: 1px;
-    border-color: grey;
+    border: 0;
     cursor: pointer;
     transition: all 0.1s ease-in-out;
 }
@@ -87,17 +86,22 @@ button.secondary-button.play
 }
 
 button, .button {
-    background: #337baa;
-    padding: 0.5rem 1.0rem;
+ 
+    background: #8e2a9b;
+    background: linear-gradient(180deg, rgb(175, 58, 190) 0%, rgb(80, 61, 144) 100%);
+     box-shadow: 3px 3px 2px #131f2f;
+    padding: 0.75rem 1.0rem;
     margin-right: 0.5rem;
-    border: 1px solid #85c4a3;
+    border: 1px solid #4e3062;
     border-radius: 0.25rem;
     cursor: pointer;
     text-align: center; /* useful for custom file upload label */
     transition: all 0.05s ease-in-out;
 }
 button:hover, .button:hover {
-    background: #4089b9;
+    background: #8e2a9b;
+    background: linear-gradient(180deg, rgba(142, 42, 155, 1) 0%, rgba(44, 31, 87, 1) 90%);
+ 
 }
 
 button:active, .button:active {
@@ -210,7 +214,10 @@ option {
 #tool-panel {
     position: fixed;
     height: fit-content;
-    background: #0b1822;
+
+    background: #264257;
+    background: radial-gradient(circle,rgba(38, 66, 87, 1) 0%, rgba(11, 24, 34, 1) 100%);
+
     box-shadow: 1px 1px 8px 0px #000000bf;
     top: 0;
     right: 0;
@@ -415,11 +422,9 @@ input[type="file"] {
 
 #bone-selection-section {
     margin: 0;
-    background: #223031;
+    background: #ffffff14;
     padding: 0.5rem;
     border-radius: 3px;
-    color: #d5d5d5;
-    display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+
 }

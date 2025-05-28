@@ -35,8 +35,7 @@ export class UI {
   dom_back_to_edit_skeleton_button: HTMLButtonElement | null = null
   dom_enable_skin_debugging: HTMLInputElement | null = null
 
-  dom_model_preview_textured_button: HTMLButtonElement | null = null
-  dom_model_preview_weight_painted_button: HTMLButtonElement | null = null
+  dom_mesh_preview_group: HTMLElement | null = null
 
   // animations listing UI controls
   dom_animation_clip_list: HTMLElement | null = null
@@ -97,8 +96,7 @@ export class UI {
     this.dom_move_to_origin_button = document.querySelector('#action_move_to_origin')
     this.dom_skinning_algorithm_selection = document.querySelector('#skinning-algorithm-options')
 
-    this.dom_model_preview_textured_button = document.querySelector('#model-preview-textured-button')
-    this.dom_model_preview_weight_painted_button = document.querySelector('#model-preview-weight-painted-button')
+    this.dom_mesh_preview_group = document.querySelector('#mesh-preview-group')
 
     // UI controls for changing views
     this.dom_view_front_change = document.querySelector('#front-view-button')

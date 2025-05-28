@@ -1,11 +1,14 @@
 :root {
-  --primary-color: #4B9DEA;
+  --primary-color: #496987;
 }
 
 fieldset {
     border: none;
     margin: 0;
     padding: 0;
+    display: inline-flex;
+    align-items: anchor-center;
+    gap: 1rem;
 }
 
 .toggle {

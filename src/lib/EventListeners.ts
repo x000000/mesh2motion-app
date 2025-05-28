@@ -123,13 +123,21 @@ export class EventListeners {
     })
 
     // changing the 3d model preview while editing the skeleton bones
-    this.bootstrap.ui.dom_model_preview_textured_button?.addEventListener('click', () => {
-      console.log('change teo textured model preview')
-      this.bootstrap.changed_model_preview_display(ModelPreviewDisplay.Textured)
-    })
+    this.bootstrap.ui.dom_mesh_preview_group?.addEventListener('change', (event: Event) => {
+      const radio_button_selected: string | null = event.target?.value
 
-    this.bootstrap.ui.dom_model_preview_weight_painted_button?.addEventListener('click', () => {
-      this.bootstrap.changed_model_preview_display(ModelPreviewDisplay.WeightPainted)
+      if (radio_button_selected === null) {
+        console.warn('Null radio button selected for mesh preview type change')
+        return
+      }
+
+      if (radio_button_selected === ModelPreviewDisplay.Textured) {
+        this.bootstrap.changed_model_preview_display(ModelPreviewDisplay.Textured)
+      } else if (radio_button_selected === ModelPreviewDisplay.WeightPainted) {
+        this.bootstrap.changed_model_preview_display(ModelPreviewDisplay.WeightPainted)
+      } else {
+        console.warn(`Unknown mesh preview type selected: ${radio_button_selected}`)
+      }
     })
   }
 }

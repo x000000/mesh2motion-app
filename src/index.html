@@ -10,6 +10,7 @@
 <body style="margin: 0">
     <script type="module" src="./script.ts"></script>
     <link href="./styles.css" rel="stylesheet" crossorigin="anonymous" />
+    <link rel="stylesheet" href="./radio-button-group.css" crossorigin="anonymous" />
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 
@@ -132,10 +133,26 @@
                             <img src="images/icons/tool-move.svg" alt="Translate" width="20" height="20" title="translate" />
                         </button>
                         <button id="rotate-mode-button" class="secondary-button">
-                            <img src="images/icons/tool-rotate.svg" alt="Translate" width="20" height="20" title="translate" />
+                            <img src="images/icons/tool-rotate.svg" alt="Rotate" width="20" height="20" title="rotate" />
                         </button>
                     </span>
                 </p>
+
+
+                <fieldset>
+                    <div class="toggle">
+                        <input type="radio" name="transform-control-type" value="translate" id="transform-translate" checked="checked" />
+                        <label for="transform-translate">
+                            <img src="images/icons/tool-move.svg" alt="Translate" width="20" height="20" title="translate" />
+                        </label>
+                        <input type="radio" name="transform-control-type" value="rotation" id="transform-rotate" />
+                        <label for="transform-rotate">
+                            <img src="images/icons/tool-rotate.svg" alt="Rotate" width="20" height="20" title="translate" />
+                        </label>
+                    </div>
+                </fieldset>
+
+
 
                 <div class="styled-checkbox">
                     <input type="checkbox" id="mirror-skeleton" name="mirror-skeleton" value="mirror" checked>

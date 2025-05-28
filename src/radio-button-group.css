@@ -1,0 +1,61 @@
+:root {
+  --primary-color: #4B9DEA;
+}
+
+fieldset {
+    border: none;
+}
+
+.toggle {
+  margin: 0 0 1.5rem;
+  box-sizing: border-box;
+  font-size: 0;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
+  align-items: stretch;
+}
+
+/* hide the actual radio button input elements */
+.toggle input {
+  width: 0;
+  height: 0;
+  position: absolute;
+  left: -9999px;
+}
+
+/* main default style for the elements */
+.toggle input + label {
+  padding: .5rem 1rem;
+  padding-top: 1rem;
+  border: solid 2px var(--primary-color);
+  font-size: 1rem;
+  transition: border-color .15s ease-out, 
+              color .25s ease-out, 
+              background-color .15s ease-out,
+              box-shadow .15s ease-out;
+}
+
+/* border radius for first and last elements */
+.toggle input + label:first-of-type {
+  border-radius: 6px 0 0 6px;
+  border-right: none;
+}
+.toggle input + label:last-of-type {
+  border-radius: 0 6px 6px 0;
+  border-left: none;
+}
+
+/* border color when hovering over the element */
+.toggle input:hover + label {
+  border-color: var(--primary-color);
+  background: #5482ad70;
+}
+
+/* active state */
+.toggle input:checked + label {
+  background-color: var(--primary-color);
+  color: #FFF;
+  border-color: var(--primary-color);
+  z-index: 1;
+}

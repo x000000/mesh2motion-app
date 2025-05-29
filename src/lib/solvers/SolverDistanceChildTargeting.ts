@@ -45,7 +45,7 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
     // this is the second pass, where we look at the parent bone and assign weights
     // to it if the direction is similar. This will help bones mostly affect their children
     console.time('calculate_parent_bone_weights')
-    //this.calculate_parent_bone_weights(skin_indices, skin_weights)
+    this.calculate_parent_bone_weights(skin_indices, skin_weights)
     console.timeEnd('calculate_parent_bone_weights')
 
     if (this.show_debug) {
@@ -101,47 +101,28 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
 
       const parent_bone = current_bone.parent
       if (parent_bone === null) {
-        console.log(`WARNING: No parent bone for vertex on ${current_bone.name}`)
         continue // Skip if there is no parent bone
       }
 
-      // Calculate direction vectors
-      const current_bone_position = this.cached_median_child_bone_positions[current_bone_index]
-
-      // const parent_bone_index = this.get_bone_master_data().findIndex(b => b.bone_object === parent_bone)
-      const parent_bone_index = this.bone_object_to_index.get(parent_bone)
-      if (parent_bone_index === -1 || parent_bone_index === undefined) continue
-      const parent_bone_position = this.cached_median_child_bone_positions[parent_bone_index]
-
-      const direction_to_current_bone = new Vector3().subVectors(vertex_position, current_bone_position).normalize()
-      const direction_to_parent_bone = new Vector3().subVectors(vertex_position, parent_bone_position).normalize()
-
-      // Compare directions using dot product
-      const similarity = direction_to_current_bone.dot(direction_to_parent_bone)
-
-      // If the directions are similar (e.g., dot product < 0.0), reassign to the parent bone
-      // this means the vertex is closer to the parent bone than the current bone
-      // and the direction is similar to the parent bone, so we can assign it to the parent
-      let similarity_threshold = 0.0 // Adjust this threshold as needed
-
-      // upper arms on humans need to have a higher threshold
-      // 0.0 is 50% between the parent and the child bone directions
-      // 0.6 will mean we will assign more to the parent bone (shoulder), and less to the upper arm
-      // this will help reduce distortions in the upper torso area when arms rotate
-      if (this.skeleton_type === SkeletonType.Human) {
-        if (current_bone.name.includes('upper_arm') === true) {
-          similarity_threshold = 0.6 // strong affinity to parent bone
-        }
+      // get length of the bone to its child
+      const child_bone: Bone | null = current_bone.children[0] as Bone
+      if (child_bone === undefined) {
+        continue // Skip if there is no child bone
       }
 
-      if (similarity < similarity_threshold) {
-        const parent_bone_index = this.get_bone_master_data().findIndex(b => b.bone_object === parent_bone)
-        if (parent_bone_index !== -1) {
-          // Update skin indices and weights
-          skin_indices[i * 4] = parent_bone_index
-          skin_weights[i * 4] = 1.0 // Assign full weight to the parent bone
+      const current_bone_position: Vector3 = this.cached_bone_positions[current_bone_index]
+      const child_bone_position: Vector3 = Utility.world_position_from_object(child_bone)
+      const distance_to_child_bone = current_bone_position.distanceTo(child_bone_position)
 
-          this.points_to_show_for_debugging.push(vertex_position) // Add to points to show for debugging
+
+      const distance_to_vertex: number = current_bone_position.distanceTo(vertex_position) // This is the distance from the bone to the vertex
+      // If the vertex is within 10% of the distance to the child bone, assign 50% weight to the parent and 50% to the bone
+      if (Math.abs(distance_to_vertex) < Math.abs(distance_to_child_bone * 0.2)) {
+        const parent_bone_index = this.bone_object_to_index.get(parent_bone)
+        if (parent_bone_index !== undefined) {
+          skin_indices[i * 4 + 1] = parent_bone_index // Assign parent bone index
+          skin_weights[i * 4 + 1] = 0.5 // Assign 50% weight to parent
+          skin_weights[i * 4] = 0.5 // Assign 50% weight to current bone
         }
       }
     }

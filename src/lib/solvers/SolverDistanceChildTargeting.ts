@@ -7,7 +7,7 @@ import { Utility } from '../Utilities.js'
 import { SkeletonType } from '../enums/SkeletonType.js'
 import { AbstractAutoSkinSolver } from './AbstractAutoSkinSolver.js'
 import { Generators } from '../Generators.js'
-import type BoneCalculationData from '../models/BoneCalculationData.js'
+
 
 /**
  * SolverDistanceChildTargeting
@@ -31,10 +31,10 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
     const skin_weights: number[] = []
 
     // create cached items for all the vertex calculations later
-    this.cached_bone_positions = this.get_bone_master_data().map(b => Utility.world_position_from_object(b.bone_object))
-    this.cached_median_child_bone_positions = this.get_bone_master_data().map(b => this.midpoint_to_child(b.bone_object))
+    this.cached_bone_positions = this.get_bone_master_data().map(b => Utility.world_position_from_object(b))
+    this.cached_median_child_bone_positions = this.get_bone_master_data().map(b => this.midpoint_to_child(b))
 
-    this.get_bone_master_data().forEach((b, idx) => this.bone_object_to_index.set(b.bone_object, idx))
+    this.get_bone_master_data().forEach((b, idx) => this.bone_object_to_index.set(b, idx))
     this.distance_to_bottom_of_hip = this.calculate_distance_to_bottom_of_hip()
 
     // mutates (assigns) skin_indices and skin_weights
@@ -64,20 +64,20 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
   // every vertex checks to see if it is below the hips area,
   // so do this calculation once and cache it for the lookup later
   private calculate_distance_to_bottom_of_hip (): number {
-    const hip_bone_object: BoneCalculationData | undefined = this.get_bone_master_data().find(b => b.bone_object.name.toLowerCase().includes('hips'))
+    const hip_bone_object: Bone | undefined = this.get_bone_master_data().find(b => b.name.toLowerCase().includes('hips'))
     if (hip_bone_object === undefined) {
       throw new Error('Hip bone not found')
     }
-    const intesection_point: Vector3 | null = this.cast_intersection_ray_down_from_bone(hip_bone_object.bone_object)
+    const intesection_point: Vector3 | null = this.cast_intersection_ray_down_from_bone(hip_bone_object)
 
     // get the distance from the bone point to the intersection point
-    const bone_index = this.get_bone_master_data().findIndex(b => b.bone_object === hip_bone_object.bone_object)
+    const bone_index = this.get_bone_master_data().findIndex(b => b === hip_bone_object)
     const bone_position: Vector3 = this.cached_median_child_bone_positions[bone_index]
 
-    let distance_to_bottom_of_hip: number = intesection_point?.distanceTo(bone_position) ?? 0
-    distance_to_bottom_of_hip *= 1.1 // buffer zone to make sure to include vertices at intersection
+    let distance_to_bottom: number = intesection_point?.distanceTo(bone_position) ?? 0
+    distance_to_bottom *= 1.1 // buffer zone to make sure to include vertices at intersection
 
-    return distance_to_bottom_of_hip
+    return distance_to_bottom
   }
 
   /**
@@ -95,13 +95,13 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
 
       this.get_bone_master_data().forEach((bone, idx) => {
         // The root bone is only for global transform changes, so we won't assign it to any vertices
-        if (bone.bone_object.name === 'root') {
+        if (bone.name === 'root') {
           return // skip the root bone and continue to the next bone
         }
 
         // hip bones should have custom logic for distance. If the distance is too far away we should ignore it
         // This will help with hips when left/right legs could be closer than knee bones
-        if (this.skeleton_type === SkeletonType.Human && bone.bone_object.name.includes('hips') === true) {
+        if (this.skeleton_type === SkeletonType.Human && bone.name.includes('hips') === true) {
           // if the intersection point is lower than the vertex position, that means the vertex is below
           // the hips area, and is part of the left or right leg...ignore that result
           if (this.distance_to_bottom_of_hip !== null && this.distance_to_bottom_of_hip < vertex_position.y) {
@@ -139,7 +139,7 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
     const raycaster = new Raycaster()
 
     // Set the ray's origin to the bone's world position
-    const bone_index = this.get_bone_master_data().findIndex(b => b.bone_object === bone)
+    const bone_index = this.get_bone_master_data().findIndex(b => b === bone)
     const bone_position = this.cached_median_child_bone_positions[bone_index]
 
     // Direction is straight down to find the pevlis "gap"

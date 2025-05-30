@@ -39,14 +39,8 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
 
     // mutates (assigns) skin_indices and skin_weights
     console.time('calculate_closest_bone_weights')
-    this.calculate_closest_bone_weights(skin_indices, skin_weights)
+    this.calculate_median_bone_weights(skin_indices, skin_weights)
     console.timeEnd('calculate_closest_bone_weights')
-
-    // this is the second pass, where we look at the parent bone and assign weights
-    // to it if the direction is similar. This will help bones mostly affect their children
-    console.time('calculate_parent_bone_weights')
-    this.calculate_parent_bone_weights(skin_indices, skin_weights)
-    console.timeEnd('calculate_parent_bone_weights')
 
     if (this.show_debug) {
       this.debugging_scene_object.add(this.objects_to_show_for_debugging(skin_indices))
@@ -86,48 +80,6 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
     return distance_to_bottom_of_hip
   }
 
-  private calculate_parent_bone_weights (skin_indices: number[], skin_weights: number[]): void {
-    for (let i = 0; i < this.geometry_vertex_count(); i++) {
-      const vertex_position: Vector3 = new Vector3().fromBufferAttribute(this.geometry.attributes.position, i)
-      const current_bone_index = skin_indices[i * 4] // Get the currently assigned bone index
-      const current_bone = this.get_bone_master_data()[current_bone_index].bone_object
-
-      // keep the original weights for hips. the parent is the root which never rotates
-      // and shouldn't be affected. A better solution would be to assign to upper legs somehow.
-      if (current_bone.name.includes('hips') === true) {
-        // skip the hip bone because the parent is the root which never rotates/moves
-        continue
-      }
-
-      const parent_bone = current_bone.parent
-      if (parent_bone === null) {
-        continue // Skip if there is no parent bone
-      }
-
-      // get length of the bone to its child
-      const child_bone: Bone | null = current_bone.children[0] as Bone
-      if (child_bone === undefined) {
-        continue // Skip if there is no child bone
-      }
-
-      const current_bone_position: Vector3 = this.cached_bone_positions[current_bone_index]
-      const child_bone_position: Vector3 = Utility.world_position_from_object(child_bone)
-      const distance_to_child_bone = current_bone_position.distanceTo(child_bone_position)
-
-
-      const distance_to_vertex: number = current_bone_position.distanceTo(vertex_position) // This is the distance from the bone to the vertex
-      // If the vertex is within 10% of the distance to the child bone, assign 50% weight to the parent and 50% to the bone
-      if (Math.abs(distance_to_vertex) < Math.abs(distance_to_child_bone * 0.2)) {
-        const parent_bone_index = this.bone_object_to_index.get(parent_bone)
-        if (parent_bone_index !== undefined) {
-          skin_indices[i * 4 + 1] = parent_bone_index // Assign parent bone index
-          skin_weights[i * 4 + 1] = 0.5 // Assign 50% weight to parent
-          skin_weights[i * 4] = 0.5 // Assign 50% weight to current bone
-        }
-      }
-    }
-  }
-
   /**
    * This function will assign the closest bone to each vertex
    * It returns void, but it will modify the skin_indices and skin_weights arrays
@@ -135,11 +87,10 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
    * @param skin_indices
    * @param skin_weights
    */
-  private calculate_closest_bone_weights (skin_indices: number[], skin_weights: number[]): void {
+  private calculate_median_bone_weights (skin_indices: number[], skin_weights: number[]): void {
     for (let i = 0; i < this.geometry_vertex_count(); i++) {
       const vertex_position: Vector3 = new Vector3().fromBufferAttribute(this.geometry.attributes.position, i)
-      // let closest_bone: Bone = this.bones_master_data[0].bone_object
-      let closest_bone_distance: number = 10000
+      let closest_bone_distance: number = 1000 // arbitrary large number to start with
       let closest_bone_index: number = 0
 
       this.get_bone_master_data().forEach((bone, idx) => {
@@ -165,8 +116,6 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
           closest_bone_index = idx
         }
       })
-
-      this.get_bone_master_data()[closest_bone_index].assigned_vertices.push(i)
 
       // assign to final weights. closest bone is always 100% weight
       skin_indices.push(closest_bone_index, 0, 0, 0)

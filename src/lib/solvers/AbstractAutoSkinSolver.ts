@@ -64,10 +64,7 @@ export abstract class AbstractAutoSkinSolver {
   protected init_bone_weights_data_structure (bone_hier: Object3D): void {
     const bones_list: Bone[] = Utility.bone_list_from_hierarchy(bone_hier)
     bones_list.forEach((bone: Bone) => {
-      const has_child_bone: boolean = bone.children.length > 0
-      const supports_envelope: boolean = false
-      const new_bone_object: BoneCalculationData =
-          new BoneCalculationData(bone.name, bone, supports_envelope, has_child_bone)
+      const new_bone_object: BoneCalculationData = new BoneCalculationData(bone)
       this.bones_master_data.push(new_bone_object)
     })
   }

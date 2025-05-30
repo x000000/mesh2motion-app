@@ -36,7 +36,6 @@ export default class BoneWeightsByDistance extends AbstractAutoSkinSolver {
         }
       })
 
-      this.get_bone_master_data()[closest_bone_index].assigned_vertices.push(i)
 
       // assign to final weights. closest bone is always 100% weight
       skin_indices.push(closest_bone_index, 0, 0, 0)
@@ -52,16 +51,6 @@ export default class BoneWeightsByDistance extends AbstractAutoSkinSolver {
 
   private objects_to_show_for_debugging (): Group {
     const vertex_points_to_show: Vector3[] = []
-
-    // get a list of all the vertices assigned to bones
-    this.get_bone_master_data().forEach(bone => {
-      const assigned_vertices: number[] = bone.assigned_vertices
-
-      assigned_vertices.forEach(vertex_index => {
-        const vertex_position: Vector3 = new Vector3().fromBufferAttribute(this.geometry.attributes.position, vertex_index)
-        vertex_points_to_show.push(vertex_position)
-      })
-    })
 
     const debug_color = 0xff0000 // vertices that are part of envelope
     const debug_assigned_points: Group = Generators.create_spheres_for_points(vertex_points_to_show,

@@ -287,7 +287,6 @@ export class Utility {
       }
     })
 
-    bones[closest_bone_index].assigned_vertices.push(vertex_index)
     return closest_bone_index
   }
 }

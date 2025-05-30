@@ -24,6 +24,9 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
   private readonly bone_object_to_index = new Map<Bone, number>() // map to get the index of the bone object
   private distance_to_bottom_of_hip: number = 0 // distance to the bottom of the hip bone
 
+  // each index will be a bone index. the value will be a list of vertex indices that belong to that bone
+  private readonly bones_vertex_segmentation: number[][] = []
+
   public calculate_indexes_and_weights (): number[][] {
     // There can be multiple objects that need skinning, so
     // this will make sure we have a clean slate by putting it in function
@@ -42,6 +45,10 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
     this.calculate_median_bone_weights(skin_indices, skin_weights)
     console.timeEnd('calculate_closest_bone_weights')
 
+    console.time('calculate_weight_distribution')
+    this.calculate_bone_segment_weights(skin_indices, skin_weights)
+    console.timeEnd('calculate_weight_distribution')
+
     if (this.show_debug) {
       this.debugging_scene_object.add(this.objects_to_show_for_debugging(skin_indices))
       this.points_to_show_for_debugging.length = 0 // Clear the points after adding to the scene
@@ -49,6 +56,55 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
 
     return [skin_indices, skin_weights]
   }
+
+  private calculate_bone_segment_weights (skin_indices: number[], skin_weights: number[]): void {
+    this.bones_vertex_segmentation.forEach((vertex_indices, bone_index) => {
+      // TODO: we have a smaller list of the vertices that belong to this bone
+      // we need to calculate some weights if the vertices is close to the bone
+      // we will give some weight to the parent bone if the vertex is close to bone joint position
+      const bone_position: Vector3 = this.cached_bone_positions[bone_index]
+
+      vertex_indices.forEach(vertex_index => {
+        const vertex_position: Vector3 = new Vector3().fromBufferAttribute(this.geometry.attributes.position, vertex_index)
+
+        // Calculate distance to the bone position
+        // const distance_to_bone: number = vertex_position.distanceTo(bone_position)
+
+        // get a vector from the bone position to the first child bone position
+        // This is used to determine if the vertex is in the direction of the bone
+        const child_position: Vector3 = this.cached_median_child_bone_positions[bone_index]
+        const bone_to_child_vector: Vector3 = child_position.clone().sub(bone_position).normalize()
+
+        // get bone to vertex vector
+        const bone_to_vertex_vector: Vector3 = vertex_position.clone().sub(bone_position).normalize()
+
+        // get dot product between bone position and vertex position
+        const bone_direction_similarity: number = bone_to_child_vector.dot(bone_to_vertex_vector)
+
+        // -1 to 1 range. 0 is perpendicular, 1 is same direction, -1 is opposite direction
+        const similarity_threshold: number = 0.2
+
+        // If the vertex is close to the bone, replace weight to the bone, and some weight to the parent bone
+        if (bone_direction_similarity < similarity_threshold) { // arbitrary threshold to determine closeness
+          // assign 50% weight to the bone and 50% to the parent bone
+          const parent_bone_index: number = this.bone_object_to_index.get(this.get_bone_master_data()[bone_index].parent as Bone) ?? -1
+          if (parent_bone_index !== -1) {
+            // Assign 50% weight to the bone and 50% to the parent bone
+            const offset = vertex_index * 4
+            skin_indices[offset + 0] = bone_index
+            skin_indices[offset + 1] = parent_bone_index
+            skin_indices[offset + 2] = 0
+            skin_indices[offset + 3] = 0
+
+            skin_weights[offset + 0] = 0.5
+            skin_weights[offset + 1] = 0.5
+            skin_weights[offset + 2] = 0
+            skin_weights[offset + 3] = 0
+          }
+        }
+      }) // end vertex_indices forEach
+    }) // end bones_vertex_segmentation forEach
+  } // end calculate_bone_segment_weights()
 
   private midpoint_to_child (bone: Bone): Vector3 {
     const bonePosition = Utility.world_position_from_object(bone)
@@ -116,6 +172,9 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
           closest_bone_index = idx
         }
       })
+
+      this.bones_vertex_segmentation[closest_bone_index] ??= [] // Initialize the array if it doesn't exist
+      this.bones_vertex_segmentation[closest_bone_index].push(i)
 
       // assign to final weights. closest bone is always 100% weight
       skin_indices.push(closest_bone_index, 0, 0, 0)

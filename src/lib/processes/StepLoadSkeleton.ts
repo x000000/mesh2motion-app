@@ -1,11 +1,6 @@
 import { UI } from '../UI.ts'
-import { Generators } from '../Generators.ts'
-import {
-  BufferGeometry, Float32BufferAttribute, Mesh, Box3, MeshBasicMaterial,
-  Object3D, type Object3DEventMap, type Skeleton
-} from 'three'
+import { Object3D, type Object3DEventMap } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import { Utility } from '../Utilities.ts'
 import { SkeletonType } from '../enums/SkeletonType.js'
 
 // Note: EventTarget is a built-ininterface and do not need to import it
@@ -13,8 +8,7 @@ export class StepLoadSkeleton extends EventTarget {
   private readonly loader: GLTFLoader = new GLTFLoader()
   private readonly ui: UI = new UI()
   private loaded_armature: Object3D = new Object3D()
-  private loaded_skeleton: Skeleton | undefined
-  private skeleton_t: SkeletonType = SkeletonType.BipedalSimple
+  private skeleton_t: SkeletonType = SkeletonType.Human
 
   public skeleton_type (): SkeletonType {
     return this.skeleton_t
@@ -71,8 +65,10 @@ export class StepLoadSkeleton extends EventTarget {
           let armature_found = false
           let original_armature: Object3D = new Object3D()
 
-
           gltf.scene.traverse((child: Object3D) => {
+            // Note: three.js removes punctuation characters from names object names like `-` and `.` for sanitization
+            // Our 3D source files will need to account fo this if we are relying on that later for parsing
+            // https://discourse.threejs.org/t/avoid-dots-and-colons-being-deleted-from-models-name/15304/2
             if (child.type === 'Bone' && !armature_found) {
               armature_found = true
 
@@ -84,8 +80,7 @@ export class StepLoadSkeleton extends EventTarget {
             }
           })
 
-          console.log('is armature found?', armature_found)
-          console.log(gltf)
+          console.log('loaded GLTF file with data: ', gltf)
 
           this.loaded_armature = original_armature.clone()
           this.loaded_armature.name = 'Loaded Armature'
@@ -102,42 +97,5 @@ export class StepLoadSkeleton extends EventTarget {
 
   public armature (): Object3D<Object3DEventMap> {
     return this.loaded_armature
-  }
-
-  public skeleton (): any {
-    if (this.loaded_skeleton !== null) {
-      return this.loaded_skeleton
-    }
-
-    // create skeleton and helper to visualize
-    this.loaded_skeleton = Generators.create_skeleton(this.loaded_armature.children[0])
-    this.loaded_skeleton.name = 'Mesh Editing Skeleton'
-
-    // update the world matrix for the skeleton
-    // without this the skeleton helper won't appear when the bones are first loaded
-    skeleton.bones[0].updateWorldMatrix(true, true)
-
-    return skeleton
-  }
-
-  private buffer_geometry_from_armature (armature: Object3D): BufferGeometry {
-    // create a geometry object from the skeleton
-    // we will use this to calculate the bone weights
-    const geometry: BufferGeometry = new BufferGeometry()
-    const vertices: number[] = [] //  array of numbers for positions
-
-    armature.traverse((bone) => {
-      if (bone.type === 'Bone') {
-        const bone_world_pos = Utility.world_position_from_object(bone)
-        vertices.push(bone_world_pos.x)
-        vertices.push(bone_world_pos.y)
-        vertices.push(bone_world_pos.z)
-      }
-    })
-
-    // add the vertices to the geometry
-    geometry.setAttribute('position', new Float32BufferAttribute(vertices, 3))
-
-    return geometry
   }
 }

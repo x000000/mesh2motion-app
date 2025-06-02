@@ -287,7 +287,14 @@ export class Bootstrap {
       return
     }
 
+    // this returns 3 values, so we can destructure them. do not remove any of these
+    // even if one of them is not used, otherwise there will be weird issues
     const [closest_bone, closest_bone_index, closest_distance] = Utility.raycast_closest_bone_test(this.camera, mouse_event, skeleton_to_test)
+
+    // don't allow to select root bone for now
+    if (closest_bone?.name === 'root') {
+      return
+    }
 
     // only do selection if we are close
     // the orbit controls also have panning with alt-click, so we don't want to interfere with that
@@ -298,7 +305,6 @@ export class Bootstrap {
     if (closest_bone !== null) {
       this.transform_controls.attach(closest_bone)
       this.edit_skeleton_step.set_currently_selected_bone(closest_bone)
-      //  this.weight_skin_step.set_bone_index_to_test(closest_bone_index)
     } else {
       this.edit_skeleton_step.set_currently_selected_bone(null)
     }

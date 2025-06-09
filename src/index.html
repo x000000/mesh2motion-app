@@ -45,7 +45,7 @@
 
                 <div id="load-model-tools">
 
-                    <p class="step-instructions">Supports GLB, GLTF, FBX</p>
+                    <!-- <p class="step-instructions">Supports GLB, GLTF, FBX</p> -->
 
                     <label for="model-upload" class="button"  >
                         <span class="button-icon-group">
@@ -121,28 +121,50 @@
 
             <span id="skeleton-step-actions">
 
-                <p class="step-instructions">Move bones into position.</p>
+                <!-- <p class="step-instructions">Move bones into position.</p> -->
 
                  <p id="bone-selection-section">
                     <span>Selected Bone: <span id="edit-selected-bone-label">None</span></span>
                 </p>
 
                 <!-- controls to change transfrom mode between transform and rotation -->
-                <fieldset>
-                    <span>Transform:</span>
-                    <div id="transform-control-type-group" class="toggle">
-                        <input type="radio" name="transform-control-type" value="translate" id="transform-translate" checked="checked" />
-                        <label for="transform-translate">
-                            <img src="images/icons/tool-move.svg" alt="Translate" width="20" height="20" title="Translation" />
-                        </label>
-                        <input type="radio" name="transform-control-type" value="rotation" id="transform-rotate" />
-                        <label for="transform-rotate">
-                            <img src="images/icons/tool-rotate.svg" alt="Rotate" width="20" height="20" title="Rotation" />
-                        </label>
-                    </div>
-                </fieldset>
+                 <div style="display: flex; flex-direction: row;">
 
-                <hr />
+                   <!-- View mode between textured mesh and weight painted mesh preview -->
+                    <fieldset>
+                        <span>Preview</span>
+                        <div id="mesh-preview-group" class="toggle">
+                        <input id="preview-painted" type="radio" name="mesh-preview-type" value="weight-painted" checked="checked" />
+                            <label for="preview-painted">
+                                <img src="images/icons/display-weight-painted.svg" alt="Weights" width="20" height="20" title="Weight painted mesh" />
+                            </label>
+                            <input id="preview-textured" type="radio" name="mesh-preview-type" value="textured"  />
+                            <label for="preview-textured">
+                            <img src="images/icons/display-textured.svg" alt="Textured" width="20" height="20" title="Textured Mesh" />
+                            </label>
+    
+                        </div>
+                    </fieldset>
+
+                    <fieldset>
+                        <span>Transform</span>
+                        <div id="transform-control-type-group" class="toggle">
+                            <input type="radio" name="transform-control-type" value="translate" id="transform-translate" checked="checked" />
+                            <label for="transform-translate">
+                                <img src="images/icons/tool-move.svg" alt="Translate" width="20" height="20" title="Translation" />
+                            </label>
+                            <input type="radio" name="transform-control-type" value="rotation" id="transform-rotate" />
+                            <label for="transform-rotate">
+                                <img src="images/icons/tool-rotate.svg" alt="Rotate" width="20" height="20" title="Rotation" />
+                            </label>
+                        </div>
+                    </fieldset>
+
+ 
+                 </div>
+
+
+ 
 
                 <div class="styled-checkbox">
                     <input type="checkbox" id="mirror-skeleton" name="mirror-skeleton" value="mirror" checked>
@@ -151,38 +173,20 @@
 
                 <hr />
 
-                <!-- View mode between textured mesh and weight painted mesh preview -->
-                <fieldset>
-                    <span>Preview:</span>
-                    <div id="mesh-preview-group" class="toggle">
-                       <input id="preview-painted" type="radio" name="mesh-preview-type" value="weight-painted" checked="checked" />
-                        <label for="preview-painted">
-                             <img src="images/icons/display-weight-painted.svg" alt="Weights" width="20" height="20" title="Weight painted mesh" />
-                        </label>
-                        <input id="preview-textured" type="radio" name="mesh-preview-type" value="textured"  />
-                        <label for="preview-textured">
-                           <img src="images/icons/display-textured.svg" alt="Textured" width="20" height="20" title="Textured Mesh" />
-                        </label>
- 
-                    </div>
-                </fieldset>
-
-                <hr />
 
                 <!-- change camera to orthographic views to help position skeleton-->
-                <div style="display: flex; flex-direction: row; align-items: center; column-gap: 5px; ">
-                    <span>View:</span>
-                    <div id="view-buttons-container" style="display: flex; gap: 5px;">
-                        <button class="secondary-button" id="front-view-button">Front</button>
-                        <button class="secondary-button" id="side-view-button">Side</button>
-                        <button class="secondary-button" id="top-view-button">Top</button>
-                    </div>
+                <div style="text-align: center; padding: 0">View</div>
+                <div id="view-buttons-container" style="display: flex; gap: 0px; padding-top: 0">
+                    <button class="secondary-button" id="front-view-button">Front</button>
+                    <button class="secondary-button" id="side-view-button">Side</button>
+                    <button class="secondary-button" id="top-view-button">Top</button>
                 </div>
+            
 
                 <hr />
 
                 <!-- add number input for changing scale of skeleton-->
-                <div style="display: flex; flex-direction: row; justify-content: space-evenly; align-items: center;">
+                <div style="display: flex; flex-direction: row; justify-content: space-evenly; align-items: center; gap: 0.4rem;">
                     <input type="number" id="scale-input" name="scale-input" value="-3" min="-90" max="90" step="1.0">
                     <span class="suffix-unit">%</span>
                     <button id="scale-skeleton-button" class="secondary-button" >Scale skeleton</button>

@@ -46,7 +46,7 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
     console.timeEnd('calculate_closest_bone_weights')
 
     console.time('calculate_weight_distribution')
-    this.calculate_bone_segment_weights(skin_indices, skin_weights)
+    //this.calculate_bone_segment_weights(skin_indices, skin_weights)
     console.timeEnd('calculate_weight_distribution')
 
     if (this.show_debug) {

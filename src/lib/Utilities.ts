@@ -220,7 +220,7 @@ export class Utility {
       .replace(/(Right|Right_|R_|_Right|_R|Left|Left_|_Left|L_|_R|_L)/g, '')
   }
 
-  static raycast_closest_bone_test (camera: PerspectiveCamera, mouse_event: MouseEvent, skeleton: Skeleton): Array<number | null> {
+  static raycast_closest_bone_test (camera: PerspectiveCamera, mouse_event: MouseEvent, skeleton: Skeleton): [Bone | null, number, number] {
     // Find the closest bone for raycaster. Select that
     const raycaster: Raycaster = new Raycaster()
     raycaster.setFromCamera(Utility.normalized_mouse_position(mouse_event), camera)
@@ -228,7 +228,7 @@ export class Utility {
     let closest_bone_index = 0
     let closest_distance = Infinity
 
-    skeleton.bones.forEach((bone, bone_index) => {
+    skeleton.bones.forEach((bone: Bone, bone_index: number) => {
       const world_position = Utility.world_position_from_object(bone)
       const target = new Vector3()
       const point = raycaster.ray.closestPointToPoint(world_position, target)
@@ -241,7 +241,7 @@ export class Utility {
       }
     })
 
-    const output = [closest_bone, closest_bone_index, closest_distance]
+    const output: [Bone | null, number, number] = [closest_bone, closest_bone_index, closest_distance]
     return output
   }
 

@@ -8,7 +8,6 @@ import { SkeletonType } from '../enums/SkeletonType.js'
 import { AbstractAutoSkinSolver } from './AbstractAutoSkinSolver.js'
 import { Generators } from '../Generators.js'
 
-
 /**
  * SolverDistanceChildTargeting
  * This works very similar to the normal distance + child solver
@@ -40,14 +39,16 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
     this.get_bone_master_data().forEach((b, idx) => this.bone_object_to_index.set(b, idx))
     this.distance_to_bottom_of_hip = this.calculate_distance_to_bottom_of_hip()
 
-    // mutates (assigns) skin_indices and skin_weights
     console.time('calculate_closest_bone_weights')
-    this.calculate_median_bone_weights(skin_indices, skin_weights)
+    console.log(this.skeleton_type)
+    // add more blended weighting for non-human meshes for better deformation
+    if (this.skeleton_type === SkeletonType.Human || this.skeleton_type === SkeletonType.Quadraped) {
+      // mutates (assigns) skin_indices and skin_weights
+      this.calculate_median_bone_weights(skin_indices, skin_weights)
+    } else {
+      this.calculate_bone_segment_weights(skin_indices, skin_weights)
+    }
     console.timeEnd('calculate_closest_bone_weights')
-
-    console.time('calculate_weight_distribution')
-    this.calculate_bone_segment_weights(skin_indices, skin_weights)
-    console.timeEnd('calculate_weight_distribution')
 
     if (this.show_debug) {
       this.debugging_scene_object.add(this.objects_to_show_for_debugging(skin_indices))
@@ -58,20 +59,18 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
   }
 
   private calculate_bone_segment_weights (skin_indices: number[], skin_weights: number[]): void {
-    const bone_count = this.get_bone_master_data().length
-    const vertex_count = this.geometry_vertex_count()
-    const N = 4 // number of bones to blend
+    const bone_count: number = this.get_bone_master_data().length
+    const number_influence_bones: number = 4 // number of bones to blend
 
-    for (let i = 0; i < vertex_count; i++) {
+    for (let i = 0; i < this.geometry_vertex_count(); i++) {
       const vertex_position = new Vector3().fromBufferAttribute(this.geometry.attributes.position, i)
+
+      // store influence for each bone
       const influences: Array<{ bone: number, distance: number }> = []
 
       for (let bone_index = 0; bone_index < bone_count; bone_index++) {
         const bone = this.get_bone_master_data()[bone_index]
-        const child = bone.children[0] as Bone
         const bone_position = this.cached_bone_positions[bone_index]
-        const child_position = this.cached_bone_positions[this.bone_object_to_index.get(child)!]
-
 
         // Example: skip right-side bones for left side vertices
         // good for close fittings like feet that are close together
@@ -80,17 +79,26 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
 
         if (bone.children.length === 0) {
           // End bone: treat as a point
-          const dist = vertex_position.distanceTo(bone_position);
-          influences.push({ bone: bone_index, distance: dist });
-          continue;
+          const dist = vertex_position.distanceTo(bone_position)
+          influences.push({ bone: bone_index, distance: dist })
+          continue
         }
 
+        const child = bone.children[0] as Bone
+        const child_idx = this.bone_object_to_index.get(child)
+        if (child_idx === undefined) {
+          continue // Skip if child bone is not in the map
+        }
+
+        // Child bone: treat as a segment
+        const child_position = this.cached_bone_positions[child_idx]
+
         // Project vertex onto bone segment
-        const seg_vec = child_position.clone().sub(bone_position)
-        const seg_len = seg_vec.length()
-        const seg_dir = seg_vec.clone().normalize()
-        const v_vec = vertex_position.clone().sub(bone_position)
-        let proj = v_vec.dot(seg_dir)
+        const seg_vec: Vector3 = child_position.clone().sub(bone_position)
+        const seg_len: number = seg_vec.length()
+        const seg_dir: Vector3 = seg_vec.clone().normalize()
+        const v_vec: Vector3 = vertex_position.clone().sub(bone_position)
+        let proj: number = v_vec.dot(seg_dir)
         proj = Math.max(0, Math.min(seg_len, proj))
         const closest_point = bone_position.clone().add(seg_dir.multiplyScalar(proj))
         const dist = vertex_position.distanceTo(closest_point)
@@ -99,7 +107,7 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
 
       // Sort by distance and pick N closest
       influences.sort((a, b) => a.distance - b.distance)
-      const selected = influences.slice(0, N)
+      const selected: Array< { bone: number, distance: number } > = influences.slice(0, number_influence_bones)
       const weights = selected.map(inf => 1 / (inf.distance + 1e-4)) // avoid div by zero
       const weight_sum = weights.reduce((a, b) => a + b, 0)
 
@@ -117,14 +125,14 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
   }
 
   private midpoint_to_child (bone: Bone): Vector3 {
-    const bonePosition = Utility.world_position_from_object(bone)
+    const bone_position = Utility.world_position_from_object(bone)
     if (bone.children.length === 0) {
-      return bonePosition.clone()
+      return bone_position.clone()
     }
     // Assume first child is the relevant one
     const child = bone.children[0] as Bone
-    const childPosition = Utility.world_position_from_object(child)
-    return new Vector3().lerpVectors(bonePosition, childPosition, 0.5)
+    const child_position = Utility.world_position_from_object(child)
+    return new Vector3().lerpVectors(bone_position, child_position, 0.5)
   }
 
   // every vertex checks to see if it is below the hips area,

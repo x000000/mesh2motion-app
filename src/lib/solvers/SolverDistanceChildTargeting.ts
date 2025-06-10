@@ -40,7 +40,6 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
     this.distance_to_bottom_of_hip = this.calculate_distance_to_bottom_of_hip()
 
     console.time('calculate_closest_bone_weights')
-    console.log(this.skeleton_type)
     // add more blended weighting for non-human meshes for better deformation
     if (this.skeleton_type === SkeletonType.Human || this.skeleton_type === SkeletonType.Quadraped) {
       // mutates (assigns) skin_indices and skin_weights
@@ -68,17 +67,27 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
       // store influence for each bone
       const influences: Array<{ bone: number, distance: number }> = []
 
+      // loop through each bone and calculate distance to the vertex
+      // if the bone has no children, treat it as a point
+      // if the bone has children, treat it as a segment and project the vertex onto the segment
+      // this will help with assigning weights to the bones that are closer to the vertex
       for (let bone_index = 0; bone_index < bone_count; bone_index++) {
         const bone = this.get_bone_master_data()[bone_index]
         const bone_position = this.cached_bone_positions[bone_index]
 
-        // Example: skip right-side bones for left side vertices
+
+        // abort if the bone is the root. we don't want to assign weights to the root bone
+        if (bone.name === 'root') {
+          continue // skip the root bone and continue to the next bone
+        }
+
+        // skip right-side bones for left side vertices
         // good for close fittings like feet that are close together
         if (bone.name.toLowerCase().includes('_r') === true && vertex_position.x > 0) continue
         if (bone.name.toLowerCase().includes('_l') === true && vertex_position.x < 0) continue
 
+        // End bone: treat as a point
         if (bone.children.length === 0) {
-          // End bone: treat as a point
           const dist = vertex_position.distanceTo(bone_position)
           influences.push({ bone: bone_index, distance: dist })
           continue
@@ -94,6 +103,7 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
         const child_position = this.cached_bone_positions[child_idx]
 
         // Project vertex onto bone segment
+        // Projects the vertex onto the bone segment direction (scalar projection).
         const seg_vec: Vector3 = child_position.clone().sub(bone_position)
         const seg_len: number = seg_vec.length()
         const seg_dir: Vector3 = seg_vec.clone().normalize()
@@ -107,7 +117,29 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
 
       // Sort by distance and pick N closest
       influences.sort((a, b) => a.distance - b.distance)
-      const selected: Array< { bone: number, distance: number } > = influences.slice(0, number_influence_bones)
+
+      // some areas like feet get weird if too many bones influence them
+      // this target them based on the skeleton's bone name
+      const closest_bone: Bone = this.bones_master_data[influences[0].bone]
+      // closest_bone.name.toLowerCase().includes('leg') === true ||
+      const bone_requires_one_influence = closest_bone.name.toLowerCase().includes('foot') === true ||
+        closest_bone.name.toLowerCase().includes('toes') === true
+      if (bone_requires_one_influence) {
+        const offset = i * 4
+        skin_indices[offset + 0] = influences[0].bone
+        skin_weights[offset + 0] = 1.0
+        // Zero out the other influences
+        skin_indices[offset + 1] = 0
+        skin_indices[offset + 2] = 0
+        skin_indices[offset + 3] = 0
+        skin_weights[offset + 1] = 0
+        skin_weights[offset + 2] = 0
+        skin_weights[offset + 3] = 0
+        continue
+      }
+
+      // do weight assigning
+      let selected: Array< { bone: number, distance: number } > = influences.slice(0, number_influence_bones)
       const weights = selected.map(inf => 1 / (inf.distance + 1e-4)) // avoid div by zero
       const weight_sum = weights.reduce((a, b) => a + b, 0)
 

@@ -257,14 +257,23 @@ export class Generators {
     const vertex_count = cloned_geometry.attributes.position.array.length / 3
 
     // Assign a random color for each bone
-    const bone_count: number = skin_indices.length / 4 // each vertex can have 4 bones assigned to them (weights)
-    const bone_colors: Vector3[] = Generators.generate_deterministic_bone_colors(bone_count)
+    // this is an abitrary max value. Not every bone might be used, so getting the bone count by skin_indices
+    // might not be a good enough way to determine the number of bone colors to generate.
+    // If the mesh is made up of a bunch of small disconnected meshes, there is a good chance we won't need every bone
+    const bone_colors: Vector3[] = Generators.generate_deterministic_bone_colors(120)
 
     // Loop through each vertex and assign color based on the bone index
     const colors = new Float32Array(vertex_count * 3)
     for (let i = 0; i < vertex_count; i++) {
       const bone_index = skin_indices[i * 4] // Primary bone assignment
-      const color = bone_colors[bone_index]
+      let color = bone_colors[bone_index]
+
+      // this shouldn't happen now, but will be a fallback in case we add a skeleton with more than 120 bones
+      if (color == null || color === undefined) {
+        console.warn(`No color found for bone index ${bone_index}. Using default color. Code needs to increase the number of bone colors generated}`)
+        color = new Vector3(1, 1, 1) // white color
+      }
+
       colors[i * 3] = color.x // red
       colors[i * 3 + 1] = color.y // green
       colors[i * 3 + 2] = color.z // blue

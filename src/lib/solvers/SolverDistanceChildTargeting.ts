@@ -46,7 +46,7 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
     console.timeEnd('calculate_closest_bone_weights')
 
     console.time('calculate_weight_distribution')
-    //this.calculate_bone_segment_weights(skin_indices, skin_weights)
+    this.calculate_bone_segment_weights(skin_indices, skin_weights)
     console.timeEnd('calculate_weight_distribution')
 
     if (this.show_debug) {
@@ -58,52 +58,68 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
   }
 
   private calculate_bone_segment_weights (skin_indices: number[], skin_weights: number[]): void {
-    this.bones_vertex_segmentation.forEach((vertex_indices, bone_index) => {
-      // TODO: we have a smaller list of the vertices that belong to this bone
-      // we need to calculate some weights if the vertices is close to the bone
-      // we will give some weight to the parent bone if the vertex is close to bone joint position
+    const amount_of_indices: number = skin_indices.length / 4
+    for (let i = 0; i < amount_of_indices; i++) {
+      const bone_index: number = skin_indices[i * 4 + 0] // get the bone index from the skin_indices array
+      const index_base = i * 4 // calculate the value to use for skin_indices and skin_weights
+      const bone: Bone = this.get_bone_master_data()[bone_index]
+
+      // if the bone has no parent, we can skip the bone as there won't be weight blending
+      const parent_index: number = this.get_bone_master_data().findIndex(b => b === bone.parent)
+      if (parent_index === -1) {
+        // if the bone has no parent, we can skip this bone
+        continue
+      }
+
+      // get vertex position from the geometry
+      const vertex_position: Vector3 = new Vector3().fromBufferAttribute(this.geometry.attributes.position, i)
+
+      // create vector between the bone position and the vertex position
       const bone_position: Vector3 = this.cached_bone_positions[bone_index]
+      const bone_to_vertex_vector: Vector3 = vertex_position.clone().sub(bone_position)
 
-      vertex_indices.forEach(vertex_index => {
-        const vertex_position: Vector3 = new Vector3().fromBufferAttribute(this.geometry.attributes.position, vertex_index)
+      // create vector between the bone position and the child bone position
+      if (bone.children[0] === undefined) {
+        // if the bone has no children, we can skip this bone
+        continue
+      }
 
-        // Calculate distance to the bone position
-        // const distance_to_bone: number = vertex_position.distanceTo(bone_position)
+      const child_position: Vector3 = bone.children[0].position as Vector3
+      const bone_to_child_vector: Vector3 = child_position.clone().sub(bone_position)
+      const bone_to_child_length: number = bone_to_child_vector.length()
+      const bone_to_child_dir: Vector3 = bone_to_child_vector.clone().normalize()
 
-        // get a vector from the bone position to the first child bone position
-        // This is used to determine if the vertex is in the direction of the bone
-        const child_position: Vector3 = this.cached_median_child_bone_positions[bone_index]
-        const bone_to_child_vector: Vector3 = child_position.clone().sub(bone_position).normalize()
+      // calculate the angle between the two vectors
+      const angle: number = bone_to_vertex_vector.angleTo(bone_to_child_vector)
 
-        // get bone to vertex vector
-        const bone_to_vertex_vector: Vector3 = vertex_position.clone().sub(bone_position).normalize()
+      // calculate x component using trigonometry
+      // the x component will be the "true" distance  that will disregard perpendicular distance
+      const hypotenuse: number = bone_to_vertex_vector.length()
+      let x_component_length: number = Math.cos(angle) * hypotenuse
 
-        // get dot product between bone position and vertex position
-        const bone_direction_similarity: number = bone_to_child_vector.dot(bone_to_vertex_vector)
+      // if x_component length is less than 50% of the bone to child vector length,
+      // we will assign the vertex to the bone and its parent
+      if (x_component_length > (bone_to_child_length * 0.5)) {
+        continue // skip this vertex, it is too far away from the bone
+      }
 
-        // -1 to 1 range. 0 is perpendicular, 1 is same direction, -1 is opposite direction
-        const similarity_threshold: number = 0.2
+      // do weight assignment here
+      // create a falloff effect based on the distance to the child bone
+      // Prevent negative projection (behind the bone)
+      x_component_length = Math.max(0, x_component_length)
 
-        // If the vertex is close to the bone, replace weight to the bone, and some weight to the parent bone
-        if (bone_direction_similarity < similarity_threshold) { // arbitrary threshold to determine closeness
-          // assign 50% weight to the bone and 50% to the parent bone
-          const parent_bone_index: number = this.bone_object_to_index.get(this.get_bone_master_data()[bone_index].parent as Bone) ?? -1
-          if (parent_bone_index !== -1) {
-            // Assign 50% weight to the bone and 50% to the parent bone
-            const offset = vertex_index * 4
-            skin_indices[offset + 0] = bone_index
-            skin_indices[offset + 1] = parent_bone_index
-            skin_indices[offset + 2] = 0
-            skin_indices[offset + 3] = 0
-
-            skin_weights[offset + 0] = 0.5
-            skin_weights[offset + 1] = 0.5
-            skin_weights[offset + 2] = 0
-            skin_weights[offset + 3] = 0
-          }
-        }
-      }) // end vertex_indices forEach
-    }) // end bones_vertex_segmentation forEach
+      // calculate the weight based on the distance to the child bone
+      const weight: number = 1.0 - (x_component_length / bone_to_child_length)
+      if (weight > 0.9) {
+        continue // skip this vertex, most of the weight is on the normal bone
+      }
+  
+      // if the bone is the root bone, we don't need to do anything
+      skin_indices[index_base + 0] = bone_index
+      skin_indices[index_base + 1] = parent_index
+      skin_weights[index_base + 0] = weight
+      skin_weights[index_base + 1] = 1 - weight
+    }
   } // end calculate_bone_segment_weights()
 
   private midpoint_to_child (bone: Bone): Vector3 {

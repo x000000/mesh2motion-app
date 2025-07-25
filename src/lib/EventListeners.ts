@@ -36,6 +36,11 @@ export class EventListeners {
       this.bootstrap.is_transform_controls_dragging = event.value
       this.bootstrap.controls.enabled = !event.value
 
+      // Store undo state when we start dragging (event.value = true)
+      if (event.value && this.bootstrap.process_step === ProcessStep.EditSkeleton) {
+        this.bootstrap.edit_skeleton_step.store_bone_state_for_undo()
+      }
+
       // if we stopped dragging, that means a mouse up.
       // if we are editing skeleton and viewing weight painted mesh, refresh the weight painting
       if (this.bootstrap.process_step === ProcessStep.EditSkeleton &&
@@ -137,6 +142,53 @@ export class EventListeners {
         this.bootstrap.changed_model_preview_display(ModelPreviewDisplay.WeightPainted)
       } else {
         console.warn(`Unknown mesh preview type selected: ${radio_button_selected}`)
+      }
+    })
+
+    // Keyboard shortcuts for undo/redo
+    document.addEventListener('keydown', (event: KeyboardEvent) => {
+      // Only handle keyboard shortcuts when in EditSkeleton step
+      if (this.bootstrap.process_step !== ProcessStep.EditSkeleton) {
+        return
+      }
+
+      // Prevent default if we're handling the event
+      const is_ctrl_or_cmd = event.ctrlKey || event.metaKey
+
+      if (is_ctrl_or_cmd && event.key === 'z' && !event.shiftKey) {
+        // Ctrl+Z or Cmd+Z for undo
+        event.preventDefault()
+        const success = this.bootstrap.edit_skeleton_step.undo_bone_transformation()
+        if (success) {
+          console.log('Undo successful')
+
+          // Refresh weight painting if in weight painted mode
+          if (this.bootstrap.mesh_preview_display_type === ModelPreviewDisplay.WeightPainted) {
+            this.bootstrap.regenerate_weight_painted_preview_mesh()
+          }
+
+          // Update skeleton helper if it exists
+          if (this.bootstrap.skeleton_helper !== undefined) {
+            this.bootstrap.regenerate_skeleton_helper(this.bootstrap.edit_skeleton_step.skeleton(), 'Skeleton Helper')
+          }
+        }
+      } else if (is_ctrl_or_cmd && (event.key === 'y' || (event.key === 'z' && event.shiftKey))) {
+        // Ctrl+Y, Cmd+Y, Ctrl+Shift+Z, or Cmd+Shift+Z for redo
+        event.preventDefault()
+        const success = this.bootstrap.edit_skeleton_step.redo_bone_transformation()
+        if (success) {
+          console.log('Redo successful')
+          // Update skeleton helper if it exists
+          if (this.bootstrap.skeleton_helper !== undefined) {
+            this.bootstrap.regenerate_skeleton_helper(this.bootstrap.edit_skeleton_step.skeleton(), 'Skeleton Helper')
+          }
+          // Refresh weight painting if in weight painted mode
+          if (this.bootstrap.mesh_preview_display_type === ModelPreviewDisplay.WeightPainted) {
+            this.bootstrap.regenerate_weight_painted_preview_mesh()
+          }
+        } else {
+          console.log('No redo states available')
+        }
       }
     })
   }

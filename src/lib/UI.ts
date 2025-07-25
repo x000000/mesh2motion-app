@@ -20,6 +20,8 @@ export class UI {
   dom_skeleton_drop_type: HTMLSelectElement | null = null
   dom_mirror_skeleton_checkbox: HTMLElement | null = null
   dom_scale_skeleton_button: HTMLButtonElement | null = null
+  dom_undo_button: HTMLButtonElement | null = null
+  dom_redo_button: HTMLButtonElement | null = null
   dom_bind_pose_button: HTMLButtonElement | null = null
   dom_scale_skeleton_input_box: HTMLElement | null = null
   dom_move_to_origin_button: HTMLButtonElement | null = null
@@ -86,6 +88,8 @@ export class UI {
     this.dom_skeleton_drop_type = document.querySelector('#skeleton-selection')
     this.dom_mirror_skeleton_checkbox = document.querySelector('#mirror-skeleton')
     this.dom_scale_skeleton_button = document.querySelector('#scale-skeleton-button')
+    this.dom_undo_button = document.querySelector('#undo-button')
+    this.dom_redo_button = document.querySelector('#redo-button')
 
     this.dom_selected_bone_label = document.querySelector('#edit-selected-bone-label')
 

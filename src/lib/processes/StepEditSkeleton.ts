@@ -1,6 +1,7 @@
 import { UI } from '../UI.ts'
 import { Generators } from '../Generators.ts'
 import { Utility } from '../Utilities.ts'
+import { UndoRedoSystem } from '../UndoRedoSystem.ts'
 import { Vector3, Euler, Object3D, Skeleton, type Scene, type Bone, BufferGeometry, 
   PointsMaterial, Points, Float32BufferAttribute, TextureLoader,
   Raycaster, type Intersection, type Camera, SphereGeometry, MeshBasicMaterial, Mesh } from 'three'
@@ -16,6 +17,7 @@ import { SkinningFormula } from '../enums/SkinningFormula.ts'
  */
 export class StepEditSkeleton extends EventTarget {
   private readonly ui: UI
+  private readonly undo_redo_system: UndoRedoSystem
   // Original armature data from the model data. A Skeleton type object is not
   // part of the original model data that is loaded
   private edited_armature: Object3D = new Object3D()
@@ -33,10 +35,32 @@ export class StepEditSkeleton extends EventTarget {
 
   private readonly joint_texture = new TextureLoader().load('images/skeleton-joint-point.png')
 
-
   constructor () {
     super()
     this.ui = new UI()
+    this.undo_redo_system = new UndoRedoSystem(50) // Store up to 50 undo states
+  }
+
+  /**
+   * Store the current bone state before making changes
+   * Call this before any bone transformations
+   */
+  public store_bone_state_for_undo (): void {
+    this.undo_redo_system.store_current_state()
+  }
+
+  /**
+   * Undo the last bone transformation
+   */
+  public undo_bone_transformation (): boolean {
+    return this.undo_redo_system.undo()
+  }
+
+  /**
+   * Redo the last undone bone transformation
+   */
+  public redo_bone_transformation (): boolean {
+    return this.undo_redo_system.redo()
   }
 
   public setup_scene (main_scene: Scene): void {
@@ -72,6 +96,12 @@ export class StepEditSkeleton extends EventTarget {
 
 
     this.add_event_listeners()
+
+    // Initialize undo/redo button states
+    this.update_undo_redo_button_states(
+      this.undo_redo_system.can_undo(),
+      this.undo_redo_system.can_redo()
+    )
   }
 
   private update_bind_button_text (): void {
@@ -149,6 +179,32 @@ export class StepEditSkeleton extends EventTarget {
       this.show_debug = event.target.checked
       this.update_bind_button_text()
     })
+
+    // Add undo/redo button event listeners
+    this.ui.dom_undo_button?.addEventListener('click', () => {
+      this.undo_bone_transformation()
+    })
+
+    this.ui.dom_redo_button?.addEventListener('click', () => {
+      this.redo_bone_transformation()
+    })
+
+    // Listen for undo/redo state changes to update button states
+    this.undo_redo_system.addEventListener('undoRedoStateChanged', (event: any) => {
+      this.update_undo_redo_button_states(event.detail.canUndo, event.detail.canRedo)
+    })
+  }
+
+  /**
+   * Update the enabled/disabled state of undo/redo buttons
+   */
+  private update_undo_redo_button_states (can_undo: boolean, can_redo: boolean): void {
+    if (this.ui.dom_undo_button !== null) {
+      this.ui.dom_undo_button.disabled = !can_undo
+    }
+    if (this.ui.dom_redo_button !== null) {
+      this.ui.dom_redo_button.disabled = !can_redo
+    }
   }
 
   private convert_skinning_algorithm_to_enum (value: string): SkinningFormula {
@@ -182,6 +238,14 @@ export class StepEditSkeleton extends EventTarget {
     if (this.ui.dom_enable_skin_debugging !== null) {
       this.ui.dom_enable_skin_debugging.removeEventListener('change', () => {})
     }
+
+    if (this.ui.dom_undo_button !== null) {
+      this.ui.dom_undo_button.removeEventListener('click', () => {})
+    }
+
+    if (this.ui.dom_redo_button !== null) {
+      this.ui.dom_redo_button.removeEventListener('click', () => {})
+    }
   }
 
   public cleanup_on_exit_step (): void {
@@ -196,6 +260,11 @@ export class StepEditSkeleton extends EventTarget {
   public load_original_armature_from_model (armature: Object3D): void {
     this.edited_armature = armature.clone()
     this.create_threejs_skeleton_object()
+    
+    // Initialize the undo/redo system with the skeleton
+    this.undo_redo_system.set_skeleton(this.threejs_skeleton)
+    // Store the initial state as the baseline
+    this.undo_redo_system.store_initial_state()
   }
 
   private create_threejs_skeleton_object (): Skeleton {

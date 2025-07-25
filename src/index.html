@@ -121,6 +121,18 @@
 
             <span id="skeleton-step-actions">
 
+                <!-- undo/redo system-->
+                <fieldset style="position: fixed; right: 240px; top: 20px;">
+                    <div style="display: flex; gap: 2px;">
+                        <button id="undo-button" class="secondary-button" title="Undo (Ctrl+Z)" disabled>
+                            <img src="images/icons/undo.png" alt="Undo" width="16" height="16" />
+                        </button>
+                        <button id="redo-button" class="secondary-button" title="Redo (Ctrl+Y)" disabled>
+                            <img src="images/icons/redo.png" alt="Redo" width="16" height="16" />
+                        </button>
+                    </div>
+                </fieldset>
+
                 <!-- <p class="step-instructions">Move bones into position.</p> -->
 
                  <p id="bone-selection-section">
@@ -159,8 +171,6 @@
                             </label>
                         </div>
                     </fieldset>
-
- 
                  </div>
 
 

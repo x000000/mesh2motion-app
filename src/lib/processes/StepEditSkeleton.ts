@@ -154,9 +154,7 @@ export class StepEditSkeleton extends EventTarget {
     return this.mirror_mode_enabled
   }
 
-
-
-  public algorithm (): string {
+  public algorithm (): string | null {
     return this.skinning_algorithm
   }
 
@@ -171,9 +169,15 @@ export class StepEditSkeleton extends EventTarget {
 
     if (this.ui.dom_scale_skeleton_button !== null && this.ui.dom_scale_skeleton_input_box !== null) {
       this.ui.dom_scale_skeleton_button.addEventListener('click', () => {
+        // Store undo state before scaling
+        this.store_bone_state_for_undo()
+
         const modify_scale = 1.0 + (this.ui.dom_scale_skeleton_input_box.value / 100.0)
         Utility.scale_armature_by_scalar(this.edited_armature, modify_scale)
         this.edited_armature.updateWorldMatrix(true, true)
+
+        // Dispatch skeleton transformed event to update UI
+        this.dispatchEvent(new CustomEvent('skeletonTransformed'))
       })
     }
 
@@ -274,7 +278,7 @@ export class StepEditSkeleton extends EventTarget {
   public load_original_armature_from_model (armature: Object3D): void {
     this.edited_armature = armature.clone()
     this.create_threejs_skeleton_object()
-    
+
     // Initialize the undo/redo system with the skeleton
     this.undo_redo_system.set_skeleton(this.threejs_skeleton)
     // Store the initial state as the baseline
@@ -305,7 +309,7 @@ export class StepEditSkeleton extends EventTarget {
     // if we are on the positive side mirror mode is enabled
     // we need to change the position of the bone on the other side of the mirror
 
-    // first step is to find the base bone name 
+    // first step is to find the base bone name
     // strip out the left/right and _L/_R from the name
     // mixamo is a common skeleton that prefixes everything with mixamorig_, so remove that
     const base_bone_name = Utility.calculate_bone_base_name(selected_bone.name)
@@ -381,8 +385,8 @@ export class StepEditSkeleton extends EventTarget {
 
   /**
    * Create a hover effect for the bone that would be selected for bone editing
-   * @param bone 
-   * @param camera 
+   * @param bone
+   * @param camera
    */
   private update_bone_hover_point_position (bone: Bone | null): void {
     // create hover point sphere for when our mouse gets close to a bone joint

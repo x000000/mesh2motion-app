@@ -213,6 +213,11 @@ export class StepEditSkeleton extends EventTarget {
     })
   }
 
+  // returning back to edit skeleton step later will call this to reset undo state
+  public clear_undo_history (): void {
+    this.undo_redo_system.clear_history()
+  }
+
   /**
    * Update the enabled/disabled state of undo/redo buttons
    */
@@ -271,7 +276,6 @@ export class StepEditSkeleton extends EventTarget {
     this.clear_hover_point_if_exists()
   }
 
-
   /*
    * Take original armature that we are editing and create a skeleton that Three.js can use
   */
@@ -281,8 +285,6 @@ export class StepEditSkeleton extends EventTarget {
 
     // Initialize the undo/redo system with the skeleton
     this.undo_redo_system.set_skeleton(this.threejs_skeleton)
-    // Store the initial state as the baseline
-    this.undo_redo_system.store_initial_state()
   }
 
   private create_threejs_skeleton_object (): Skeleton {

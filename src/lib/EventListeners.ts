@@ -109,6 +109,9 @@ export class EventListeners {
       if (this.bootstrap.ui.dom_selected_bone_label !== null) {
         this.bootstrap.ui.dom_selected_bone_label.innerHTML = 'None'
       }
+
+      // reset the undo/redo system
+      this.bootstrap.edit_skeleton_step.clear_undo_history()
     })
 
     // change view event listeners when configuring skeleton

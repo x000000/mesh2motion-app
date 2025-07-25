@@ -196,23 +196,6 @@ export class UndoRedoSystem extends EventTarget {
   }
 
   /**
-   * Store initial state - this should be called once when the skeleton is first loaded
-   * This provides a baseline state to return to
-   */
-  public store_initial_state (): void {
-    if (this.skeleton_ref === null) {
-      console.warn('Cannot store initial state: skeleton reference is null')
-      return
-    }
-
-    // Clear any existing history
-    this.clear_history()
-
-    // Store the initial state
-    this.store_current_state()
-  }
-
-  /**
    * Dispatch a custom event when the undo/redo state changes
    * This allows UI elements to update their enabled/disabled state
    */

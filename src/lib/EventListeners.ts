@@ -152,43 +152,20 @@ export class EventListeners {
         return
       }
 
-      // Prevent default if we're handling the event
-      const is_ctrl_or_cmd = event.ctrlKey || event.metaKey
+      // Define undo/redo shortcut conditions
+      // Ctrl+Z or Cmd+Z for undo
+      // Ctrl+Y, Cmd+Y, Ctrl+Shift+Z, or Cmd+Shift+Z for redo
+      const is_undo_shortcut_pressed = (event.ctrlKey || event.metaKey) && event.key === 'z' && !event.shiftKey
+      const is_redo_shortcut_pressed = (event.ctrlKey || event.metaKey) && (event.key === 'y' || (event.key === 'z' && event.shiftKey))
 
-      if (is_ctrl_or_cmd && event.key === 'z' && !event.shiftKey) {
-        // Ctrl+Z or Cmd+Z for undo
+      if (is_undo_shortcut_pressed) {
         event.preventDefault()
-        const success = this.bootstrap.edit_skeleton_step.undo_bone_transformation()
-        if (success) {
-          console.log('Undo successful')
+        this.bootstrap.edit_skeleton_step.undo_bone_transformation()
+      }
 
-          // Refresh weight painting if in weight painted mode
-          if (this.bootstrap.mesh_preview_display_type === ModelPreviewDisplay.WeightPainted) {
-            this.bootstrap.regenerate_weight_painted_preview_mesh()
-          }
-
-          // Update skeleton helper if it exists
-          if (this.bootstrap.skeleton_helper !== undefined) {
-            this.bootstrap.regenerate_skeleton_helper(this.bootstrap.edit_skeleton_step.skeleton(), 'Skeleton Helper')
-          }
-        }
-      } else if (is_ctrl_or_cmd && (event.key === 'y' || (event.key === 'z' && event.shiftKey))) {
-        // Ctrl+Y, Cmd+Y, Ctrl+Shift+Z, or Cmd+Shift+Z for redo
+      if (is_redo_shortcut_pressed) {
         event.preventDefault()
-        const success = this.bootstrap.edit_skeleton_step.redo_bone_transformation()
-        if (success) {
-          console.log('Redo successful')
-          // Update skeleton helper if it exists
-          if (this.bootstrap.skeleton_helper !== undefined) {
-            this.bootstrap.regenerate_skeleton_helper(this.bootstrap.edit_skeleton_step.skeleton(), 'Skeleton Helper')
-          }
-          // Refresh weight painting if in weight painted mode
-          if (this.bootstrap.mesh_preview_display_type === ModelPreviewDisplay.WeightPainted) {
-            this.bootstrap.regenerate_weight_painted_preview_mesh()
-          }
-        } else {
-          console.log('No redo states available')
-        }
+        this.bootstrap.edit_skeleton_step.redo_bone_transformation()
       }
     })
   }

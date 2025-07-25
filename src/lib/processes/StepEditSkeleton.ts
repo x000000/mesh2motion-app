@@ -53,14 +53,28 @@ export class StepEditSkeleton extends EventTarget {
    * Undo the last bone transformation
    */
   public undo_bone_transformation (): boolean {
-    return this.undo_redo_system.undo()
+    const result = this.undo_redo_system.undo()
+    if (result) {
+      // Update skeleton helper and any UI elements that depend on bone positions
+      this.dispatchEvent(new CustomEvent('skeletonTransformed'))
+      console.log('Undo successful')
+    }
+    return result
   }
 
   /**
    * Redo the last undone bone transformation
    */
   public redo_bone_transformation (): boolean {
-    return this.undo_redo_system.redo()
+    const result = this.undo_redo_system.redo()
+    if (result) {
+      // Update skeleton helper and any UI elements that depend on bone positions
+      this.dispatchEvent(new CustomEvent('skeletonTransformed'))
+      console.log('Redo successful')
+    } else {
+      console.log('No redo states available')
+    }
+    return result
   }
 
   public setup_scene (main_scene: Scene): void {

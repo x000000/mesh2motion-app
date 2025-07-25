@@ -71,6 +71,19 @@ export class Bootstrap {
     this.eventListeners = new EventListeners(this)
     // helps resolve requestAnimationFrame calling animate() with wrong context
     this.animate = this.animate.bind(this)
+
+    // Listen for skeleton transformation events to update UI and visuals
+    this.edit_skeleton_step.addEventListener('skeletonTransformed', () => {
+      // Update skeleton helper if it exists
+      if (this.skeleton_helper !== undefined) {
+        this.regenerate_skeleton_helper(this.edit_skeleton_step.skeleton(), 'Skeleton Helper')
+      }
+
+      // Refresh weight painting if in weight painted mode
+      if (this.mesh_preview_display_type === ModelPreviewDisplay.WeightPainted) {
+        this.regenerate_weight_painted_preview_mesh()
+      }
+    })
   }
 
   private inject_build_version (): void {

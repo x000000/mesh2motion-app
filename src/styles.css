@@ -373,7 +373,7 @@ input[type="file"] {
 /* Tooltip text */
 .tooltip .tooltiptext {
     visibility: hidden;
-    width: 200px;
+    width: 150px;
     background-color: #0b1822;
     color: #fff;
     text-align: center;
@@ -427,4 +427,12 @@ input[type="file"] {
     border-radius: 3px;
     flex-direction: column;
 
+}
+
+.alternate-background-section {
+    display: flex; 
+    flex-direction: column; 
+    gap: 1rem; 
+    background-color: #0f2f3d; 
+    padding: 1rem;
 }

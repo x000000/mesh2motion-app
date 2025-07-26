@@ -57,7 +57,7 @@
 
                     <div style="text-align: center; font-size: 1.5rem">or</div>
                     
-                    <div style="display: flex; flex-direction: column; gap: 1rem; background-color: #0f2f3d; padding: 1rem;">
+                    <div class="alternate-background-section">
                         <p style="margin: 0">Reference model:</p>
                         <select id="model-selection">
                             <option value="models/human-mannequin.glb">Human</option>
@@ -104,18 +104,38 @@
 
                         <hr />
 
-                        <label>Skeleton Type to use:</label>
-                        <select id="skeleton-selection">
-                            <option value="human">Human</option>
-                            <option value="quadraped">4 Leg Creature</option>
-                            <option value="bird">Bird</option>
-                        </select>
+
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            <span>Skeleton Type to use:</span>
+                            <select id="skeleton-selection">
+                                <option value="human">Human</option>
+                                <option value="quadraped">4 Leg Creature</option>
+                                <option value="bird">Bird</option>
+                            </select>
+                        </div>
+
+
+                        <!-- Hand skeleton options for human skeleton -->
+                        <div id="hand-skeleton-options" class="alternate-background-section"  >
+
+                            <span>
+                                Hand Options:
+                                <div class="tooltip" style="display: inline-block; margin-left: 0.5rem;">
+                                    <span class="material-symbols-outlined" style="font-size: 16px;">help</span>
+                                    <span class="tooltiptext">Variations on which finger bones you want to keep. </span>
+                                </div>
+                            </span>
+
+                            <select id="hand-skeleton-selection">
+                                <option value="all-fingers">All Fingers</option>
+                                <option value="thumb-and-index">Thumb + Main Finger</option>
+                                <option value="simplified-hand">Simplified Hand</option>
+                            </select>               
+                        </div>
 
                         <!-- <hr /> -->
 
                         <button id="load-skeleton-button">Load Skeleton &nbsp;&#x203a;</button>
-
-
                 </div>
 
 

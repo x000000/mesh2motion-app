@@ -18,6 +18,8 @@ export class UI {
   dom_load_skeleton_button: HTMLButtonElement | null = null
   dom_skeleton_edit_tools: HTMLElement | null = null
   dom_skeleton_drop_type: HTMLSelectElement | null = null
+  dom_hand_skeleton_options: HTMLElement | null = null
+  dom_hand_skeleton_selection: HTMLSelectElement | null = null
   dom_mirror_skeleton_checkbox: HTMLElement | null = null
   dom_scale_skeleton_button: HTMLButtonElement | null = null
   dom_undo_button: HTMLButtonElement | null = null
@@ -86,6 +88,8 @@ export class UI {
     this.dom_load_skeleton_button = document.querySelector('#load-skeleton-button')
     this.dom_skeleton_edit_tools = document.querySelector('#skeleton-step-actions')
     this.dom_skeleton_drop_type = document.querySelector('#skeleton-selection')
+    this.dom_hand_skeleton_options = document.querySelector('#hand-skeleton-options')
+    this.dom_hand_skeleton_selection = document.querySelector('#hand-skeleton-selection')
     this.dom_mirror_skeleton_checkbox = document.querySelector('#mirror-skeleton')
     this.dom_scale_skeleton_button = document.querySelector('#scale-skeleton-button')
     this.dom_undo_button = document.querySelector('#undo-button')

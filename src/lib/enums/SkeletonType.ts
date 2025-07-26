@@ -5,3 +5,10 @@ export enum SkeletonType {
   Human = 'skeletons/human-skeleton.glb',
   Bird = 'skeletons/skeleton-bird.glb',
 }
+
+// Hand skeleton variation types for human skeleton
+export enum HandSkeletonType {
+  AllFingers = 'all-fingers',
+  ThumbAndIndex = 'thumb-and-index',
+  SimplifiedHand = 'simplified-hand'
+}

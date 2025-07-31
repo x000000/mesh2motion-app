@@ -8,9 +8,6 @@ import { AnimationClip, AnimationMixer, Quaternion, Vector3, type SkinnedMesh, t
   type KeyframeTrack, type AnimationAction, type Object3D, Bone } from 'three'
 
 import { SkeletonType } from '../enums/SkeletonType.ts'
-import { MixamoToSimpleMapping } from '../mapping/MixamoToSimple.js'
-import { BVHToSimpleMapping } from '../mapping/BVHToSimple.ts'
-import { CarnegieMellonUniversityToMixamoMapping } from '../mapping/CarnegieMellonUniversityToMixamo.ts'
 
 // Note: EventTarget is a built-ininterface and do not need to import it
 export class StepAnimationsListing extends EventTarget {
@@ -23,7 +20,6 @@ export class StepAnimationsListing extends EventTarget {
   private skinned_meshes_to_animate: SkinnedMesh[] = []
   private current_playing_index: number = 0
   private skeleton_type: string = SkeletonType.Human
-  private skeleton_type_trying_to_import: string = 'mixamo-skeleton' // manually importing animation file
 
   // -z will bring hip bone down
   private hip_bone_offset: Vector3 = new Vector3(0, 0, 0) // -z will bring hip bone down. Helps set new base hip position
@@ -41,8 +37,7 @@ export class StepAnimationsListing extends EventTarget {
     // this should take the distance between the original and edited armature
     // and divide it by the original armature hip bone position
     this.hip_bone_scale_factor_z = edited_hip_bone.position.z / original_hip_bone.position.z
-    //console.log('hip bone scale factor:', this.hip_bone_scale_factor) // should be 1 if no change
-
+ 
     // small T-pose offset that somehow is getting lost
     this.hip_bone_offset = this.hip_bone_offset.sub(new Vector3(0, 0, -0.04))
   }
@@ -219,8 +214,6 @@ export class StepAnimationsListing extends EventTarget {
       let rotation_tracks: KeyframeTrack[] = []
 
 
-      //const name: String = "".toLowerCase()
-
       if (preserve_root_position) {
         rotation_tracks = animation_clip.tracks.filter((x: KeyframeTrack) => x.name.includes('quaternion') || x.name.toLowerCase().includes('hips.position'))
       } else {
@@ -228,7 +221,7 @@ export class StepAnimationsListing extends EventTarget {
       }
 
       animation_clip.tracks = rotation_tracks // update track data
-      //console.log(animation_clip.tracks)
+      // console.log(animation_clip.tracks) // UNUSED DEBUG CODE
     })
   }
 
@@ -375,14 +368,12 @@ export class StepAnimationsListing extends EventTarget {
         // GLB and FBX will come in as a data:application/octet-stream;base64
         // GLTF will come in as a JSON string
         // even the binary data comes in as string, so treat it all that way for now
-        const file_info: string = reader.result
+        const file_info: string | ArrayBuffer | null = reader.result
 
         if (file_extension === 'fbx') {
           this.load_fbx_animation_clips(file_info, file_name)
         } else if (file_extension === 'glb' || file_extension === 'gltf') {
           this.load_gltf_animation_clips(file_info)
-        } else if (file_extension === 'bvh') {
-          this.load_bvh_animation_clip(file_info)
         }
 
         // clear out the file input field in case we want to test by loading same file again
@@ -405,8 +396,6 @@ export class StepAnimationsListing extends EventTarget {
 
       // handle clicking an animation type to import
       this.ui.dom_animation_import_options.addEventListener('click', (event) => {
-        const animation_type = event.target.getAttribute('data-value')
-        this.skeleton_type_trying_to_import = animation_type
         this.ui.dom_import_animation_upload.click() // initiate file upload
       })
     }
@@ -422,19 +411,11 @@ export class StepAnimationsListing extends EventTarget {
       const animations_for_scene: AnimationClip[] = fbx.animations // we only need the animations
 
       // check to see if the animation is a mixamo skeleton. we will need this later for potential mapping
-      const is_mixamo_animation: boolean = animations_for_scene[0].name === 'mixamo.com' || this.skeleton_type_trying_to_import === 'mixamo'
-      const is_carnegie_mellon_skeleton = this.skeleton_type_trying_to_import === 'carnegie-skeleton'
+      const is_mixamo_animation: boolean = animations_for_scene[0].name === 'mixamo.com' // || this.skeleton_type_trying_to_import === 'mixamo' // UNUSED
 
       if (is_mixamo_animation) {
         // mutates animations_for_scene contents
         this.process_mixamo_animation_clips(animations_for_scene, file_name)
-      }
-
-      if (is_carnegie_mellon_skeleton) {
-        // all these functions mutate animation data
-        this.process_carnegie_skeleton_clip(animations_for_scene, file_name)
-        this.reduce_position_keyframes(animations_for_scene)
-        console.log('animation clips after processing 2:', animations_for_scene)
       }
 
       // add the animations to the animation_clips_loaded
@@ -444,124 +425,14 @@ export class StepAnimationsListing extends EventTarget {
     })
   }
 
-  private process_carnegie_skeleton_clip (animation_clips: AnimationClip[], file_name: string): void {
-    // Do bone mappings for the carnegie mellon skeleton
-    animation_clips.forEach((animation_clip, index) => {
-      animation_clip.tracks.forEach((track) => {
-        const original_bone_name: string = track.name.split('.')[0]
-        const keyframe_type: string = track.name.split('.')[1]
-
-        const bone_mapping_result: boolean = CarnegieMellonUniversityToMixamoMapping[original_bone_name]
-        if (bone_mapping_result) {
-          track.name = bone_mapping_result + '.' + keyframe_type
-        }
-      })
-    })
-
-    // use file name for animation clip name
-    animation_clips.forEach((animation_clip, index) => {
-      animation_clip.name = `${file_name} (${index.toString()})`
-    })
-  }
-
-  /* this will mutate the animation clips passed in by effectively removing the position keyframes */
-  private reduce_position_keyframes (animation_clips: AnimationClip[]): void {
-    animation_clips.forEach((animation_clip, index) => {
-      animation_clip.tracks.forEach((track) => {
-        const keyframe_type: string = track.name.split('.')[1]
-        if (keyframe_type === 'position') {
-          (track.values as Float32Array).forEach((value, index) => {
-            track.values[index] = value / 200
-          })
-        }
-      })
-    })
-  }
-
-  private load_bvh_animation_clip (bvh_file: string): void {
-    const bvh_loader = new BVHLoader()
-
-    bvh_loader.load(bvh_file, (result) => {
-      let clip: AnimationClip = result.clip
-
-      clip = this.process_bvh_animation_clip(clip, 'bvh')
-
-      // add the animations to the animation_clips_loaded
-      // update the UI with the new animation clips
-      this.append_animation_clips([clip])
-      this.ui.build_animation_clip_ui(this.animation_clips_loaded)
-    })
-  }
-
-  private process_bvh_animation_clip (animation_clip: AnimationClip, file_name: string): AnimationClip {
-    // need to remove the position keyframes from the animation
-    // since we will be offsetting the root bone position
-    const cloned_track: AnimationClip = this.deep_clone_animation_clips([animation_clip])[0]
-
-    // only keep the rotation tracks...and the root bone position track
-    const rotation_tracks = cloned_track.tracks.filter((x: KeyframeTrack) => x.name.includes('quaternion'))
-    cloned_track.tracks = rotation_tracks
-
-    // keep the root bone position track
-    const root_position_track = animation_clip.tracks.filter((x: KeyframeTrack) => x.name === 'root.position')[0]
-
-    if (root_position_track !== undefined) {
-      cloned_track.tracks.push(root_position_track)
-    }
-
-    // need to do bone mapping
-    // loop through each animation clip to update the tracks
-    cloned_track.tracks.forEach((track) => {
-      if (track === undefined) {
-        throw new Error('Error processing BVH animation clip. Track input is undefined')
-      }
-
-      const bvh_bone_name: string = track.name.split('.')[0]
-      const keyframe_type: string = track.name.split('.')[1]
-
-      // selected skeleton is a simplified mixamo skeleton. We need to map bone names
-      if (this.skeleton_type === SkeletonType.BipedalSimple) {
-        const bone_from_mapping: boolean = BVHToSimpleMapping[bvh_bone_name]
-        if (bone_from_mapping) {
-          track.name = bone_from_mapping + '.' + keyframe_type
-        }
-      }
-
-      // BVH seems to have something like 1 unit = 1cm. We need to scale position data to compensate for that
-      // the 200 value is arbitrary, but the results seem to look good, so I went with that. FBX seems to be the same
-      if (keyframe_type === 'position') {
-        (track.values as Float32Array).forEach((value, index) => {
-          track.values[index] = value / 200
-        })
-      }
-    })
-
-    return cloned_track
-  }
-
   private process_mixamo_animation_clips (animation_clips: AnimationClip[], file_name: string): void {
     // loop through each animation clip to update the tracks
     animation_clips.forEach((animation_clip, index) => {
       animation_clip.name = `${file_name} (${index.toString()})` // mixamo just calles the clip names 'mixamo.com'
 
       // get the track name and replace it with our simplfied mapping
-      animation_clip.tracks.forEach((track) => {
-        const mixamo_bone_name: string = track.name.split('.')[0]
+      animation_clip.tracks.forEach((track: any) => {
         const keyframe_type: string = track.name.split('.')[1]
-
-        // selected skeleton is a simplified mixamo skeleton. We need to map bone names
-        if (this.skeleton_type === SkeletonType.BipedalSimple) {
-          const is_mappping_found: boolean = MixamoToSimpleMapping[mixamo_bone_name]
-          if (is_mappping_found) {
-            track.name = MixamoToSimpleMapping[mixamo_bone_name] + '.' + keyframe_type
-          }
-        }
-
-        // my mixamo skeleton has an underscore character. Maybe need to replace
-        // this later so the skeleton doesn't have to do this replacing when importing
-        if (this.skeleton_type === SkeletonType.BipedalFull) {
-          track.name = mixamo_bone_name.replace('mixamorig', 'mixamorig_') + '.' + keyframe_type
-        }
 
         // Mixamo has 1 unit = 1cm. We need to scale position data to compensate for that
         // the 200 value is arbitrary, but the results seem to look good, so I went with that.
@@ -571,12 +442,6 @@ export class StepAnimationsListing extends EventTarget {
           })
         }
       })
-
-      // with the simple skeleton, there are many bones that are not used from the full mixamo animation
-      // remove unmapped bones since they won't be used
-      if (this.skeleton_type === SkeletonType.BipedalSimple) {
-        animation_clip.tracks = animation_clip.tracks.filter((x: KeyframeTrack) => !x.name.includes('mixamorig'))
-      }
     })
   }
 

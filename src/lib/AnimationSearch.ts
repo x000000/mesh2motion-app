@@ -1,6 +1,6 @@
 import { type AnimationClip } from 'three'
 
-interface AnimationWithState extends AnimationClip {
+export interface AnimationWithState extends AnimationClip {
   isChecked?: boolean
   name: string
 }

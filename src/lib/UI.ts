@@ -1,5 +1,5 @@
 import { type AnimationClip } from 'three'
-import { AnimationSearch } from './AnimationSearch'
+import { AnimationSearch, type AnimationWithState } from './AnimationSearch'
 
 export class UI {
   dom_current_step_index: HTMLElement | null = null
@@ -177,7 +177,7 @@ export class UI {
     return document.querySelectorAll('#animations-items input[type="checkbox"]')
   }
 
-  public get_selected_animations (): any[] {
+  public get_selected_animations (): AnimationWithState[] {
     if (this.animation_search === null) {
       return []
     }

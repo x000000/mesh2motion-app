@@ -5,6 +5,7 @@ export default class BoneCalculationData
   public name: string = ''
   public bone_object: Bone
   public has_child_bone: boolean = false
+  assigned_vertices: any
 
   constructor (bone: Bone) {
     this.name = bone.name || ''

@@ -1,9 +1,9 @@
 import {
   Vector3, Vector2, type Object3D, Mesh, Group, Bone, type Skeleton, Euler, Raycaster,
-  type PerspectiveCamera, type Scene, type Object3DEventMap, type BufferAttribute, BufferGeometry, InterleavedBufferAttribute
+  type PerspectiveCamera, type Scene, type Object3DEventMap, type BufferAttribute, type BufferGeometry, type InterleavedBufferAttribute
 } from 'three'
 import BoneTransformState from './models/BoneTransformState'
-import BoneCalculationData from './models/BoneCalculationData'
+import type BoneCalculationData from './models/BoneCalculationData'
 import IntersectionPointData from './models/IntersectionPointData'
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
@@ -52,7 +52,7 @@ export class Utility {
   }
 
   static remove_object_array (obj: Object3D): void {
-    obj.traverse((child: any) => {
+    obj.traverse((child: Object3D) => {
       if (child instanceof Mesh) {
         child.geometry.dispose()
 
@@ -70,7 +70,7 @@ export class Utility {
 
   static remove_object_with_children (obj: Object3D): void {
     if (obj.children.length > 0) {
-      obj.children.forEach((child) => {
+      obj.children.forEach((child: Object3D) => {
         this.remove_object_with_children(child)
       })
     }
@@ -98,18 +98,18 @@ export class Utility {
 
   static bone_list_from_hierarchy (bone_hierarchy: Object3D): Bone[] {
     if (bone_hierarchy === undefined || bone_hierarchy === null) {
-      throw new Error(
-        'bone_list_from_hierarchy() - bone_hierarchy parameter is undefined or null'
-      )
+      console.warn('bone_hierarchy is undefined or null')
+      return []
     }
 
-    const bone_list: Bone[] = []
-    bone_hierarchy.traverse((bone) => {
+    const bones: Bone[] = []
+    bone_hierarchy.traverse((bone: Object3D) => {
       if (bone instanceof Bone) {
-        bone_list.push(bone)
+        bones.push(bone)
       }
     })
-    return bone_list
+
+    return bones
   }
 
   static intersection_points_between_positions_and_mesh (positions: BufferAttribute | InterleavedBufferAttribute,
@@ -173,7 +173,7 @@ export class Utility {
 
   static store_bone_transforms (skeleton: Skeleton): BoneTransformState[] {
     const bone_transforms: BoneTransformState[] = []
-    skeleton.bones.forEach((bone) => {
+    skeleton.bones.forEach((bone: Bone) => {
       const new_rotation: Vector3 = new Vector3().setFromEuler(bone.rotation)
 
       const new_transform_state = new BoneTransformState(
@@ -194,7 +194,7 @@ export class Utility {
   ): void {
     original_bone_transforms.forEach((bone_transform) => {
       const bone: Bone | null =
-        skeleton.bones.find((bone) => bone.name === bone_transform.name) ??
+        skeleton.bones.find((bone: Bone) => bone.name === bone_transform.name) ??
         null
 
       if (bone !== null) {
@@ -246,7 +246,7 @@ export class Utility {
   }
 
   static scale_armature_by_scalar (armature: Object3D, scalar: number): void {
-    armature.traverse((bone) => {
+    armature.traverse((bone: Object3D) => {
       if (bone.type === 'Bone') {
         bone.position.multiplyScalar(scalar)
       }

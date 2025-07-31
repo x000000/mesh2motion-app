@@ -1,4 +1,4 @@
-import { type Skeleton } from 'three'
+import { type Skeleton, type Bone } from 'three'
 import { Utility } from './Utilities.ts'
 import type BoneTransformState from './models/BoneTransformState.ts'
 
@@ -79,7 +79,7 @@ export class UndoRedoSystem extends EventTarget {
     Utility.restore_bone_transforms(this.skeleton_ref, previous_state)
 
     // Update world matrices for all bones
-    this.skeleton_ref.bones.forEach((bone: any) => {
+    this.skeleton_ref.bones.forEach((bone: Bone) => {
       bone.updateWorldMatrix(true, true)
     })
 
@@ -115,7 +115,7 @@ export class UndoRedoSystem extends EventTarget {
     Utility.restore_bone_transforms(this.skeleton_ref, next_state)
 
     // Update world matrices for all bones
-    this.skeleton_ref.bones.forEach((bone: any) => {
+    this.skeleton_ref.bones.forEach((bone: Bone) => {
       bone.updateWorldMatrix(true, true)
     })
 
@@ -188,7 +188,7 @@ export class UndoRedoSystem extends EventTarget {
     Utility.restore_bone_transforms(this.skeleton_ref, state_snapshot)
 
     // Update world matrices for all bones
-    this.skeleton_ref.bones.forEach((bone: any) => {
+    this.skeleton_ref.bones.forEach((bone: Bone) => {
       bone.updateWorldMatrix(true, true)
     })
 

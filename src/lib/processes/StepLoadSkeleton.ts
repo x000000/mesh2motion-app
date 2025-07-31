@@ -3,6 +3,15 @@ import { Object3D, type Object3DEventMap } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { SkeletonType, HandSkeletonType } from '../enums/SkeletonType.js'
 
+// Interface for GLTF loader result
+interface GLTFResult {
+  scene: Object3D
+  scenes: Object3D[]
+  animations: any[]
+  cameras: Object3D[]
+  asset: object
+}
+
 // Note: EventTarget is a built-ininterface and do not need to import it
 export class StepLoadSkeleton extends EventTarget {
   private readonly loader: GLTFLoader = new GLTFLoader()
@@ -78,7 +87,7 @@ export class StepLoadSkeleton extends EventTarget {
 
         // load skeleton from GLB file
         console.log('trying to load skeleton', this.skeleton_t)
-        this.loader.load(this.skeleton_t, (gltf: any) => {
+        this.loader.load(this.skeleton_t, (gltf: GLTFResult) => {
           // traverse scene and find first bone object
           // we will go to the parent and mark that as the original armature
           let armature_found = false
@@ -139,9 +148,9 @@ export class StepLoadSkeleton extends EventTarget {
   }
 
   private modify_hand_skeleton (armature: Object3D, hand_type: HandSkeletonType): void {
-    const bones_to_remove: any[] = []
+    const bones_to_remove: Object3D[] = []
 
-    armature.traverse((child: any) => {
+    armature.traverse((child: Object3D) => {
       if (child.type === 'Bone') {
         const bone = child
         const bone_name = (bone.name ?? '').toLowerCase() as string

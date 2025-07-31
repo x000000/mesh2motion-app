@@ -8,7 +8,7 @@ import { SkinningFormula } from '../enums/SkinningFormula.ts'
 
 import { Generators } from '../Generators.ts'
 
-import { BufferGeometry, type Material, type Object3D, type Skeleton, SkinnedMesh, type Scene, Group, Uint16BufferAttribute, Float32BufferAttribute } from 'three'
+import { type BufferGeometry, type Material, type Object3D, type Skeleton, SkinnedMesh, type Scene, Group, Uint16BufferAttribute, Float32BufferAttribute } from 'three'
 import BoneTesterData from '../models/BoneTesterData.ts'
 import { type SkeletonType } from '../enums/SkeletonType.ts'
 
@@ -56,7 +56,7 @@ export class StepWeightSkin extends EventTarget {
     }
   }
 
-  public create_bone_formula_object (editable_armature: Object3D, skinning_formula: string, skeleton_type: SkeletonType): any {
+  public create_bone_formula_object (editable_armature: Object3D, skinning_formula: string, skeleton_type: SkeletonType): AbstractAutoSkinSolver | null {
     this.skinning_armature = editable_armature.clone()
     this.skinning_armature.name = 'Armature for skinning'
 
@@ -73,7 +73,7 @@ export class StepWeightSkin extends EventTarget {
       this.bone_skinning_formula = new SolverDistanceChildTargeting(this.skinning_armature.children[0], skeleton_type)
     }
 
-    return this.bone_skinning_formula
+    return this.bone_skinning_formula ?? null
   }
 
   public skeleton (): Skeleton | undefined {

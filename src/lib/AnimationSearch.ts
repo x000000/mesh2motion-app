@@ -7,9 +7,8 @@ interface AnimationWithState extends AnimationClip {
 
 export class AnimationSearch {
   private all_animations: AnimationWithState[] = []
-  private filter_input: HTMLInputElement | null = null
+  private readonly filter_input: HTMLInputElement | null = null
   private readonly animation_list_container: HTMLElement | null = null
-  private current_filter_text: string = ''
 
   constructor (filter_input_id: string, animation_list_container_id: string) {
     this.filter_input = document.querySelector(`#${filter_input_id}`)
@@ -18,10 +17,6 @@ export class AnimationSearch {
   }
 
   public initialize_animations (animations: AnimationClip[]): void {
-    console.log('AnimationSearch: initialize_animations called with', animations.length, 'animations')
-    console.log('AnimationSearch: filter_input found:', this.filter_input !== null)
-    console.log('AnimationSearch: animation_list_container found:', this.animation_list_container !== null)
-    
     // Convert to animations with state tracking
     this.all_animations = animations.map(clip => {
       const animation_with_state: AnimationWithState = clip as any
@@ -30,7 +25,6 @@ export class AnimationSearch {
       return animation_with_state
     })
     
-    console.log('AnimationSearch: Converted animations:', this.all_animations.map(a => a.name))
     this.render_filtered_animations('')
   }
 
@@ -44,15 +38,9 @@ export class AnimationSearch {
       return
     }
 
-    // Remove existing event listener to avoid duplicates
-    const new_filter = this.filter_input.cloneNode(true) as HTMLInputElement
-    this.filter_input.parentNode?.replaceChild(new_filter, this.filter_input)
-    this.filter_input = new_filter
-
     // Add the filter event listener
     this.filter_input.addEventListener('input', (event) => {
       const filter_text = (event.target as HTMLInputElement).value.toLowerCase()
-      this.current_filter_text = filter_text
       this.render_filtered_animations(filter_text)
     })
   }
@@ -80,7 +68,7 @@ export class AnimationSearch {
     checkboxes.forEach((checkbox) => {
       const input = checkbox as HTMLInputElement
       const animation_index = parseInt(input.value)
-      
+
       if (!isNaN(animation_index) && animation_index < this.all_animations.length) {
         this.all_animations[animation_index].isChecked = input.checked
       }
@@ -99,7 +87,7 @@ export class AnimationSearch {
 
     // Clear and rebuild the animation list
     this.animation_list_container.innerHTML = ''
-    
+
     filtered_animations.forEach((animation_clip) => {
       if (this.animation_list_container == null) {
         return
@@ -139,12 +127,7 @@ export class AnimationSearch {
   public clear_filter (): void {
     if (this.filter_input !== null) {
       this.filter_input.value = ''
-      this.current_filter_text = ''
       this.render_filtered_animations('')
     }
-  }
-
-  public refresh_display (): void {
-    this.render_filtered_animations(this.current_filter_text)
   }
 }

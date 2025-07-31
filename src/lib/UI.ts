@@ -47,7 +47,6 @@ export class UI {
 
   // animations listing UI controls
   dom_animation_clip_list: HTMLElement | null = null
-  dom_animation_filter: HTMLInputElement | null = null
   dom_export_button: HTMLButtonElement | null = null
 
   dom_info_container: HTMLElement | null = null
@@ -126,7 +125,6 @@ export class UI {
 
     // UI Controls for working with animation list/selection and export
     this.dom_animation_clip_list = document.querySelector('#animations-items')
-    this.dom_animation_filter = document.querySelector('#animation-filter')
     this.dom_export_button = document.querySelector('#export-button')
 
     this.dom_info_container = document.querySelector('#info-panel')

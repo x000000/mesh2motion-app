@@ -1,4 +1,5 @@
 import { type AnimationClip } from 'three'
+import { AnimationSearch } from './AnimationSearch'
 
 export class UI {
   dom_current_step_index: HTMLElement | null = null
@@ -8,8 +9,8 @@ export class UI {
   dom_load_model_button: HTMLButtonElement | null = null
   dom_load_model_debug_checkbox: HTMLInputElement | null = null
 
-  // Store all animations for filtering
-  private all_animation_clips: any[] = []
+  // Animation search functionality
+  private animation_search: AnimationSearch | null = null
 
   // load skeleton UI
   dom_rotate_model_x_button: HTMLButtonElement | null = null
@@ -68,6 +69,7 @@ export class UI {
 
   constructor () {
     this.initialize_dom_elements()
+    // AnimationSearch will be initialized when needed
   }
 
   private initialize_dom_elements (): void {
@@ -144,11 +146,6 @@ export class UI {
     this.dom_export_button_hidden_link = document.querySelector('#download-hidden-link')
   }
 
-  public get_animated_selected_elements (): NodeListOf<Element> {
-    // this needs to be called ad-hoc as selections might change
-    return document.querySelectorAll('#animations-items input[type="checkbox"]')
-  }
-
   public hide_all_elements (): void {
     if (this.dom_load_model_tools != null) {
       this.dom_load_model_tools.style.display = 'none'
@@ -168,112 +165,31 @@ export class UI {
   }
 
   public build_animation_clip_ui (animation_clips_to_load: AnimationClip[]): void {
-    if (this.dom_animation_clip_list === null) {
-      return
+    // Initialize AnimationSearch if not already done
+    if (this.animation_search === null) {
+      this.animation_search = new AnimationSearch('animation-filter', 'animations-items')
     }
 
-    // Store all animations for filtering
-    this.all_animation_clips = animation_clips_to_load
-
-    // Set up filter event listener if not already done
-    this.setup_animation_filter()
-
-    // Set up checkbox event listeners for state persistence
-    this.setup_checkbox_listeners()
-
-    // Build the UI with all animations initially
-    this.render_filtered_animations('')
+    // Use the animation search class to handle the UI
+    this.animation_search.initialize_animations(animation_clips_to_load)
   }
 
-  private setup_animation_filter (): void {
-    if (this.dom_animation_filter === null) {
-      return
-    }
-
-    // Remove existing event listener to avoid duplicates
-    const new_filter = this.dom_animation_filter.cloneNode(true) as HTMLInputElement
-    this.dom_animation_filter.parentNode?.replaceChild(new_filter, this.dom_animation_filter)
-    this.dom_animation_filter = new_filter
-
-    // Add the filter event listener
-    this.dom_animation_filter.addEventListener('input', (event) => {
-      const filter_text = (event.target as HTMLInputElement).value.toLowerCase()
-      this.render_filtered_animations(filter_text)
-    })
+  public get_animated_selected_elements (): NodeListOf<Element> {
+    // this needs to be called ad-hoc as selections might change
+    return document.querySelectorAll('#animations-items input[type="checkbox"]')
   }
 
-  // Add method to set up checkbox event listeners
-  private setup_checkbox_listeners (): void {
-    if (this.dom_animation_clip_list === null) {
-      return
+  public get_selected_animations (): any[] {
+    if (this.animation_search === null) {
+      return []
     }
-
-    // Add event listener to the container for checkbox changes (event delegation)
-    this.dom_animation_clip_list.addEventListener('change', (event) => {
-      const target = event.target as HTMLInputElement
-      if (target?.type === 'checkbox') {
-        // Force save current checkbox states whenever any checkbox changes
-        this.save_current_checkbox_states()
-      }
-    })
+    return this.animation_search.get_selected_animations()
   }
 
-  // Method to save current checkbox states
-  private save_current_checkbox_states (): void {
-    if (this.dom_animation_clip_list === null) {
-      return
+  public get_selected_animation_indices (): number[] {
+    if (this.animation_search === null) {
+      return []
     }
-
-    const checkboxes = this.dom_animation_clip_list.querySelectorAll('input[type="checkbox"]')
-    checkboxes.forEach((checkbox) => {
-      const input = checkbox as HTMLInputElement
-      // Update the stored animation with the current checkbox state
-      const animation_index = parseInt(input.value)
-      if (!isNaN(animation_index) && animation_index < this.all_animation_clips.length) {
-        // Store the checked state directly on the animation object for persistence
-        const animation_with_state: any = this.all_animation_clips[animation_index]
-        animation_with_state.isChecked = input.checked
-      }
-    })
-  }
-
-  private render_filtered_animations (filter_text: string): void {
-    if (this.dom_animation_clip_list === null) {
-      return
-    }
-
-    // Filter animations based on search text
-    const filtered_animations = this.all_animation_clips.filter((animation_clip, index) => {
-      return animation_clip.name.toLowerCase().includes(filter_text)
-    })
-
-    // Clear and rebuild the animation list
-    this.dom_animation_clip_list.innerHTML = ''
-    
-    filtered_animations.forEach((animation_clip) => {
-      if (this.dom_animation_clip_list == null) {
-        return
-      }
-
-      // Find the original index in the full list for proper data-index
-      const original_index = this.all_animation_clips.findIndex(clip => clip === animation_clip)
-
-      // Check if this animation was previously checked (stored on the object itself)
-      const animation_with_state: any = animation_clip
-      const was_checked: boolean = animation_with_state.isChecked ?? false
-      const checked_attribute = was_checked ? 'checked' : ''
-
-      this.dom_animation_clip_list.innerHTML +=
-              `<div class="anim-item">
-                    <button class="secondary-button play" data-index="${original_index}">
-                    &#9658;
-                    ${animation_clip.name}
-                    </button>
-
-                  <div class="styled-checkbox">
-                      <input type="checkbox" name="${animation_clip.name}" value="${original_index}" ${checked_attribute}>
-                  </div>
-              </div>`
-    })
+    return this.animation_search.get_selected_animation_indices()
   }
 }

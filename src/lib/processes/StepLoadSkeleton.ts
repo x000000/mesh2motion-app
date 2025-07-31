@@ -146,12 +146,17 @@ export class StepLoadSkeleton extends EventTarget {
         const bone = child
         const bone_name = (bone.name ?? '').toLowerCase() as string
 
+        // bone is not part of hand, we can just skip it
+        // we also always keep the palm of the hand
+        if (!this.is_hand_bone(bone_name) || this.is_palm_bone(bone_name)) {
+          return
+        }
+
         // remove bones on mesh based on hand type selected on UI
         switch (hand_type) {
           case HandSkeletonType.ThumbAndIndex:
             // Remove all finger bones except thumb and index finger
-            if (this.is_finger_bone(bone_name) &&
-                !this.is_thumb_bone(bone_name) &&
+            if (!this.is_thumb_bone(bone_name) &&
                 !this.is_middle_finger_bone(bone_name)) {
               bones_to_remove.push(bone)
             }
@@ -168,6 +173,20 @@ export class StepLoadSkeleton extends EventTarget {
               bones_to_remove.push(bone)
             }
             break
+
+          case HandSkeletonType.SingleBone:
+            // Remove all non-middle finger bones, keeping one line of bones
+            if (!this.is_middle_finger_bone(bone_name)) {
+              bones_to_remove.push(bone)
+              break
+            }
+
+            // remove all tip bones
+            if (this.is_end_tip_bone(bone_name) || bone_name.includes('03') || bone_name.includes('04') || bone_name.includes('02')) {
+              bones_to_remove.push(bone)
+            }
+
+            break
         }
       }
     })
@@ -182,17 +201,18 @@ export class StepLoadSkeleton extends EventTarget {
     console.log(`Modified hand skeleton: ${hand_type}, removed ${bones_to_remove.length} bones`)
   }
 
-  private is_finger_bone (bone_name: string): boolean {
-    const finger_patterns = ['finger', 'thumb', 'index', 'middle', 'ring', 'pinky']
-    return finger_patterns.some(pattern => bone_name.includes(pattern))
+  private is_hand_bone (bone_name: string): boolean {
+    const hand_patterns = ['hand', 'finger', 'thumb', 'index', 'middle', 'ring', 'pinky']
+    return hand_patterns.some(pattern => bone_name.includes(pattern))
+  }
+
+  private is_palm_bone (bone_name: string): boolean {
+    const hand_patterns = ['hand']
+    return hand_patterns.some(pattern => bone_name.includes(pattern))
   }
 
   private is_thumb_bone (bone_name: string): boolean {
     return bone_name.includes('thumb')
-  }
-
-  private is_index_finger_bone (bone_name: string): boolean {
-    return bone_name.includes('index')
   }
 
   private is_middle_finger_bone (bone_name: string): boolean {

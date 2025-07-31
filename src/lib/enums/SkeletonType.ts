@@ -10,5 +10,6 @@ export enum SkeletonType {
 export enum HandSkeletonType {
   AllFingers = 'all-fingers',
   ThumbAndIndex = 'thumb-and-index',
-  SimplifiedHand = 'simplified-hand'
+  SimplifiedHand = 'simplified-hand',
+  SingleBone = 'single-bone'
 }

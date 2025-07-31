@@ -57,9 +57,6 @@ export class UI {
   dom_extend_arm_button: HTMLButtonElement | null = null
   dom_export_button_hidden_link: HTMLElement | null = null
   dom_build_version: HTMLElement | null = null
-  dom_animation_import_options: HTMLElement | null = null
-  dom_import_animations_buton: HTMLButtonElement | null = null
-  dom_import_animation_upload: HTMLElement | null = null
 
   // changing views buttons when editing skeleton
   dom_view_front_change: HTMLButtonElement | null = null
@@ -134,11 +131,6 @@ export class UI {
     this.dom_extend_arm_button = document.querySelector('#extend-arm-button')
 
     this.dom_build_version = document.querySelector('#build-version')
-
-    this.dom_import_animation_upload = document.querySelector('#import-animations-upload')
-
-    this.dom_import_animations_buton = document.querySelector('#import-animations-button')
-    this.dom_animation_import_options = document.querySelector('#animation-import-options')
 
     // UI for exporting the animation
     this.dom_export_button_hidden_link = document.querySelector('#download-hidden-link')

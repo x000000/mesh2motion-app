@@ -354,33 +354,6 @@ export class StepAnimationsListing extends EventTarget {
       })
     }
 
-    // manually uploading an animation file with button (not used right now)
-    this.ui.dom_import_animation_upload?.addEventListener('change', (event) => {
-      const file = event.target?.files[0]
-      const reader = new FileReader()
-      reader.readAsDataURL(file)
-
-      // extract filename from the file path
-      const file_name = file.name.split('.').shift()
-      const file_extension = file.name.split('.').pop()
-
-      reader.onload = () => {
-        // GLB and FBX will come in as a data:application/octet-stream;base64
-        // GLTF will come in as a JSON string
-        // even the binary data comes in as string, so treat it all that way for now
-        const file_info: string | ArrayBuffer | null = reader.result
-
-        if (file_extension === 'fbx') {
-          this.load_fbx_animation_clips(file_info, file_name)
-        } else if (file_extension === 'glb' || file_extension === 'gltf') {
-          this.load_gltf_animation_clips(file_info)
-        }
-
-        // clear out the file input field in case we want to test by loading same file again
-        this.ui.dom_import_animation_upload.value = ''
-      }
-    })
-
     // A-Pose arm extension event listner
     this.ui.dom_extend_arm_button?.addEventListener('click', (event) => {
       const extend_arm_value: number = this.ui.dom_extend_arm_input?.value
@@ -388,90 +361,8 @@ export class StepAnimationsListing extends EventTarget {
       this.play_animation(this.current_playing_index)
     })
 
-    if (this.ui.dom_import_animations_buton !== null && this.ui.dom_animation_import_options !== null) {
-      // toggle the Import button being shown/hidden
-      this.ui.dom_import_animations_buton.addEventListener('click', (event) => {
-        this.ui.dom_animation_import_options.classList.toggle('show')
-      })
-
-      // handle clicking an animation type to import
-      this.ui.dom_animation_import_options.addEventListener('click', (event) => {
-        this.ui.dom_import_animation_upload.click() // initiate file upload
-      })
-    }
-
     // helps ensure we don't add event listeners multiple times
     this.has_added_event_listeners = true
-  }
-
-  private load_fbx_animation_clips (fbx_file: string, file_name: string): void {
-    this.fbx_animation_loader = new FBXLoader()
-
-    this.fbx_animation_loader.load(fbx_file, (fbx) => {
-      const animations_for_scene: AnimationClip[] = fbx.animations // we only need the animations
-
-      // check to see if the animation is a mixamo skeleton. we will need this later for potential mapping
-      const is_mixamo_animation: boolean = animations_for_scene[0].name === 'mixamo.com' // || this.skeleton_type_trying_to_import === 'mixamo' // UNUSED
-
-      if (is_mixamo_animation) {
-        // mutates animations_for_scene contents
-        this.process_mixamo_animation_clips(animations_for_scene, file_name)
-      }
-
-      // add the animations to the animation_clips_loaded
-      // update the UI with the new animation clips
-      this.append_animation_clips(animations_for_scene)
-      this.ui.build_animation_clip_ui(this.animation_clips_loaded)
-    })
-  }
-
-  private process_mixamo_animation_clips (animation_clips: AnimationClip[], file_name: string): void {
-    // loop through each animation clip to update the tracks
-    animation_clips.forEach((animation_clip, index) => {
-      animation_clip.name = `${file_name} (${index.toString()})` // mixamo just calles the clip names 'mixamo.com'
-
-      // get the track name and replace it with our simplfied mapping
-      animation_clip.tracks.forEach((track: any) => {
-        const keyframe_type: string = track.name.split('.')[1]
-
-        // Mixamo has 1 unit = 1cm. We need to scale position data to compensate for that
-        // the 200 value is arbitrary, but the results seem to look good, so I went with that.
-        if (keyframe_type === 'position') {
-          (track.values as Float32Array).forEach((value, index) => {
-            track.values[index] = value / 200
-          })
-        }
-      })
-    })
-  }
-
-  private load_gltf_animation_clips (gltf_file: string): void {
-    this.gltf_animation_loader = new GLTFLoader()
-
-    this.gltf_animation_loader.load(gltf_file, (gltf) => {
-      const animations_for_scene = gltf.animations // we only need the animations
-
-      // add the animations to the animation_clips_loaded
-      // update the UI with the new animation clips
-      this.append_animation_clips(animations_for_scene)
-      this.ui.build_animation_clip_ui(this.animation_clips_loaded)
-    })
-  }
-
-  private append_animation_clips (animation_clips: AnimationClip[]): void {
-    // loop through each animation_clip and change name if the animaton name already exists
-    // see if the aniation name is already taken.. if so, add a number to the end of the name
-    animation_clips.forEach((animation_clip) => {
-      const is_name_found: AnimationClip | undefined = this.animation_clips_loaded.find((animation_clip_loaded) => {
-        return animation_clip_loaded.name === animation_clip.name
-      })
-
-      if (is_name_found !== undefined) {
-        animation_clip.name = animation_clip.name + ' Copy'
-      }
-    })
-
-    this.animation_clips_loaded.push(...this.deep_clone_animation_clips(animation_clips))
   }
 
   private deep_clone_animation_clips (animation_clips: AnimationClip[]): AnimationClip[] {

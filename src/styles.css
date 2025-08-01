@@ -436,3 +436,10 @@ input[type="file"] {
     background-color: #0f2f3d; 
     padding: 1rem;
 }
+
+/* Style for animation filter placeholder text */
+#animation-filter::placeholder {
+    color: white;
+    opacity: 1; /* Firefox needs this to ensure full opacity */
+    font-style: italic;;
+}

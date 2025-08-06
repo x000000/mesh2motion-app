@@ -246,20 +246,17 @@
                     </div>
                 </div>  -->
 
+                <!-- back to load skeleton -->
+                 <div class="display: flex; gap: 0.5rem;">
+                     <button class="secondary-button" id="action_back_to_load_skeleton" >&#x2039; Back</button>
+                     <button id="action_bind_pose" >Bind pose</button>
+                 </div>
 
-                <button id="action_bind_pose" >Bind pose</button>
             </span>
 
-            <span id="skinned-step-tools">
-
+            <!-- <span id="skinned-step-tools">
                 <p class="step-instructions">Select animations you want to export by checking them by animation</p>
-
-                <button class="secondary-button" id="action_back_to_edit_skeleton" >&#x2039; Back to edit skeleton</button>
-
-            </span>
-
-            <hr />
-
+            </span> -->
 
             <span id="skinned-step-animation-export-options">
 
@@ -304,13 +301,20 @@
 
                     <hr />
         
-                    <button id="export-button" title="Export animations. Make sure to select the animations you want to export first.">
-                        <span class="button-icon-group">
-                            <span class="material-symbols-outlined">save_alt</span>
-                            <span>Download GLB</span>
-                        </span>
-                    </button>
-                    <a id="download-hidden-link" href="#" style="display:none"></a>
+
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="secondary-button" id="action_back_to_edit_skeleton" >&#x2039; Back</button>
+                        
+                        <button id="export-button" title="Export animations. Make sure to select the animations you want to export first.">
+                            <span class="button-icon-group">
+                                <span class="material-symbols-outlined">save_alt</span>
+                                <span>Download GLB</span>
+                            </span>
+                        </button>
+                        <a id="download-hidden-link" href="#" style="display:none"></a>
+                    </div>
+
+
        
                 </div>
         

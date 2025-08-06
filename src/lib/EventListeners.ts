@@ -114,6 +114,12 @@ export class EventListeners {
       this.bootstrap.edit_skeleton_step.clear_undo_history()
     })
 
+    // going back to load skeleton step from edit skeleton step
+    this.bootstrap.ui.dom_back_to_load_skeleton_button?.addEventListener('click', () => {
+      // this.bootstrap.process_step = this.bootstrap.process_step_changed(ProcessStep.LoadSkeleton)
+      console.log('go back to the load skeleton step')
+    })
+
     // change view event listeners when configuring skeleton
     this.bootstrap.ui.dom_view_front_change?.addEventListener('click', () => { this.bootstrap.switchToView('front') })
     this.bootstrap.ui.dom_view_side_change?.addEventListener('click', () => { this.bootstrap.switchToView('side') })

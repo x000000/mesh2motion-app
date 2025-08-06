@@ -116,8 +116,7 @@ export class EventListeners {
 
     // going back to load skeleton step from edit skeleton step
     this.bootstrap.ui.dom_back_to_load_skeleton_button?.addEventListener('click', () => {
-      // this.bootstrap.process_step = this.bootstrap.process_step_changed(ProcessStep.LoadSkeleton)
-      console.log('go back to the load skeleton step')
+      this.bootstrap.process_step = this.bootstrap.process_step_changed(ProcessStep.LoadSkeleton)
     })
 
     // change view event listeners when configuring skeleton

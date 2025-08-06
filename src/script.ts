@@ -187,6 +187,19 @@ export class Bootstrap {
         this.load_model_step.begin()
         break
       case ProcessStep.LoadSkeleton:
+
+        // Resetting state for the load skeleton step
+
+        // if skeleton helper existed because we are going back to this
+        if (this.skeleton_helper !== undefined) {
+          this.scene.remove(this.skeleton_helper)
+        }
+
+        // need to change the texture display to normal material in
+        this.mesh_preview_display_type = ModelPreviewDisplay.Textured
+        this.changed_model_preview_display(this.mesh_preview_display_type)
+
+        // initializing all the load skeleton step stuff
         this.scene.add(this.load_model_step.model_meshes())
         process_step = ProcessStep.LoadSkeleton
         this.load_skeleton_step.begin()
@@ -198,6 +211,8 @@ export class Bootstrap {
         this.edit_skeleton_step.setup_scene(this.scene)
         this.transform_controls.enabled = true
         this.transform_controls.setMode(this.transform_controls_type) // 'translate', 'rotate'
+
+        this.mesh_preview_display_type = ModelPreviewDisplay.WeightPainted
         this.changed_model_preview_display(this.mesh_preview_display_type) // show weight painted mesh by default
         break
       case ProcessStep.BindPose:

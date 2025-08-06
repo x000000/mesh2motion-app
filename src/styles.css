@@ -1,6 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Jost&display=swap');
 
-* {
+
+/* this was just a star (*) selector, but dark reader extension cannot parse that and crashes 
+ It really just targets text related elements, so just use those instead
+*/
+html, body, li, p, div, span, label, input, 
+h1, h2, h3, h4, h5, h6, input, button, select {
     color: white;
     font-family: 'Jost', sans-serif;
     font-size: 13px;

@@ -119,6 +119,10 @@ export class EventListeners {
       this.bootstrap.process_step = this.bootstrap.process_step_changed(ProcessStep.LoadSkeleton)
     })
 
+    this.bootstrap.ui.dom_back_to_load_model_button?.addEventListener('click', () => {
+      this.bootstrap.process_step = this.bootstrap.process_step_changed(ProcessStep.LoadModel)
+    })
+
     // change view event listeners when configuring skeleton
     this.bootstrap.ui.dom_view_front_change?.addEventListener('click', () => { this.bootstrap.switchToView('front') })
     this.bootstrap.ui.dom_view_side_change?.addEventListener('click', () => { this.bootstrap.switchToView('side') })

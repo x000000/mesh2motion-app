@@ -183,6 +183,15 @@ export class Bootstrap {
 
     switch (process_step) {
       case ProcessStep.LoadModel:
+
+        // reset the state in the case of coming back to this step
+        if (this.load_model_step.model_meshes() !== undefined) {
+          const imported_model = this.scene.getObjectByName('Imported Model')
+          if (imported_model !== null) {
+            this.scene.remove(imported_model)
+          }
+        }
+
         process_step = ProcessStep.LoadModel
         this.load_model_step.begin()
         break

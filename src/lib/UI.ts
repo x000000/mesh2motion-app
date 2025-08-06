@@ -42,6 +42,7 @@ export class UI {
   dom_show_skeleton_checkbox: HTMLElement | null = null
   dom_back_to_edit_skeleton_button: HTMLButtonElement | null = null
   dom_back_to_load_skeleton_button: HTMLButtonElement | null = null
+  dom_back_to_load_model_button: HTMLButtonElement | null = null
   dom_enable_skin_debugging: HTMLInputElement | null = null
 
   dom_mesh_preview_group: HTMLElement | null = null
@@ -120,6 +121,8 @@ export class UI {
     this.dom_show_skeleton_checkbox = document.querySelector('#show-skeleton-checkbox')
     this.dom_back_to_edit_skeleton_button = document.querySelector('#action_back_to_edit_skeleton')
     this.dom_back_to_load_skeleton_button = document.querySelector('#action_back_to_load_skeleton')
+    this.dom_back_to_load_model_button = document.querySelector('#action_back_to_load_model')
+
     this.dom_enable_skin_debugging = document.querySelector('#debug-skinning-checkbox')
 
     // UI Controls for working with animation list/selection and export

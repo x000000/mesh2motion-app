@@ -2,7 +2,6 @@ export class ThemeManager {
   private current_theme: 'light' | 'dark' = 'dark'
   private theme_toggle_button: HTMLButtonElement | null = null
   private theme_icon: HTMLElement | null = null
-  private theme_text: HTMLElement | null = null
 
   constructor () {
     this.initialize()
@@ -12,7 +11,6 @@ export class ThemeManager {
     // Get DOM elements
     this.theme_toggle_button = document.querySelector('#theme-toggle')
     this.theme_icon = this.theme_toggle_button?.querySelector('.theme-icon') ?? null
-    this.theme_text = this.theme_toggle_button?.querySelector('.theme-text') ?? null
 
     // Load saved theme preference
     this.load_theme_preference()
@@ -42,7 +40,7 @@ export class ThemeManager {
 
   private apply_theme (): void {
     const html_element = document.documentElement
-    
+
     if (this.current_theme === 'light') {
       html_element.setAttribute('data-theme', 'light')
     } else {
@@ -53,13 +51,11 @@ export class ThemeManager {
   }
 
   private update_toggle_ui (): void {
-    if (this.theme_icon !== null && this.theme_text !== null) {
+    if (this.theme_icon !== null) {
       if (this.current_theme === 'light') {
-        this.theme_icon.textContent = '☀️'
-        this.theme_text.textContent = 'Light'
+        this.theme_icon.textContent = '😎'
       } else {
-        this.theme_icon.textContent = '🌙'
-        this.theme_text.textContent = 'Dark'
+        this.theme_icon.textContent = '🌝'
       }
     }
   }

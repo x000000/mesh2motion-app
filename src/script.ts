@@ -118,11 +118,28 @@ export class Bootstrap {
     this.transform_controls.size = 1.0
 
     // basic things in another group, to better isolate what we are working on
+    this.regenerate_floor_grid()
+  } // end setup_environment()
+
+  public regenerate_floor_grid (): void {
+    const setup_container = this.scene.getObjectByName('Setup objects')
+    if (setup_container !== null) {
+      this.scene.remove(setup_container)
+    }
+
+    // change color of grid based on theme
+    let grid_color = 0x4496a8
+    let floor_color = 0x4e4e7a
+    if (this.theme_manager.get_current_theme() === 'light') {
+      grid_color = 0xcccccc // light theme color
+      floor_color = 0xeeeeee // light theme color
+    }
+
     this.environment_container.name = 'Setup objects'
     this.environment_container.add(...Generators.create_default_lights())
-    this.environment_container.add(...Generators.create_grid_helper(0x4496a8))
+    this.environment_container.add(...Generators.create_grid_helper(grid_color, floor_color))
     this.scene.add(this.environment_container)
-  } // end setup_environment()
+  }
 
   public regenerate_skeleton_helper (new_skeleton: Skeleton, helper_name = 'Skeleton Helper'): void {
     // if skeleton helper exists...remove it

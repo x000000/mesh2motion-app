@@ -20,10 +20,10 @@ export class Generators {
     return material
   }
 
-  static create_grid_helper (color = 0x111155): any[] {
+  static create_grid_helper (grid_color: number = 0x111155, floor_color: number = 0x4e4e7a): any[] {
     // create floor mesh and add to scene to help with shadows
     const floor_geometry = new PlaneGeometry(30, 30, 30, 30)
-    const floor_material = new MeshPhongMaterial({ color: 0x4e4e7a, wireframe: false, transparent: false, shininess: 0.0, specular: 0.0 })
+    const floor_material = new MeshPhongMaterial({ color: floor_color, wireframe: false, transparent: false, shininess: 0.0, specular: 0.0 })
     floor_material.side = DoubleSide // helps us see that we are below the character
 
     const floor_mesh = new Mesh(floor_geometry, floor_material)
@@ -40,7 +40,7 @@ export class Generators {
     // grid display on floor
     const size: number = 30
     const divisions: number = 30
-    const grid_helper: GridHelper = new GridHelper(size, divisions, color, color)
+    const grid_helper: GridHelper = new GridHelper(size, divisions, grid_color, grid_color)
 
     return [grid_helper, floor_mesh, axes_helper]
   }

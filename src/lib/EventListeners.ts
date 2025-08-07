@@ -2,12 +2,17 @@ import { type Bootstrap } from '../script'
 import { ModelPreviewDisplay } from './enums/ModelPreviewDisplay'
 import { ProcessStep } from './enums/ProcessStep'
 import { Utility } from './Utilities'
-import { Object3D } from 'three'
+
 
 export class EventListeners {
   constructor (private readonly bootstrap: Bootstrap) {}
 
   public addEventListeners (): void {
+    // monitor theme changes
+    this.bootstrap.theme_manager.addEventListener('theme-changed', (event: any) => {
+      this.bootstrap.regenerate_floor_grid()
+    })
+
     this.bootstrap.renderer.domElement.addEventListener('mousemove', (event: MouseEvent) => {
       if (this.bootstrap.is_transform_controls_dragging) {
         this.bootstrap.handle_transform_controls_moving()

@@ -1,9 +1,12 @@
-export class ThemeManager {
+export class ThemeManager extends EventTarget {
   private current_theme: 'light' | 'dark' = 'dark'
   private theme_toggle_button: HTMLButtonElement | null = null
   private theme_icon: HTMLElement | null = null
 
+  private theme_change_event: CustomEvent | null = null
+
   constructor () {
+    super()
     this.initialize()
   }
 
@@ -64,6 +67,10 @@ export class ThemeManager {
     this.current_theme = this.current_theme === 'light' ? 'dark' : 'light'
     this.apply_theme()
     this.save_theme_preference()
+
+    // emit an event to notify other parts of the application
+    this.theme_change_event = new CustomEvent('theme-changed', { detail: { theme: this.current_theme } })
+    this.dispatchEvent(this.theme_change_event)
   }
 
   public get_current_theme (): 'light' | 'dark' {

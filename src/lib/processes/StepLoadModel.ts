@@ -23,6 +23,8 @@ export class StepLoadModel extends EventTarget {
   private readonly geometry_list: BufferGeometry[] = []
   private readonly material_list: Material[] = []
 
+  private _added_event_listeners: boolean = false
+
   // for debugging, let's count these to help us test performance things better
   vertex_count = 0
   triangle_count = 0
@@ -78,7 +80,11 @@ export class StepLoadModel extends EventTarget {
       this.ui.dom_load_model_tools.style.display = 'flex'
     }
 
-    this.add_event_listeners()
+    // if we are navigating back to this step, we don't want to add the event listeners again
+    if (!this._added_event_listeners) {
+      this.add_event_listeners()
+      this._added_event_listeners = true
+    }
   }
 
   public add_event_listeners (): void {

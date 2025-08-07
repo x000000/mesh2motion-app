@@ -21,6 +21,8 @@ export class StepAnimationsListing extends EventTarget {
   private current_playing_index: number = 0
   private skeleton_type: string = SkeletonType.Human
 
+  private _added_event_listeners: boolean = false
+
   // -z will bring hip bone down
   private hip_bone_offset: Vector3 = new Vector3(0, 0, 0) // -z will bring hip bone down. Helps set new base hip position
   private hip_bone_scale_factor_z: number = 1.0 // this is used to scale the hip bone position for animations
@@ -81,7 +83,13 @@ export class StepAnimationsListing extends EventTarget {
     }
 
     this.reset_step_data()
-    this.add_event_listeners()
+
+    // if we are navigating back to this step, we don't want to add the event listeners again
+    if (!this._added_event_listeners) {
+      this.add_event_listeners()
+      this._added_event_listeners = true
+    }
+
     this.update_download_button_enabled()
   }
 

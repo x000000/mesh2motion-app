@@ -20,6 +20,8 @@ export class StepLoadSkeleton extends EventTarget {
   private skeleton_t: SkeletonType = SkeletonType.Human
   private hand_skeleton_t: HandSkeletonType = HandSkeletonType.AllFingers
 
+  private _added_event_listeners: boolean = false
+
   public skeleton_type (): SkeletonType {
     return this.skeleton_t
   }
@@ -37,7 +39,11 @@ export class StepLoadSkeleton extends EventTarget {
       this.ui.dom_load_skeleton_tools.style.display = 'flex'
     }
 
-    this.add_event_listeners()
+    // if we are navigating back to this step, we don't want to add the event listeners again
+    if (!this._added_event_listeners) {
+      this.add_event_listeners()
+      this._added_event_listeners = true
+    }
 
     // Initialize hand skeleton options visibility
     this.toggle_hand_skeleton_options()

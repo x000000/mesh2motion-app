@@ -35,6 +35,8 @@ export class StepEditSkeleton extends EventTarget {
 
   private readonly joint_texture = new TextureLoader().load('images/skeleton-joint-point.png')
 
+  private _added_event_listeners: boolean = false
+
   constructor () {
     super()
     this.ui = new UI()
@@ -108,8 +110,11 @@ export class StepEditSkeleton extends EventTarget {
     const selection = this.ui.dom_skinning_algorithm_selection?.value
     this.skinning_algorithm = this.convert_skinning_algorithm_to_enum(selection)
 
-
-    this.add_event_listeners()
+    // Don't add event listeners again if we are navigating back to this step
+    if (!this._added_event_listeners) {
+      this.add_event_listeners()
+      this._added_event_listeners = true
+    }
 
     // Initialize undo/redo button states
     this.update_undo_redo_button_states(

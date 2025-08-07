@@ -1,12 +1,36 @@
 @import url('https://fonts.googleapis.com/css2?family=Jost&display=swap');
 
+/* CSS Variables for theming */
+:root {
+  /* Dark theme (default) */
+  --text-primary: white;
+  --text-secondary: #c4c4c4;
+
+  --bg-primary: #314F64;
+  --bg-tertiary: #171d2d;
+  --bg-alternate: #0f2f3d;
+  --bg-form: #1f405a;
+  --button-primary-start: rgb(175, 58, 190);
+}
+
+/* Light theme */
+[data-theme="light"] {
+  --text-primary: #2c3e50;
+  --text-secondary: #34495e;
+
+  --bg-primary: #ecf0f1;
+  --bg-tertiary: #f8f9fa;
+  --bg-alternate: #e8eef2;
+  --bg-form: #ffffff;
+  --button-primary-start: #3498db;
+}
 
 /* this was just a star (*) selector, but dark reader extension cannot parse that and crashes 
  It really just targets text related elements, so just use those instead
 */
 html, body, li, p, div, span, label, input, 
 h1, h2, h3, h4, h5, h6, input, button, select {
-    color: white;
+    color: var(--text-primary);
     font-family: 'Jost', sans-serif;
     font-size: 13px;
     display: inline-block;
@@ -26,7 +50,7 @@ h1, h2, h3, h4, h5, h6, input, button, select {
 
 
 hr {
-    border:1px solid #1f405a;
+    border:1px solid var(--text-secondary);
     width: 100%;
     margin: 1rem 0rem;
 }
@@ -34,7 +58,7 @@ hr {
 li{
     display: list-item;
     line-height: 135%;
-    color: #c4c4c4;
+    color: var(--text-secondary);
     font-size: 13px;
 }
 
@@ -43,8 +67,8 @@ html {
 }
 
 body {
-    background: #314F64;
-    background: linear-gradient(180deg, rgba(49, 79, 100, 1) 41%, rgba(22, 51, 71, 1) 100%);
+    background: var(--bg-primary);
+    background: linear-gradient(180deg, var(--bg-primary) 41%, var(--bg-tertiary) 100%);
 }
 
 #tool-selection-group {
@@ -61,15 +85,20 @@ input[type="number"] {
     padding: 0.5rem;
     border: 1px solid #878787;
     border-radius: 3px;
-    background: none;
+    background: var(--bg-form);
     width: 40px;
+}
+
+input[type="text"] {
+    background-color: var(--bg-form);
+    border: 1px solid var(--text-secondary);
+    color: var(--text-primary);
 }
 
 /* used for animation play options */
 button.secondary-button {
-background: #529da1;
-background: linear-gradient(0deg, rgba(82, 157, 161, 0.62) 0%, rgba(77, 97, 168, 0.52) 100%);
-
+background: var(--bg-alternate);
+background: linear-gradient(0deg, var(--bg-alternate) 0%, var(--bg-tertiary) 100%);
 
     border-radius: 3px;
     border: 0;
@@ -77,7 +106,7 @@ background: linear-gradient(0deg, rgba(82, 157, 161, 0.62) 0%, rgba(77, 97, 168,
     transition: all 0.1s ease-in-out;
 }
 button.secondary-button:hover {
-    background: #7c928e38;
+    background: var(--bg-primary);
 }
 
 button.secondary-button.play
@@ -93,11 +122,11 @@ button.secondary-button.play
 button, .button {
  
     background: #8e2a9b;
-    background: linear-gradient(180deg, rgb(175, 58, 190) 0%, rgb(80, 61, 144) 100%);
-     box-shadow: 3px 3px 2px #131f2f;
+    background: linear-gradient(180deg, var(--button-primary-start) 0%, var(--bg-tertiary) 100%);
+     box-shadow: 3px 3px 2px var(--bg-tertiary);
     padding: 0.75rem 1.0rem;
     margin-right: 0.5rem;
-    border: 1px solid #4e3062;
+    border: 1px solid var(--text-secondary);
     border-radius: 0.25rem;
     cursor: pointer;
     text-align: center; /* useful for custom file upload label */
@@ -115,7 +144,7 @@ button:active, .button:active {
 }
 
 button:disabled {
-    background: #2b3d4a;
+    background: var(--bg-tertiary);
     opacity: 0.5;
     cursor: not-allowed;
     border: none;
@@ -139,12 +168,12 @@ button:disabled {
     height: 25px;
     padding: 0.4rem;
     border-radius: 4px;
-    border: 1px solid #d3d6d6;
+    border: 1px solid var(--text-secondary);
     cursor: pointer;
 }
 
 .transform-icons:hover {
-    background: #408b7c3b;
+    background: var(--bg-primary);
 }
 
 canvas {
@@ -159,15 +188,15 @@ canvas {
 
 select {
     padding: 0.5rem;
-    background: none;
-
-    border: 1px solid #315978;
+    background: var(--bg-form);
+    border: 1px solid var(--text-secondary);
     border-radius: 4px;
+    color: var(--text-primary);
 }
 
 option {
-    background: rgb(25, 47, 54);
-
+    background: var(--bg-form);
+    color: var(--text-primary);
     border: none;
     border-radius: 0;
 }
@@ -175,10 +204,10 @@ option {
 #current-step-index {
     font-size: 15px;
     background: white;
-    background: linear-gradient(150deg, rgba(235,255,255,1) 3%, rgba(164,215,233,1) 100%);
+    background: linear-gradient(150deg, var(--bg-form) 3%, var(--bg-alternate) 100%);
     padding: 0.7rem;
     border-radius: 39px;
-    color: black;
+    color: var(--text-primary);
     width: 16px;
     text-align: center;
     font-weight: 700;
@@ -190,7 +219,7 @@ option {
 
 #info-panel
 {
-    background: #171d2d;
+    background: var(--bg-tertiary);
     overflow-y: auto;
     height: fit-content;
     bottom: 20px;
@@ -199,15 +228,15 @@ option {
     width: 300px;
     right: 20px;
     border-radius: 3px;
-    border: 1px solid #3e4e51;
+    border: 1px solid var(--text-secondary);
     max-height: calc(100% - 50px);
-    box-shadow: 3px 3px 9px #0c1016;
+    box-shadow: 3px 3px 9px var(--bg-tertiary);
 }
 #info-messaging {
     padding: 0.5rem;
     font-size: 13px;
-    color: #d0c8c8;
-    border: 1px solid red;
+    color: var(--text-secondary);
+    border: 1px solid var(--text-secondary);
 }
 
 #load-model-tools, #load-skeleton-tools, #transform-controls, #skeleton-step-actions {
@@ -220,13 +249,13 @@ option {
     position: fixed;
     height: fit-content;
 
-    background: #264257;
-    background: radial-gradient(circle,rgba(38, 66, 87, 1) 0%, rgba(11, 24, 34, 1) 100%);
+    background: var(--bg-tertiary);
+    background: radial-gradient(circle, var(--bg-alternate) 0%, var(--bg-tertiary) 100%);
 
-    box-shadow: 1px 1px 8px 0px #000000bf;
+    box-shadow: 1px 1px 8px 0px var(--bg-tertiary);
     top: 0;
     right: 0;
-    border: 1px dotted #5b8792;
+    border: 1px dotted var(--text-secondary);
     padding: 1rem;
     height: 100%;
     overflow-y: auto;
@@ -254,18 +283,18 @@ option {
   
   /* Track */
   ::-webkit-scrollbar-track {
-    background: rgb(60, 82, 155);
+    background: var(--bg-tertiary);
   }
   
   /* Handle */
   ::-webkit-scrollbar-thumb {
-    background: rgb(184, 210, 214);
+    background: var(--bg-alternate);
     border-radius: 4px;
   }
   
   /* Handle on hover */
   ::-webkit-scrollbar-thumb:hover {
-    background: rgb(126, 152, 156);
+    background: var(--bg-primary);
   }
 
 
@@ -277,7 +306,7 @@ option {
     overflow: auto;
     flex-direction: column;
     margin-bottom: 1rem;
-    border: 1px solid #5693ca;
+    border: 1px solid var(--text-secondary);
 }
 
 #animations-items div {
@@ -286,7 +315,7 @@ option {
 }
 /* have every other div child be a different background color */
 #animations-items > div:nth-child(odd) {
-    background: #32546f26;
+    background: var(--bg-alternate);
 }
 
 
@@ -339,7 +368,7 @@ input[type="file"] {
   .dropdown-content {
     display: none;
     position: absolute;
-    background-color: #b6cde0;
+    background-color: var(--bg-tertiary);
     min-width: 160px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 1;
@@ -347,7 +376,7 @@ input[type="file"] {
   
   /* Links inside the dropdown */
   .dropdown-content a {
-    color: black;
+    color: var(--text-primary);
     padding: 12px 16px;
     text-decoration: none;
     display: block;
@@ -379,12 +408,12 @@ input[type="file"] {
 .tooltip .tooltiptext {
     visibility: hidden;
     width: 150px;
-    background-color: #0b1822;
+    background-color: var(--bg-tertiary);
     color: #fff;
     text-align: center;
     padding: 5px;
     border-radius: 4px;
-    border: 1px solid #5b8792;
+    border: 1px solid var(--text-secondary);
     
     /* Position the tooltip */
     position: absolute;
@@ -427,7 +456,7 @@ input[type="file"] {
 
 #bone-selection-section {
     margin: 0;
-    background: #ffffff14;
+    background: var(--bg-alternate);
     padding: 0.5rem;
     border-radius: 3px;
     flex-direction: column;
@@ -438,13 +467,51 @@ input[type="file"] {
     display: flex; 
     flex-direction: column; 
     gap: 1rem; 
-    background-color: #0f2f3d; 
+    background-color: var(--bg-alternate); 
     padding: 1rem;
 }
 
 /* Style for animation filter placeholder text */
 #animation-filter::placeholder {
-    color: white;
+    color: var(--text-primary);
     opacity: 1; /* Firefox needs this to ensure full opacity */
     font-style: italic;;
+}
+
+/* Theme toggle button styles */
+#theme-toggle-container {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+}
+
+#theme-toggle {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--text-secondary);
+    border-radius: 20px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-primary);
+    font-size: 14px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px var(--bg-tertiary);
+}
+
+#theme-toggle:hover {
+    background: var(--bg-alternate);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px var(--bg-tertiary);
+}
+
+#theme-toggle .theme-icon {
+    font-size: 18px;
+    transition: transform 0.3s ease;
+}
+
+#theme-toggle:hover .theme-icon {
+    transform: rotate(20deg);
 }

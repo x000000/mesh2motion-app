@@ -65,6 +65,9 @@ export class UI {
   dom_view_side_change: HTMLButtonElement | null = null
   dom_view_top_change: HTMLButtonElement | null = null
 
+  // theme toggle
+  dom_theme_toggle: HTMLButtonElement | null = null
+
   constructor () {
     this.initialize_dom_elements()
     // AnimationSearch will be initialized when needed
@@ -139,6 +142,9 @@ export class UI {
 
     // UI for exporting the animation
     this.dom_export_button_hidden_link = document.querySelector('#download-hidden-link')
+    
+    // Theme toggle
+    this.dom_theme_toggle = document.querySelector('#theme-toggle')
   }
 
   public hide_all_elements (): void {

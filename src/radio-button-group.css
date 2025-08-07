@@ -2,6 +2,11 @@
   --primary-color: #496987;
 }
 
+/* Light theme override for radio buttons */
+[data-theme="light"] {
+  --primary-color: #3498db;
+}
+
 fieldset {
     border: none;
     margin: 0;

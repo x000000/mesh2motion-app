@@ -25,6 +25,7 @@ import { CustomSkeletonHelper } from './lib/CustomSkeletonHelper.ts'
 import { EventListeners } from './lib/EventListeners.ts'
 import { ModelPreviewDisplay } from './lib/enums/ModelPreviewDisplay.ts'
 import { TransformControlType } from './lib/enums/TransformControlType.ts'
+import { ThemeManager } from './lib/ThemeManager.ts'
 
 export class Bootstrap {
   public readonly camera = Generators.create_camera()
@@ -58,6 +59,7 @@ export class Bootstrap {
 
   private readonly environment_container: Group = new Group()
   private readonly eventListeners: EventListeners
+  public readonly theme_manager = new ThemeManager()
 
   public initialize (): void {
     this.setup_environment()

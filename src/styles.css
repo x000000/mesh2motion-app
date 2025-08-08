@@ -54,7 +54,7 @@ h1, h2, h3, h4, h5, h6, input, button, select {
 #animation-filter {
     width: 100%;
     padding: 0.5rem;
-    background-color: var(--bg-tertiary);
+    background-color: var(--bg-primary);
     border: none;
     border-radius: 4px;
 }

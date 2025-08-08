@@ -57,7 +57,7 @@ export class Bootstrap {
 
   private readonly clock = new THREE.Clock()
 
-  private readonly environment_container: Group = new Group()
+  private environment_container: Group = new Group()
   private readonly eventListeners: EventListeners
   public readonly theme_manager = new ThemeManager()
 
@@ -122,21 +122,25 @@ export class Bootstrap {
   } // end setup_environment()
 
   public regenerate_floor_grid (): void {
+    // remove previous setup objects from scene if they exist
     const setup_container = this.scene.getObjectByName('Setup objects')
     if (setup_container !== null) {
       this.scene.remove(setup_container)
     }
 
     // change color of grid based on theme
-    let grid_color = 0x4496a8
-    let floor_color = 0x4e4e7a
+    let grid_color = 0x4b6368
+    let floor_color = 0x2d4353
+    let light_strength: number = 12
     if (this.theme_manager.get_current_theme() === 'light') {
-      grid_color = 0xcccccc // light theme color
-      floor_color = 0xeeeeee // light theme color
+      grid_color = 0xaaaaaa // light theme color
+      floor_color = 0xe3eef0 // light theme color
+      light_strength = 12
     }
 
+    this.environment_container = new Group()
     this.environment_container.name = 'Setup objects'
-    this.environment_container.add(...Generators.create_default_lights())
+    this.environment_container.add(...Generators.create_default_lights(light_strength))
     this.environment_container.add(...Generators.create_grid_helper(grid_color, floor_color))
     this.scene.add(this.environment_container)
   }

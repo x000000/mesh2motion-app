@@ -146,15 +146,15 @@ export class Generators {
     return mesh_object
   }
 
-  static create_default_lights (): Array<DirectionalLight | AmbientLight> {
-    const light_1 = new DirectionalLight(0x777777, 7)
+  static create_default_lights (light_strength: number): Array<DirectionalLight | AmbientLight> {
+    const light_1 = new DirectionalLight(0x777777, light_strength)
     light_1.castShadow = true
 
     light_1.position.set(-2, 2, 2)
     const light_2 = new AmbientLight(0xffffff, 0.3)
 
     // backfill light
-    const backfill_light = new DirectionalLight(0x777777, 3)
+    const backfill_light = new DirectionalLight(0x777777, light_strength * 0.5)
     backfill_light.castShadow = false // one shadow is enough
     backfill_light.position.set(2, 2, -2)
 

@@ -138,6 +138,8 @@ export class Bootstrap {
       light_strength = 12
     }
 
+    this.scene.fog = new THREE.Fog(floor_color, 20, 80)
+
     this.environment_container = new Group()
     this.environment_container.name = 'Setup objects'
     this.environment_container.add(...Generators.create_default_lights(light_strength))

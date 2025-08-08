@@ -22,7 +22,9 @@ export class Generators {
 
   static create_grid_helper (grid_color: number = 0x111155, floor_color: number = 0x4e4e7a): any[] {
     // create floor mesh and add to scene to help with shadows
-    const floor_geometry = new PlaneGeometry(30, 30, 30, 30)
+    const grid_size: number = 180
+    const divisions: number = 100
+    const floor_geometry = new PlaneGeometry(grid_size, grid_size, divisions, divisions)
     const floor_material = new MeshPhongMaterial({ color: floor_color, wireframe: false, transparent: false, shininess: 0.0, specular: 0.0 })
     floor_material.side = DoubleSide // helps us see that we are below the character
 
@@ -38,9 +40,7 @@ export class Generators {
     axes_helper.position.copy(new Vector3(0, 0.008, 0)) // offset a bit to avoid z-fighting
 
     // grid display on floor
-    const size: number = 30
-    const divisions: number = 30
-    const grid_helper: GridHelper = new GridHelper(size, divisions, grid_color, grid_color)
+    const grid_helper: GridHelper = new GridHelper(grid_size, divisions, grid_color, grid_color)
 
     return [grid_helper, floor_mesh, axes_helper]
   }

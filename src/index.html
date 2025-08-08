@@ -344,15 +344,20 @@
 
     <!-- Free-floating Animation Player -->
     <div id="animation-player">
-        <span id="current-animation-name">No animation selected</span>
-        <button id="play-pause-button" class="animation-control-button" disabled>
-            <span class="material-symbols-outlined">play_arrow</span>
-        </button>
-        <span>
-            <span id="current-time">0f</span> / 
-            <span id="total-time">0f</span>
-        </span>
-        <input type="range" id="animation-scrubber" min="0" max="100" value="0" disabled>
+        <div id="current-animation-container">
+            <span id="current-animation-name">No animation selected</span>
+        </div>
+        <div id="play-controls">
+            <button id="play-pause-button" class="animation-control-button" disabled>
+                <span class="material-symbols-outlined">play_arrow</span>
+            </button>
+            <span>
+                <span id="current-time">0f</span> / 
+                <span id="total-time">0f</span>
+            </span>
+            <input type="range" id="animation-scrubber" min="0" max="100" value="0" disabled>
+        </div>
+
     </div>
 
     <!-- info panel for messages and information-->

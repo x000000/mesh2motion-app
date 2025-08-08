@@ -1,25 +1,47 @@
 /* Free-floating Animation Player at bottom of screen */
 #animation-player {
     position: fixed;
-    bottom: 20px;
-    left: 50%;
+    bottom: 0;
+    left: 43%;
     transform: translateX(-50%);
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 15px;
+    gap: 0;
     background: var(--bg-primary);
     border: 1px solid var(--bg-tertiary);
-    border-radius: 30px;
+    border-radius: 1.0rem;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
     padding: 12px 20px;
     backdrop-filter: blur(10px);
     z-index: 1000;
-    min-width: 450px;
     visibility: hidden; /* Hidden by default until animation is loaded */
     transition: all 0.3s ease;
+    width: 40rem;
 }
+@media (max-width: 1200px) {
+  #animation-player {
+    width: 30rem;
+  }
+}
+@media (max-width: 1000px) {
+  #animation-player {
+    width: 15rem;
+  }
+}
+
+
 
 #animation-player.visible {
     visibility: visible;
+}
+
+#current-animation-container {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-self: center;
 }
 
 #current-animation-name {
@@ -27,10 +49,13 @@
     font-weight: 600;
     color: var(--text-primary);
     white-space: nowrap;
-    max-width: 150px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    min-width: 120px;
+}
+
+#play-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
 }
 
 .animation-control-button {
@@ -70,6 +95,12 @@
     -webkit-appearance: none;
     margin: 0 8px;
 }
+@media (max-width: 1000px) {
+    #animation-scrubber {
+        display: none;
+    }
+}
+
 
 #animation-scrubber::-webkit-slider-track {
     height: 8px;
@@ -92,4 +123,8 @@
 #animation-scrubber::-webkit-slider-thumb:hover {
     transform: scale(1.1);
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+}
+
+#current-time, #total-time {
+    width: 1.2rem; /* enough space to fit 3 digits */
 }

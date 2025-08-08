@@ -59,9 +59,6 @@ export class UI {
   dom_current_time: HTMLElement | null = null
   dom_total_time: HTMLElement | null = null
 
-  dom_info_container: HTMLElement | null = null
-  dom_info_panel: HTMLElement | null = null
-
   dom_import_animations_button: HTMLButtonElement | null = null
   dom_extend_arm_input: HTMLElement | null = null
   dom_extend_arm_button: HTMLButtonElement | null = null
@@ -145,9 +142,6 @@ export class UI {
     this.dom_animation_scrubber = document.querySelector('#animation-scrubber')
     this.dom_current_time = document.querySelector('#current-time')
     this.dom_total_time = document.querySelector('#total-time')
-
-    this.dom_info_container = document.querySelector('#info-panel')
-    this.dom_info_panel = document.querySelector('#info-messaging')
 
     this.dom_extend_arm_input = document.querySelector('#extend-arm-input')
     this.dom_extend_arm_button = document.querySelector('#extend-arm-button')

@@ -181,32 +181,9 @@ export class Bootstrap {
   }
 
   private show_skin_failure_message (bone_names_with_errors: string[], error_point_positions: Vector3[]): void {
-    // show the DOM HTML container to see error messages for each bone that isn't inside the mesh
-    if (this.ui.dom_info_container !== null) {
-      this.ui.dom_info_container.style.display = 'block'
-    }
-
     // add the bone vertices as X markers to debugging object
     const error_markers: Group = Generators.create_x_markers(error_point_positions, 0.02, 0xff0000)
     this.debugging_visual_object.add(error_markers)
-
-    // add information to the info panel
-    if (this.ui.dom_info_panel === null) {
-      console.warn('There was a skin failure, but the UI Info panel DOM element is not set to show the message.')
-      return
-    }
-
-    this.ui.dom_info_panel.innerHTML = 'Somebones are outside the mesh and are marked with red. Fix them and try again.'
-    this.ui.dom_info_panel.innerHTML += '<br>'
-
-    // display the bones names in an HTML list
-    let bones_error_list = '<ol id="bone-list">'
-    bone_names_with_errors.forEach((bone_name: string) => {
-      bones_error_list += `<li>${Utility.clean_bone_name_for_messaging(bone_name)}</li>`
-    })
-
-    bones_error_list += '</ol>'
-    this.ui.dom_info_panel.innerHTML += bones_error_list
   }
 
   public process_step_changed (process_step: ProcessStep): ProcessStep {
@@ -216,9 +193,13 @@ export class Bootstrap {
     // clean up things related to edit step in case we are leaving it
     this.edit_skeleton_step.cleanup_on_exit_step()
 
-    // hide the info container by default
-    if (this.ui.dom_info_container !== null) {
-      this.ui.dom_info_container.style.display = 'none'
+    // only show animation player on the animation listing page
+    if (this.ui.dom_animation_player !== null) {
+      this.ui.dom_animation_player.style.display = 'none'
+
+      if (process_step === ProcessStep.AnimationsListing) {
+        this.ui.dom_animation_player.style.display = 'flex'
+      }
     }
 
     switch (process_step) {

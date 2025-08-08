@@ -236,27 +236,6 @@ option {
     font-size: 20px;
 }
 
-#info-panel
-{
-    background: var(--bg-tertiary);
-    overflow-y: auto;
-    height: fit-content;
-    bottom: 20px;
-    position: absolute;
-    display: flex;
-    width: 300px;
-    right: 20px;
-    border-radius: 3px;
-    border: 1px solid var(--text-primary);
-    max-height: calc(100% - 50px);
-    box-shadow: 3px 3px 9px var(--bg-tertiary);
-}
-#info-messaging {
-    padding: 0.5rem;
-    color: var(--text-primary);
-    border: 1px solid var(--text-primary);
-}
-
 #load-model-tools, #load-skeleton-tools, #transform-controls, #skeleton-step-actions {
     display: flex;
     flex-direction: column;

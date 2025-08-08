@@ -51,11 +51,6 @@ export class AnimationPlayer {
     const fps = 30
     const total_frames = Math.floor(animation_clip.duration * fps)
 
-    // Show the animation player
-    if (this.ui.dom_animation_player !== null) {
-      this.ui.dom_animation_player.classList.add('visible')
-    }
-
     // Update UI
     if (this.ui.dom_current_animation_name !== null) {
       this.ui.dom_current_animation_name.textContent = animation_clip.name
@@ -85,11 +80,6 @@ export class AnimationPlayer {
     this.current_animation_clip = null
     this.current_animation_actions = []
     this.is_playing = false
-
-    // Hide the animation player
-    if (this.ui.dom_animation_player !== null) {
-      this.ui.dom_animation_player.classList.remove('visible')
-    }
 
     // Update UI
     if (this.ui.dom_current_animation_name !== null) {

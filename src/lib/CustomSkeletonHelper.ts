@@ -121,6 +121,14 @@ class CustomSkeletonHelper extends Line2 {
     this.joint_points.geometry.dispose()
     this.joint_points.material.dispose()
   }
+
+  public show(): void {
+    this.visible = true
+  }
+
+  public hide(): void {
+    this.visible = false
+  }
 }
 
 function getBoneList (object: any): any[] {

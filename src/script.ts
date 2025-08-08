@@ -110,6 +110,11 @@ export class Bootstrap {
     // center orbit controls around mid-section area with target change
     this.controls = new OrbitControls(this.camera, this.renderer.domElement)
     this.controls.target.set(0, 0.9, 0)
+
+    // Set zoom limits to prevent excessive zooming in or out
+    this.controls.minDistance = 5 // Minimum zoom (closest to model)
+    this.controls.maxDistance = 30 // Maximum zoom (farthest from model)
+
     this.controls.update()
 
     this.scene.add(this.transform_controls.getHelper())
@@ -271,6 +276,11 @@ export class Bootstrap {
 
         this.animations_listing_step.load_and_apply_default_animation_to_skinned_mesh(this.weight_skin_step.final_skinned_meshes(),
           this.load_skeleton_step.skeleton_type())
+
+        if (this.skeleton_helper !== undefined) {
+          this.skeleton_helper.hide() // hide skeleton helper in animations listing step
+        }
+
         break
     }
 

@@ -43,11 +43,16 @@ export class ThemeManager extends EventTarget {
 
   private apply_theme (): void {
     const html_element = document.documentElement
+    const body_element = document.body
 
     if (this.current_theme === 'light') {
       html_element.setAttribute('data-theme', 'light')
+      body_element.classList.add('light-theme')
+      body_element.classList.remove('dark-theme')
     } else {
       html_element.removeAttribute('data-theme')
+      body_element.classList.add('dark-theme')
+      body_element.classList.remove('light-theme')
     }
 
     this.update_toggle_ui()
@@ -56,9 +61,9 @@ export class ThemeManager extends EventTarget {
   private update_toggle_ui (): void {
     if (this.theme_icon !== null) {
       if (this.current_theme === 'light') {
-        this.theme_icon.textContent = '😎'
+        this.theme_icon.textContent = '🌞'
       } else {
-        this.theme_icon.textContent = '🌝'
+        this.theme_icon.textContent = '🌚'
       }
     }
   }

@@ -1,12 +1,3 @@
-:root {
-  --primary-color: #496987;
-}
-
-/* Light theme override for radio buttons */
-[data-theme="light"] {
-  --primary-color: #3498db;
-}
-
 fieldset {
     border: none;
     margin: 0;
@@ -37,7 +28,7 @@ fieldset {
 .toggle input + label {
   padding: .25rem 0.5rem;
   padding-top: 0.5rem;
-  border: solid 2px var(--primary-color);
+  border: solid 2px var(--radio-button-group-bg);
   font-size: 1rem;
   transition: border-color .15s ease-out, 
               color .25s ease-out, 
@@ -57,14 +48,14 @@ fieldset {
 
 /* border color when hovering over the element */
 .toggle input:hover + label {
-  border-color: var(--primary-color);
-  background: #5482ad70;
+  border-color: var(--radio-button-group-bg);
+  background: var(--radio-button-group-hover);
 }
 
 /* active state */
 .toggle input:checked + label {
-  background-color: var(--primary-color);
+  background-color: var(--radio-button-group-bg);
   color: #FFF;
-  border-color: var(--primary-color);
+  border-color: var(--radio-button-group-bg);
   z-index: 1;
 }

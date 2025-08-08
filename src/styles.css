@@ -49,7 +49,7 @@ html, body, li, p, div, span, label, input,
 h1, h2, h3, h4, h5, h6, input, button, select {
     color: var(--text-primary);
     font-family: 'Jost', sans-serif;
-    font-size: 13px;
+    font-size: 14px;
     display: inline-block;
 }
 
@@ -83,7 +83,6 @@ li{
     display: list-item;
     line-height: 135%;
     color: var(--text-primary);
-    font-size: 13px;
 }
 
 html {
@@ -255,7 +254,6 @@ option {
 }
 #info-messaging {
     padding: 0.5rem;
-    font-size: 13px;
     color: var(--text-primary);
     border: 1px solid var(--text-primary);
 }
@@ -277,7 +275,7 @@ option {
     top: 0;
     right: 0;
     border: 1px dotted var(--text-primary);
-    padding: 1rem;
+    padding: 0.5rem;
     height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
@@ -457,6 +455,7 @@ input[type="file"] {
     width: 20px; /* Increase checkbox size */
     height: 20px;
     cursor: pointer;
+    accent-color: var(--text-alternate);
 }
 
 .styled-checkbox label {
@@ -492,9 +491,8 @@ input[type="file"] {
 /* Theme toggle button styles */
 #theme-toggle-container {
     position: fixed;
-    bottom: 20px;
-    right: 200px;
-    z-index: 1000;
+    bottom: 4rem;
+    left: 1rem;
 }
 
 #theme-toggle {

@@ -138,7 +138,7 @@ export class StepAnimationsListing extends EventTarget {
 
       const animation_button: HTMLButtonElement | null = this.ui.dom_animation_clip_list.querySelector(`button[data-index="${this.current_playing_index}"]`)
       if (animation_button !== null) {
-        animation_button.style.background = `linear-gradient(to right,rgba(50, 94, 114, 0.42) ${progress_percent}%, rgba(50, 94, 113, 0) ${progress_percent}%)`
+        animation_button.style.background = `linear-gradient(to right,var(--bg-primary) ${progress_percent}%, var(--bg-alternate) ${progress_percent}%)`
       }
     })
   }

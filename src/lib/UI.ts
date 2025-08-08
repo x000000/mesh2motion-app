@@ -57,6 +57,7 @@ export class UI {
   dom_import_animations_button: HTMLButtonElement | null = null
   dom_extend_arm_input: HTMLElement | null = null
   dom_extend_arm_button: HTMLButtonElement | null = null
+  dom_a_pose_correction_options: HTMLElement | null = null
   dom_export_button_hidden_link: HTMLElement | null = null
   dom_build_version: HTMLElement | null = null
 
@@ -134,6 +135,7 @@ export class UI {
 
     this.dom_extend_arm_input = document.querySelector('#extend-arm-input')
     this.dom_extend_arm_button = document.querySelector('#extend-arm-button')
+    this.dom_a_pose_correction_options = document.querySelector('#a-pose-correction-options')
 
     this.dom_build_version = document.querySelector('#build-version')
 

@@ -288,21 +288,26 @@
         
         
                     <!-- slider to control arm extension (hide this feature until the base functionality is more stable) -->
-                    <div style="display: flex; flex-direction: row; align-items: center;">
-                        <label style="display:inline-flex">A-Pose Correction</label>
-                        <span class="tooltip">
-                            <span class="material-symbols-outlined" style="font-size: 16px;">help</span>
-                            <span class="tooltiptext">If your model uses an A-Pose, this will help expand/contract arms for all animations</span>
-                        </span>
-                    </div>
+                    <div id="a-pose-correction-options">
+                        <div style="display: flex; flex-direction: row; align-items: center;">
+                            <label style="display:inline-flex">A-Pose Correction</label>
+                            <span class="tooltip">
+                                <span class="material-symbols-outlined" style="font-size: 16px;">help</span>
+                                <span class="tooltiptext">If your model uses an A-Pose, this will help expand/contract arms for all animations</span>
+                            </span>
+                        </div>
 
-                    <div style="display: flex; flex-direction: row; gap: 1rem; justify-content: flex-start; align-items: center;">
-                        <input type="number" id="extend-arm-input" name="arm-extend-input" value="3" min="-25" max="25" step="1">
-                        <span class="suffix-unit">%</span>
-                        <button id="extend-arm-button" class="secondary-button" >Open Arms</button>
+                        <div style="display: flex; flex-direction: row; gap: 1rem; justify-content: flex-start; align-items: center;">
+                            <input type="number" id="extend-arm-input" name="arm-extend-input" value="3" min="-25" max="25" step="1">
+                            <span class="suffix-unit">%</span>
+                            <button id="extend-arm-button" class="secondary-button" >Open Arms</button>
+                        </div>
+
+                         <hr />
+                         
                     </div>
         
-                    <hr />
+                   
 
                     <!-- checkbox option to show skeleton -->
                     <div class="styled-checkbox">

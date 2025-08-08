@@ -139,7 +139,7 @@ export class Bootstrap {
     let light_strength: number = 12
     if (this.theme_manager.get_current_theme() === 'light') {
       grid_color = 0xaaaaaa // light theme color
-      floor_color = 0xe3eef0 // light theme color
+      floor_color = 0xecf0f1 // light theme color
       light_strength = 12
     }
 
@@ -161,6 +161,16 @@ export class Bootstrap {
     this.skeleton_helper = new CustomSkeletonHelper(new_skeleton.bones[0], { linewidth: 4, color: 0x4e7d58 })
     this.skeleton_helper.name = helper_name
     this.scene.add(this.skeleton_helper)
+  }
+
+  public update_a_pose_options_visibility (): void {
+    if (this.ui.dom_a_pose_correction_options != null) {
+      if (this.load_skeleton_step.skeleton_type() === SkeletonType.Human) {
+        this.ui.dom_a_pose_correction_options.style.display = 'block'
+      } else {
+        this.ui.dom_a_pose_correction_options.style.display = 'none'
+      }
+    }
   }
 
   public handle_transform_controls_moving (): void {
@@ -267,6 +277,9 @@ export class Bootstrap {
       case ProcessStep.AnimationsListing:
         this.process_step = ProcessStep.AnimationsListing
         this.animations_listing_step.begin()
+
+        // Show/hide A-Pose correction options based on skeleton type
+        this.update_a_pose_options_visibility()
 
         // calculate hip bone offset for human skeleton type
         if (this.load_skeleton_step.skeleton_type() === SkeletonType.Human) {

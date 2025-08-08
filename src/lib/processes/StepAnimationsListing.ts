@@ -1,8 +1,8 @@
 import { UI } from '../UI.ts'
+import { AnimationPlayer } from '../AnimationPlayer.ts'
 
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js'
-import { BVHLoader } from 'three/examples/jsm/loaders/BVHLoader.js'
 
 import { AnimationClip, AnimationMixer, Quaternion, Vector3, type SkinnedMesh, type QuaternionKeyframeTrack, 
   type KeyframeTrack, type AnimationAction, type Object3D, Bone } from 'three'
@@ -12,9 +12,10 @@ import { SkeletonType } from '../enums/SkeletonType.ts'
 // Note: EventTarget is a built-ininterface and do not need to import it
 export class StepAnimationsListing extends EventTarget {
   private readonly ui: UI
+  private readonly animation_player: AnimationPlayer
   private animation_clips_loaded: AnimationClip[] = []
   private gltf_animation_loader: GLTFLoader = new GLTFLoader()
-  private fbx_animation_loader: FBXLoader = new FBXLoader()
+  private readonly fbx_animation_loader: FBXLoader = new FBXLoader()
 
   private animation_mixer: AnimationMixer = new AnimationMixer()
   private skinned_meshes_to_animate: SkinnedMesh[] = []
@@ -63,6 +64,7 @@ export class StepAnimationsListing extends EventTarget {
   constructor () {
     super()
     this.ui = new UI()
+    this.animation_player = new AnimationPlayer()
   }
 
   public begin (): void {
@@ -102,6 +104,7 @@ export class StepAnimationsListing extends EventTarget {
     this.current_playing_index = 0
     this.hip_bone_offset = new Vector3(0, 0, 0)
     this.hip_bone_scale_factor_z = 1.0
+    this.animation_player.clear_animation()
   }
 
   public mixer (): AnimationMixer {
@@ -112,35 +115,7 @@ export class StepAnimationsListing extends EventTarget {
   // on this step
   public frame_change (delta_time: number): void {
     this.mixer().update(delta_time)
-    this.update_active_animation_css_progress(delta_time)
-  }
-
-  // show a progress bar for teh current animation clip in the form of a gradient background
-  // on the button that is playing the animation
-  private update_active_animation_css_progress (delta_time: number): void {
-    if (this.animation_mixer === null || this.animation_clips_loaded.length === 0) { return }
-
-    this.skinned_meshes_to_animate.forEach((skinned_mesh) => {
-      const clip_to_play: AnimationClip = this.animation_clips_loaded[this.current_playing_index]
-
-      const anim_action: AnimationAction = this.animation_mixer.clipAction(clip_to_play, skinned_mesh)
-
-      if (anim_action === null) { 
-        console.info('No anim_action found for clipAction. Aborting. Clip name trying to play: :', clip_to_play.name, this.animation_mixer)
-        return
-      }
-
-      const progress = Math.min(anim_action.time / clip_to_play.duration, 1)
-      const progress_percent: number = progress * 100 // returns 0-100
-
-      // background gradient to simulate a progress bar for the animation
-      if (this.ui.dom_animation_clip_list === null) { return }
-
-      const animation_button: HTMLButtonElement | null = this.ui.dom_animation_clip_list.querySelector(`button[data-index="${this.current_playing_index}"]`)
-      if (animation_button !== null) {
-        animation_button.style.background = `linear-gradient(to right,var(--bg-primary) ${progress_percent}%, var(--bg-alternate) ${progress_percent}%)`
-      }
-    })
+    this.animation_player.update(delta_time)
   }
 
   public animation_clips (): AnimationClip[] {
@@ -315,21 +290,24 @@ export class StepAnimationsListing extends EventTarget {
     // otherwise modifications like arm extension will not update
     this.animation_mixer = new AnimationMixer()
 
+    const all_animation_actions: AnimationAction[] = []
+
     this.skinned_meshes_to_animate.forEach((skinned_mesh) => {
       const clip_to_play: AnimationClip = this.animation_clips_loaded[this.current_playing_index]
       const anim_action: AnimationAction = this.animation_mixer.clipAction(clip_to_play, skinned_mesh)
 
       anim_action.stop()
       anim_action.play()
+
+      // Collect all animation actions for the animation player
+      all_animation_actions.push(anim_action)
     })
 
-    // reset all the animation button background styles. This will remove the 
-    // progress bar effect from whatever was animating before
-    if (this.ui.dom_animation_clip_list === null) { return }
-    const all_buttons = this.ui.dom_animation_clip_list.querySelectorAll('button[data-index]');
-    all_buttons.forEach((btn: HTMLButtonElement) => {
-      btn.style.background = '' // or set to your default, e.g. ''
-    })
+    // Update the animation player with the current animation and all actions
+    if (all_animation_actions.length > 0) {
+      const clip_to_play: AnimationClip = this.animation_clips_loaded[this.current_playing_index]
+      this.animation_player.set_animation(clip_to_play, all_animation_actions)
+    }
   }
 
   private update_download_button_enabled (): void {

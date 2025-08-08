@@ -72,7 +72,6 @@ h1, h2, h3, h4, h5, h6, input, button, select {
     border-radius: 4px;
 }
 
-
 hr {
     border:1px solid var(--bg-alternate);
     width: 100%;

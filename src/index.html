@@ -11,6 +11,7 @@
     <script type="module" src="./script.ts"></script>
     <link href="./styles.css" rel="stylesheet" crossorigin="anonymous" />
     <link rel="stylesheet" href="./radio-button-group.css" crossorigin="anonymous" />
+    <link rel="stylesheet" href="./animation-player.css" crossorigin="anonymous" />
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 
@@ -276,6 +277,26 @@
                     <!-- Filter textbox for animations -->
                     <input type="text" id="animation-filter" placeholder="Filter animations...">
 
+                    <!-- Mini Animation Player -->
+                    <div id="animation-player">
+                        <div id="animation-player-header">
+                            <span id="current-animation-name">No animation selected</span>
+                            <div id="animation-player-controls">
+                                <button id="play-pause-button" class="secondary-button" disabled>
+                                    <span class="material-symbols-outlined">play_arrow</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="animation-timeline-container">
+                            <div id="animation-timeline">
+                                <input type="range" id="animation-scrubber" min="0" max="100" value="0" disabled>
+                                <div id="timeline-labels">
+                                    <span id="current-time">0</span>
+                                    <span id="total-time">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <div id="animations-listing-header">
                         <span>Animation name</span>

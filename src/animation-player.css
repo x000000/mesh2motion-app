@@ -1,0 +1,94 @@
+#animation-player {
+    background-color: var(--bg-alternate);
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1rem 0;
+    border: 1px solid var(--bg-tertiary);
+}
+
+#animation-player-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+#current-animation-name {
+    font-weight: bold;
+    color: var(--text-primary);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#animation-player-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#play-pause-button {
+    padding: 0.5rem;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin: 0;
+}
+
+#play-pause-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#animation-timeline-container {
+    width: 100%;
+}
+
+#animation-timeline {
+    width: 100%;
+}
+
+#animation-scrubber {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--bg-primary);
+    outline: none;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+}
+
+#animation-scrubber::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--button-primary-bg);
+    cursor: pointer;
+    border: 2px solid var(--text-primary);
+}
+
+#animation-scrubber::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--button-primary-bg);
+    cursor: pointer;
+    border: 2px solid var(--text-primary);
+}
+
+#timeline-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-alternate);
+}
+
+#animation-scrubber:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

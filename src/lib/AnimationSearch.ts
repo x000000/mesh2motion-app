@@ -102,8 +102,7 @@ export class AnimationSearch {
 
       this.animation_list_container.innerHTML +=
               `<div class="anim-item">
-                    <button class="secondary-button play" data-index="${original_index}">
-                    &#9658;
+                    <button class="secondary-button play" data-index="${original_index}">                  
                     ${animation_clip.name}
                     </button>
 

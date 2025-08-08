@@ -51,6 +51,14 @@ export class UI {
   dom_animation_clip_list: HTMLElement | null = null
   dom_export_button: HTMLButtonElement | null = null
 
+  // Animation player controls
+  dom_animation_player: HTMLElement | null = null
+  dom_current_animation_name: HTMLElement | null = null
+  dom_play_pause_button: HTMLButtonElement | null = null
+  dom_animation_scrubber: HTMLInputElement | null = null
+  dom_current_time: HTMLElement | null = null
+  dom_total_time: HTMLElement | null = null
+
   dom_info_container: HTMLElement | null = null
   dom_info_panel: HTMLElement | null = null
 
@@ -129,6 +137,14 @@ export class UI {
     // UI Controls for working with animation list/selection and export
     this.dom_animation_clip_list = document.querySelector('#animations-items')
     this.dom_export_button = document.querySelector('#export-button')
+
+    // Animation player controls
+    this.dom_animation_player = document.querySelector('#animation-player')
+    this.dom_current_animation_name = document.querySelector('#current-animation-name')
+    this.dom_play_pause_button = document.querySelector('#play-pause-button')
+    this.dom_animation_scrubber = document.querySelector('#animation-scrubber')
+    this.dom_current_time = document.querySelector('#current-time')
+    this.dom_total_time = document.querySelector('#total-time')
 
     this.dom_info_container = document.querySelector('#info-panel')
     this.dom_info_panel = document.querySelector('#info-messaging')

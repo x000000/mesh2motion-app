@@ -51,13 +51,18 @@ export class AnimationPlayer {
     const fps = 30
     const total_frames = Math.floor(animation_clip.duration * fps)
 
+    // Show the animation player
+    if (this.ui.dom_animation_player !== null) {
+      this.ui.dom_animation_player.classList.add('visible')
+    }
+
     // Update UI
     if (this.ui.dom_current_animation_name !== null) {
       this.ui.dom_current_animation_name.textContent = animation_clip.name
     }
 
     if (this.ui.dom_total_time !== null) {
-      this.ui.dom_total_time.textContent = `${total_frames}f`
+      this.ui.dom_total_time.textContent = `${total_frames}`
     }
 
     // Enable controls
@@ -80,6 +85,11 @@ export class AnimationPlayer {
     this.current_animation_clip = null
     this.current_animation_actions = []
     this.is_playing = false
+
+    // Hide the animation player
+    if (this.ui.dom_animation_player !== null) {
+      this.ui.dom_animation_player.classList.remove('visible')
+    }
 
     // Update UI
     if (this.ui.dom_current_animation_name !== null) {
@@ -181,7 +191,7 @@ export class AnimationPlayer {
 
     // Update current frame display
     if (this.ui.dom_current_time !== null) {
-      this.ui.dom_current_time.textContent = `${frame_number}f`
+      this.ui.dom_current_time.textContent = `${frame_number}`
     }
   }
 
@@ -204,7 +214,7 @@ export class AnimationPlayer {
 
     // Update current frame display
     if (this.ui.dom_current_time !== null) {
-      this.ui.dom_current_time.textContent = `${current_frame}f`
+      this.ui.dom_current_time.textContent = `${current_frame}`
     }
 
     // Check if animation has finished and loop it

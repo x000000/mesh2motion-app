@@ -42,19 +42,7 @@ export class StepWeightSkin extends EventTarget {
     this.weight_painted_mesh_preview.renderOrder = -1
   }
 
-  public begin (): void {
-    if (this.ui.dom_current_step_index !== null) {
-      this.ui.dom_current_step_index.innerHTML = '3.5'
-    }
-
-    if (this.ui.dom_current_step_element !== null) {
-      this.ui.dom_current_step_element.innerHTML = 'Skin Debug'
-    }
-
-    if (this.ui.dom_skinned_mesh_tools !== null) {
-      this.ui.dom_skinned_mesh_tools.style.display = 'flex'
-    }
-  }
+  public begin (): void { }
 
   public create_bone_formula_object (editable_armature: Object3D, skinning_formula: string, skeleton_type: SkeletonType): AbstractAutoSkinSolver | null {
     this.skinning_armature = editable_armature.clone()

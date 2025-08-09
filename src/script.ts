@@ -247,7 +247,6 @@ export class Bootstrap {
         break
       case ProcessStep.BindPose:
         this.process_step = ProcessStep.BindPose
-        this.weight_skin_step.begin()
         this.transform_controls.enabled = false // shouldn't be editing bones
         this.calculate_skin_weighting_for_models()
         this.regenerate_skeleton_helper(this.weight_skin_step.skeleton())

@@ -1,5 +1,5 @@
 import {
-  Vector3, Vector2, type Object3D, Mesh, Group, Bone, type Skeleton, Euler, Raycaster,
+  Vector3, Vector2, type Object3D, Mesh, Group, Bone, type Skeleton, Euler, Raycaster, AnimationClip, KeyframeTrack,
   type PerspectiveCamera, type Scene, type Object3DEventMap, type BufferAttribute, type BufferGeometry, type InterleavedBufferAttribute
 } from 'three'
 import BoneTransformState from './models/BoneTransformState'
@@ -288,5 +288,12 @@ export class Utility {
     })
 
     return closest_bone_index
+  }
+
+  static deep_clone_animation_clips (animation_clips: AnimationClip[]): AnimationClip[] {
+    return animation_clips.map((clip: AnimationClip) => {
+      const tracks = clip.tracks.map((track: KeyframeTrack) => track.clone())
+      return new AnimationClip(clip.name, clip.duration, tracks)
+    })
   }
 }

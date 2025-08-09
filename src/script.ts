@@ -65,7 +65,7 @@ export class Bootstrap {
     this.setup_environment()
     this.eventListeners.addEventListeners()
     this.process_step = this.process_step_changed(ProcessStep.LoadModel)
-    this.animate()
+    this.animate() // start the render loop which will continue rendering the scene
     this.inject_build_version()
   } // end initialize()
 

@@ -8,6 +8,7 @@ import { AnimationClip, AnimationMixer, Quaternion, Vector3, type SkinnedMesh, t
   type KeyframeTrack, type AnimationAction, type Object3D, Bone } from 'three'
 
 import { SkeletonType } from '../enums/SkeletonType.ts'
+import { Utility } from '../Utilities.ts'
 
 // Note: EventTarget is a built-ininterface and do not need to import it
 export class StepAnimationsListing extends EventTarget {
@@ -154,7 +155,7 @@ export class StepAnimationsListing extends EventTarget {
         // load the animation clips into a new array
         // then, remove the animation position keyframes. That will mess up the skinning
         // process since we will be offsetting and moving the bone root positions
-        const cloned_anims: AnimationClip[] = this.deep_clone_animation_clips(gltf.animations)
+        const cloned_anims: AnimationClip[] = Utility.deep_clone_animation_clips(gltf.animations)
 
         // only keep position tracks
         this.remove_position_tracks(cloned_anims, true)
@@ -349,12 +350,5 @@ export class StepAnimationsListing extends EventTarget {
 
     // helps ensure we don't add event listeners multiple times
     this.has_added_event_listeners = true
-  }
-
-  private deep_clone_animation_clips (animation_clips: AnimationClip[]): AnimationClip[] {
-    return animation_clips.map((clip: AnimationClip) => {
-      const tracks = clip.tracks.map(track => track.clone())
-      return new AnimationClip(clip.name, clip.duration, tracks)
-    })
   }
 }

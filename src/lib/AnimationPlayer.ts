@@ -43,6 +43,10 @@ export class AnimationPlayer {
     }
   }
 
+  public animation_name_clean (input: string): string {
+    return input.replace(/_/g, ' ')
+  }
+
   public set_animation (animation_clip: AnimationClip, animation_actions: AnimationAction[]): void {
     this.current_animation_clip = animation_clip
     this.current_animation_actions = animation_actions
@@ -53,7 +57,7 @@ export class AnimationPlayer {
 
     // Update UI
     if (this.ui.dom_current_animation_name !== null) {
-      this.ui.dom_current_animation_name.textContent = animation_clip.name
+      this.ui.dom_current_animation_name.textContent = this.animation_name_clean(animation_clip.name)
     }
 
     if (this.ui.dom_total_time !== null) {

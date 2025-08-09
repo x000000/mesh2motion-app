@@ -103,7 +103,7 @@ export class AnimationSearch {
       this.animation_list_container.innerHTML +=
               `<div class="anim-item">
                     <button class="secondary-button play" data-index="${original_index}">                  
-                    ${animation_clip.name}
+                    ${this.animation_name_clean(animation_clip.name)}
                     </button>
 
                   <div class="styled-checkbox">
@@ -111,6 +111,10 @@ export class AnimationSearch {
                   </div>
               </div>`
     })
+  }
+
+  public animation_name_clean (input: string): string {
+    return input.replace(/_/g, ' ')
   }
 
   public get_selected_animations (): AnimationWithState[] {

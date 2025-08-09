@@ -14,6 +14,8 @@
   --button-alternate-bg: rgba(175, 58, 190, 0.521);
   --button-shadow-color: rgba(65, 48, 124, 0.705);
 
+  --current-step-indicator: rgb(20, 43, 59);
+
   --radio-button-group-bg: rgb(81, 114, 151);
   --radio-button-group-hover: rgb(37, 65, 97);
 }
@@ -27,9 +29,11 @@
   --bg-alternate: #cdd7dd;
   --bg-tertiary: #8b9bac;
 
-  --button-primary-bg:  #73b6e2c7;
+  --button-primary-bg:  #73b6e2f8;
   --button-alternate-bg: rgb(176, 216, 240);
   --button-shadow-color: #70a3c5; 
+
+  --current-step-indicator: rgb(169, 205, 214);
 
   --radio-button-group-bg: rgb(169, 193, 224);
   --radio-button-group-hover: rgb(221, 227, 241);
@@ -143,8 +147,8 @@ button.secondary-button.play
 button, .button {
     background: var(--button-primary-bg);
     background: linear-gradient(180deg, var(--button-primary-bg) 0%, var(--button-alternate-bg) 100%);
-     box-shadow: 3px 3px 2px var(--button-shadow-color);
-    padding: 0.75rem 1.0rem;
+    box-shadow: 3px 3px 2px var(--button-shadow-color);
+    padding: 0.3rem 0.8rem;
     margin-right: 0.5rem;
     border: 1px solid var(--button-shadow-color);
     border-radius: 0.25rem;
@@ -222,14 +226,11 @@ option {
 
 #current-step-index {
     font-size: 15px;
-    background: var(--bg-alternate);
-    background: linear-gradient(150deg, var(--bg-primary) 3%, var(--bg-alternate) 100%);
-    padding: 0.7rem;
-    border-radius: 39px;
-    color: var(--text-primary);
-    width: 16px;
+    background: var(--current-step-indicator);
+    padding: 0.5rem 1rem;
+    border-radius: 1rem;
+    color: var(--text-primary);    
     text-align: center;
-    font-weight: 700;
 }
 
 #current-step-label {
@@ -239,7 +240,7 @@ option {
 #load-model-tools, #load-skeleton-tools, #transform-controls, #skeleton-step-actions {
     display: flex;
     flex-direction: column;
-    row-gap: 0.7rem;
+    row-gap: 0.4rem;
 }
 
 #tool-panel {

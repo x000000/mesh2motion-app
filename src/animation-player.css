@@ -10,10 +10,10 @@
     gap: 0;
     background: var(--bg-primary);
     border: 1px solid var(--bg-tertiary);
-    border-radius: 0.5rem;
+    border-radius: 0;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
-    padding: 5px 10px;
+    padding: 0;
     backdrop-filter: blur(10px);
     z-index: 1000;
     transition: all 0.3s ease;
@@ -47,14 +47,16 @@
     align-items: center;
     gap: 8px;
     width: 100%;
+    padding: 0;
 }
 
 .animation-control-button {
     width: 30px;
     height: 30px;
-    border-radius: 15%;
+    border-radius: 0;
     border: none;
     background: var(--button-primary-bg);
+    box-shadow: none;
     color: white;
     cursor: pointer;
     display: flex;
@@ -76,7 +78,7 @@
 
 #animation-scrubber {
     flex: 1;
-    height: 8px;
+    height: 4px;
     border-radius: 4px;
     background: var(--bg-tertiary);
     outline: none;
@@ -101,12 +103,13 @@
 
 #animation-scrubber::-webkit-slider-thumb {
     appearance: none;
-    width: 20px;
-    height: 20px;
+    width: 15px;
+    height: 15px;
+    opacity: 1.0;
     border-radius: 50%;
     background: var(--button-primary-bg);
     cursor: pointer;
-    border: 3px solid white;
+    border: 3px solid var(--text-primary);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
     transition: all 0.2s ease;
 }

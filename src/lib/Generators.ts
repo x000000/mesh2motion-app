@@ -151,7 +151,7 @@ export class Generators {
     light_1.castShadow = true
 
     light_1.position.set(-2, 2, 2)
-    const light_2 = new AmbientLight(0xffffff, 0.3)
+    const light_2 = new AmbientLight(0xffffff, 0.9)
 
     // backfill light
     const backfill_light = new DirectionalLight(0x777777, light_strength * 0.5)

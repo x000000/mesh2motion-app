@@ -136,11 +136,11 @@ export class Bootstrap {
     // change color of grid based on theme
     let grid_color = 0x4b6368
     let floor_color = 0x2d4353
-    let light_strength: number = 12
+    let light_strength: number = 10
     if (this.theme_manager.get_current_theme() === 'light') {
-      grid_color = 0xaaaaaa // light theme color
+      grid_color = 0xcccccc // light theme color
       floor_color = 0xecf0f1 // light theme color
-      light_strength = 12
+      light_strength = 14
     }
 
     this.scene.fog = new THREE.Fog(floor_color, 20, 80)

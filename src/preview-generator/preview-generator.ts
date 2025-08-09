@@ -7,7 +7,9 @@ import { ThemeManager } from '../lib/ThemeManager.ts'
 
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { WebMRecorder } from './webm-recorder.ts'
-import { saveAs } from 'file-saver';
+
+import { saveAs } from 'file-saver'
+import JSZip from 'jszip'
 
 export class PreviewGeneratorBootstrap {
   public readonly camera = Generators.create_camera()
@@ -16,10 +18,19 @@ export class PreviewGeneratorBootstrap {
   public readonly scene: THREE.Scene = new THREE.Scene()
   public readonly theme_manager = new ThemeManager()
 
+  private readonly recorder: WebMRecorder = new WebMRecorder(this.renderer)
+  private readonly zip = new JSZip()
+
   private environment_container: THREE.Group = new THREE.Group()
 
   // loading model and animation stuff
-  private gltf_animation_loader: GLTFLoader = new GLTFLoader()
+
+  private readonly gltf_animation_loader: GLTFLoader = new GLTFLoader()
+  private animation_clips: THREE.AnimationClip[] = []
+  private readonly mixers: THREE.AnimationMixer[] = []
+  private readonly skinned_meshes: THREE.SkinnedMesh[] = []
+
+  private current_animation_index_processing: number = 0
 
   constructor () {
     this.animate = this.animate.bind(this)
@@ -35,34 +46,109 @@ export class PreviewGeneratorBootstrap {
     // setup event listener for record button
     const record_button = document.getElementById('record-button')
     record_button?.addEventListener('click', () => {
-      this.start_recording()
+      void this.start_recording()
     })
 
     this.animate()
   }
 
   private async start_recording (): Promise<void> {
-    const recorder: WebMRecorder = new WebMRecorder(this.renderer)
+    if (this.skinned_meshes.length === 0 || this.animation_clips.length === 0) {
+      alert('Animation or animations not loaded yet.')
+      return
+    }
 
-    // TODO: play through each animation and do a recording
-    // after all the animations are done zip up the results and download
+    await this.process_animation_clip()
+  }
 
-    await recorder.record_webm(1, 'preview.webm').then(file => {
-      console.log(file)
-      saveAs(file, 'preview.webm')
+  private async process_animation_clip (): Promise<void> {
+    // if we have processed all animations, we can stop
+    const temp_limit = 4 // this.animation_clips.length
+    if (this.current_animation_index_processing >= temp_limit) {
+      console.log('All animations processed.')
+      return
+    }
+
+    const clip = this.animation_clips[this.current_animation_index_processing]
+
+    console.log('processing', clip.name)
+
+    // Stop all previous actions
+    this.mixers.forEach(mixer => {
+      mixer.stopAllAction()
     })
+
+    // go through each mixer and play clip
+    this.mixers.forEach(mixer => {
+      const action = mixer.clipAction(clip)
+      action.reset()
+      action.setLoop(THREE.LoopOnce, 1) // Play only once
+      action.clampWhenFinished = true // Hold the last frame
+      action.play()
+    })
+
+    // Wait for a short moment to ensure animation is visible
+    // before we start recording
+    // await new Promise(resolve => setTimeout(resolve, 200))
+
+    // wait for animation to complete
+    await new Promise(resolve => {
+      this.mixers[0].addEventListener('finished', resolve)
+    })
+
+    // Record for the duration of the clip (or a max duration)
+    // const duration = Math.min(clip.duration, 10) // max 10s per clip
+    // const file = await recorder.record_webm(duration, `${clip.name}.webm`)
+    // zip.file(`${clip.name}.webm`, file)
+
+    // stop each mixer
+    this.mixers.forEach(mixer => {
+      mixer.stopAllAction()
+    })
+
+    // increment animation index
+    this.current_animation_index_processing += 1
+    await this.process_animation_clip()
+  }
+
+  // Generate zip and trigger download
+  private async generate_zip (): Promise<void> {
+    const blob = await this.zip.generateAsync({ type: 'blob' })
+    saveAs(blob, 'animation-previews.zip')
   }
 
   private load_human_model_and_animations (): void {
     // Load the human model here
     const filepath: string = '../animations/human-base-animations.glb'
     this.gltf_animation_loader.load(filepath, (gltf: any) => {
-      // load the skinned mesh
-      this.scene.add(...gltf.scene.children)
+      // grabbed all the skinned meshes in the scene
+      gltf.scene.traverse((child: any) => {
+        if (child.isSkinnedMesh) {
+          this.skinned_meshes.push(child)
+        }
+      })
 
-      // grab a list of the animations following logic of main Mesh2Motion app with cleanup
-      const cloned_anims: THREE.AnimationClip[] = Utility.deep_clone_animation_clips(gltf.animations)
-      console.log(cloned_anims)
+      // load the skinned mesh into the scene to see
+      // some models have multiple skinned meshes
+      this.scene.add(...this.skinned_meshes)
+
+      console.log(this.skinned_meshes)
+
+      // grab a list of the animations from file
+      // these are stored outside the mesh at the root level on a GLTF file
+      this.animation_clips = gltf.animations
+
+      if (this.skinned_meshes.length === 0) {
+        console.warn('No SkinnedMesh found. Cannot proceed with animations.')
+        return
+      }
+
+      // create a mixer for each skinned mesh
+      // each mixer can only control one skinned mesh
+      this.skinned_meshes.forEach(skin_mesh => {
+        const mixer = new THREE.AnimationMixer(skin_mesh)
+        this.mixers.push(mixer)
+      })
     })
   }
 
@@ -93,6 +179,12 @@ export class PreviewGeneratorBootstrap {
 
   private animate (): void {
     requestAnimationFrame(this.animate)
+
+    // update each mixer
+    this.mixers.forEach(mixer => {
+      mixer.update(1 / 30)
+    })
+
     this.renderer.render(this.scene, this.camera)
   }
 

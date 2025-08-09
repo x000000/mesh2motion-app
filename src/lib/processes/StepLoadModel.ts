@@ -51,6 +51,11 @@ export class StepLoadModel extends EventTarget {
       console.error('original model not loaded yet. Cannot do calculations')
     }
 
+    // clear geometry and material list in case we run this again
+    // this empties the array in place, and doesn't need to create a new array
+    this.geometry_list.length = 0
+    this.material_list.length = 0
+
     this.final_mesh_data.traverse((child: Object3D) => {
       if (child.type === 'Mesh') {
         const geometry_to_add: BufferGeometry = (child as Mesh).geometry.clone()

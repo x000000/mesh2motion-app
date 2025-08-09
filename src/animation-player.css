@@ -10,10 +10,10 @@
     gap: 0;
     background: var(--bg-primary);
     border: 1px solid var(--bg-tertiary);
-    border-radius: 1.0rem;
+    border-radius: 0.5rem;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
-    padding: 12px 20px;
+    padding: 5px 10px;
     backdrop-filter: blur(10px);
     z-index: 1000;
     transition: all 0.3s ease;
@@ -37,18 +37,10 @@
 }
 
 #current-animation-container {
-    display: flex;
-    width: 100%;
-    justify-content: center;
-    align-self: center;
+    position: absolute;
+    top: -2rem; /* position slightly above timeline */
 }
 
-#current-animation-name {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-primary);
-    white-space: nowrap;
-}
 
 #play-controls {
     display: flex;
@@ -58,9 +50,9 @@
 }
 
 .animation-control-button {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    border-radius: 15%;
     border: none;
     background: var(--button-primary-bg);
     color: white;

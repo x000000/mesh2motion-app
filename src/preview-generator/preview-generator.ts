@@ -132,30 +132,21 @@ class PreviewGenerator {
     action.reset()
 
     // wait for the animation to finish
-    // this includes cleanup from the last event listener finish
     await new Promise<void>(resolve => {
-      // Define handler in the same scope as resolve
-      const handler = (e: any) => {
+      const handler = async (e: any) => {
         this.mixer_.removeEventListener('finished', handler)
+        // Stop recording after animation ends
+        const file = await this.recorder.stop()
+        this.zip.file(`${clip.name}.webm`, file)
         resolve()
       }
-
-      // Remove any previous instance of this handler (safe even if not present)
       this.mixer_.removeEventListener('finished', handler)
-
-      // the "real" event listener after the previous cleanup work happened
       this.mixer_.addEventListener('finished', handler)
+
+      // Start recording before playing the animation
+      this.recorder.start(`${clip.name}.webm`)
       action.play()
     })
-
-    // Wait for a short moment to ensure animation is visible
-    // before we start recording
-    // await new Promise(resolve => setTimeout(resolve, 200))
-
-    // Record for the duration of the clip (or a max duration)
-    const duration = Math.min(clip.duration, 5) // max 5s per clip
-    const file = await this.recorder.record_webm(duration, `${clip.name}.webm`)
-    this.zip.file(`${clip.name}.webm`, file)
 
     // stop all animations in mixer
     this.mixer_.stopAllAction()

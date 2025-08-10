@@ -138,10 +138,10 @@ export class AnimationSearch {
         `<div class="anim-item">
             <button class="secondary-button play" data-index="${original_index}" style="display: flex; flex-direction:column">
               <div class="anim-preview-placeholder" data-src="../animpreviews/${preview_folder}/${theme_name}_${anim_name}.webm" style="pointer-events: none;"></div>
-              <span class="anim-preview-label">${this.animation_name_clean(animation_clip.name)}</span>
             </button>
             <div class="styled-checkbox">
                 <input type="checkbox" name="${animation_clip.name}" value="${original_index}" ${checked_attribute}>
+                <span class="anim-preview-label">${this.animation_name_clean(animation_clip.name)}</span>
             </div>
         </div>`
     })

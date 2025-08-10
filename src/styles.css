@@ -26,7 +26,7 @@
   --text-alternate: #96a5ac;
 
   --bg-primary: #ecf0f1;
-  --bg-alternate: #cdd7dd;
+  --bg-alternate: #bac9d2;
   --bg-tertiary: #8b9bac;
 
   --button-primary-bg:  #73b6e2f8;
@@ -133,12 +133,21 @@ button.secondary-button:hover {
 
 button.secondary-button.play
 {
-    padding: 0.2rem 0.5rem;
+    padding: 0;
     display: inline-flex;
+    background: var(--bg-primary);
     flex-grow: 1;
     align-items: center;
     border: none;
     border-radius: 0;
+    box-shadow: none;
+    margin-right: 0;
+    border: 1px solid var(--bg-tertiary);
+}
+button.secondary-button.play:hover {
+    transform: scale(1.0);
+    border: 1px solid var(--text-alternate);
+    transition: all 0.4s ease;
 }
 
 button, .button {
@@ -250,7 +259,7 @@ option {
     box-shadow: 1px 1px 8px 0px var(--bg-primary);
     top: 0;
     right: 0;
-    border: 1px dotted var(--text-primary);
+    border-left: 1px solid var(--bg-tertiary);
     padding: 0.5rem;
     height: 100%;
     overflow-y: auto;
@@ -292,16 +301,21 @@ option {
 
 #animations-items{
     max-height: 15rem;
-    display: flex;
-    overflow: auto;
-    flex-direction: column;
+    display: inline-flex;
+    overflow: auto;;
+    flex-direction: row;
     margin-bottom: 1rem;
-    border: 1px solid var(--text-primary);
+    background: var(--bg-alternate);
+    border: 1px solid var(--bg-tertiary);
+    gap: 0.25rem;
+    flex-wrap: wrap;
+    overflow-x: hidden;
+    width: 25.7rem; /* createss 3 column of animation items */
 }
 
 #animations-items div {
-    display: flex;
-    justify-content: space-between;
+    display: inline-flex;
+    padding: 0;
 }
 /* have every other div child be a different background color */
 #animations-items > div:nth-child(odd) {
@@ -313,8 +327,13 @@ option {
 
 .anim-item {
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
     padding: 0;
+
+    /* specify dimensions helps grid layout without jumbling elements */
+    width: 100px;
+    height: 153px;
 }
 
 .anim-preview-label {
@@ -430,6 +449,7 @@ input[type="file"] {
     display: flex;
     align-items: center;
     gap: 0; /* Space between checkbox and label */
+    margin-bottom: 0.4rem;
 }
 
 .styled-checkbox input[type="checkbox"] {

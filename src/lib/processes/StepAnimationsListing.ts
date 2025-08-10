@@ -9,9 +9,11 @@ import { AnimationClip, AnimationMixer, Quaternion, Vector3, type SkinnedMesh, t
 
 import { SkeletonType } from '../enums/SkeletonType.ts'
 import { Utility } from '../Utilities.ts'
+import { ThemeManager } from '../ThemeManager.ts'
 
 // Note: EventTarget is a built-ininterface and do not need to import it
 export class StepAnimationsListing extends EventTarget {
+  private readonly theme_manager: ThemeManager
   private readonly ui: UI
   private readonly animation_player: AnimationPlayer
   private animation_clips_loaded: AnimationClip[] = []
@@ -21,7 +23,7 @@ export class StepAnimationsListing extends EventTarget {
   private animation_mixer: AnimationMixer = new AnimationMixer()
   private skinned_meshes_to_animate: SkinnedMesh[] = []
   private current_playing_index: number = 0
-  private skeleton_type: string = SkeletonType.Human
+  private skeleton_type: SkeletonType = SkeletonType.Human
 
   private _added_event_listeners: boolean = false
 
@@ -62,10 +64,11 @@ export class StepAnimationsListing extends EventTarget {
 
   private has_added_event_listeners: boolean = false
 
-  constructor () {
+  constructor (theme_manager: ThemeManager) {
     super()
     this.ui = new UI()
     this.animation_player = new AnimationPlayer()
+    this.theme_manager = theme_manager
   }
 
   public begin (): void {
@@ -186,7 +189,7 @@ export class StepAnimationsListing extends EventTarget {
     console.log('all animations loaded:', this.animation_clips_loaded)
 
     // create user interface with all available animation clips
-    this.ui.build_animation_clip_ui(this.animation_clips_loaded)
+    this.ui.build_animation_clip_ui(this.animation_clips_loaded, this.theme_manager, this.skeleton_type)
     this.play_animation(0) // play the first animation by default
   }
 

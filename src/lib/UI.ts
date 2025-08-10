@@ -1,5 +1,7 @@
 import { type AnimationClip } from 'three'
 import { AnimationSearch, type AnimationWithState } from './AnimationSearch'
+import { ThemeManager } from './ThemeManager'
+import { SkeletonType } from './enums/SkeletonType'
 
 export class UI {
   dom_current_step_index: HTMLElement | null = null
@@ -171,10 +173,10 @@ export class UI {
     }
   }
 
-  public build_animation_clip_ui (animation_clips_to_load: AnimationClip[]): void {
+  public build_animation_clip_ui (animation_clips_to_load: AnimationClip[], theme_manager: ThemeManager, skeleton_type: SkeletonType): void {
     // Initialize AnimationSearch if not already done
     if (this.animation_search === null) {
-      this.animation_search = new AnimationSearch('animation-filter', 'animations-items')
+      this.animation_search = new AnimationSearch('animation-filter', 'animations-items', theme_manager, skeleton_type)
     }
 
     // Use the animation search class to handle the UI

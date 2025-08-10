@@ -1,10 +1,10 @@
 import * as THREE from 'three'
 
 export class WebMRecorder {
-  public width: number = 120
+  public width: number = 140
   public height: number = 80
   public fps: number = 24
-  public kbps: number = 1000
+  public kbps: number = 1200
 
   public readonly recorded_files: File[] = []
   private readonly renderer_ref: THREE.WebGLRenderer

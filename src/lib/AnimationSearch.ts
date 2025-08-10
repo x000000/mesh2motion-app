@@ -1,4 +1,6 @@
 import { type AnimationClip } from 'three'
+import { ThemeManager } from './ThemeManager'
+import { SkeletonType } from './enums/SkeletonType'
 
 export interface AnimationWithState extends AnimationClip {
   isChecked?: boolean
@@ -10,9 +12,14 @@ export class AnimationSearch {
   private readonly filter_input: HTMLInputElement | null = null
   private readonly animation_list_container: HTMLElement | null = null
 
-  constructor (filter_input_id: string, animation_list_container_id: string) {
+  private readonly theme_manager: ThemeManager
+  private readonly skeleton_type: SkeletonType
+
+  constructor (filter_input_id: string, animation_list_container_id: string, theme_manager: ThemeManager, skeleton_type: SkeletonType) {
     this.filter_input = document.querySelector(`#${filter_input_id}`)
     this.animation_list_container = document.querySelector(`#${animation_list_container_id}`)
+    this.theme_manager = theme_manager
+    this.skeleton_type = skeleton_type
     this.setup_event_listeners()
   }
 
@@ -24,13 +31,21 @@ export class AnimationSearch {
       animation_with_state.isChecked = false
       return animation_with_state
     })
-    
+
     this.render_filtered_animations('')
   }
 
   private setup_event_listeners (): void {
     this.setup_filter_listener()
     this.setup_checkbox_listeners()
+    this.setup_theme_change_listener()
+  }
+
+  private setup_theme_change_listener (): void {
+    // rebuild animation previews so we have the correct theme
+    this.theme_manager.addEventListener('theme-changed', (new_theme) => {
+      this.render_filtered_animations(this.filter_input?.value || '')
+    })
   }
 
   private setup_filter_listener (): void {
@@ -100,11 +115,29 @@ export class AnimationSearch {
       const was_checked: boolean = animation_clip.isChecked ?? false
       const checked_attribute = was_checked ? 'checked' : ''
 
+      // build out where the video previews will be stored
+      // each skeleton type has its own folder
+      let preview_folder: string = ''
+      switch (this.skeleton_type) {
+        case SkeletonType.Human:
+          preview_folder = 'human'
+          break
+        case SkeletonType.Quadraped:
+          preview_folder = 'four-legged'
+          break
+        case SkeletonType.Bird:
+          preview_folder = 'bird'
+          break
+      }
+
+      const anim_name: string = animation_clip.name
+      const theme_name: string = this.theme_manager.get_current_theme()
+
       // Use a placeholder for the video preview, to be replaced by IntersectionObserver
       this.animation_list_container.innerHTML +=
         `<div class="anim-item">
             <button class="secondary-button play" data-index="${original_index}" style="display: flex; flex-direction:column">
-              <div class="anim-preview-placeholder" data-src="../animpreviews/sample.webm" style="pointer-events: none;"></div>
+              <div class="anim-preview-placeholder" data-src="../animpreviews/${preview_folder}/${theme_name}_${anim_name}.webm" style="pointer-events: none;"></div>
               <span class="anim-preview-label">${this.animation_name_clean(animation_clip.name)}</span>
             </button>
             <div class="styled-checkbox">
@@ -148,7 +181,7 @@ export class AnimationSearch {
         video.className = 'anim-preview'
         const src = placeholder.getAttribute('data-src') ?? ''
         video.src = src
-        video.width = 80
+        video.width = 140
         video.height = 80
         video.loop = true
         video.muted = true

@@ -37,12 +37,13 @@ export class Bootstrap {
   public readonly transform_controls_hover_distance: number = 0.03 // distance to hover over bones to select them
 
   // has UI elements on the HTML page that we will reference/use
+  public readonly theme_manager = new ThemeManager()
   public readonly ui = new UI()
   public readonly load_model_step = new StepLoadModel()
   public readonly load_skeleton_step = new StepLoadSkeleton()
   public readonly edit_skeleton_step = new StepEditSkeleton()
   public readonly weight_skin_step = new StepWeightSkin()
-  public readonly animations_listing_step = new StepAnimationsListing()
+  public readonly animations_listing_step = new StepAnimationsListing(this.theme_manager)
   public readonly file_export_step = new StepExportToFile()
   public readonly scene: Scene = new Scene()
 
@@ -59,7 +60,7 @@ export class Bootstrap {
 
   private environment_container: Group = new Group()
   private readonly eventListeners: EventListeners
-  public readonly theme_manager = new ThemeManager()
+
 
   public initialize (): void {
     this.setup_environment()

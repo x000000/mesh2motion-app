@@ -121,8 +121,22 @@ class PreviewGenerator {
       console.warn('Animation or animations not loaded yet.')
       return
     }
+    // First pass: current theme
     this.current_animation_index_processing = 0 // reset counter if we do it again
     await this.process_animation_clip()
+
+    // Switch theme and do a second pass
+    this.theme_manager.toggle_theme()
+    this.regenerate_floor_grid() // update grid/floor colors for new theme
+    // Optionally, you may want to force a re-render or update other theme-dependent visuals here
+
+    this.current_animation_index_processing = 0
+    await this.process_animation_clip()
+
+    // zip up all the video results and download everything
+    await this.generate_zip()
+
+    console.log('finishe successfully')
   }
 
   private async process_animation_clip (): Promise<void> {
@@ -142,8 +156,6 @@ class PreviewGenerator {
         // Stop recording after animation ends
         const file = await this.recorder.stop()
 
-        console.log('file name saved ', file.name)
-
         // Start recording before playing the animation
         this.zip.file(file.name, file)
         resolve()
@@ -162,13 +174,10 @@ class PreviewGenerator {
     this.current_animation_index_processing += 1
 
     // for testing a few, change to something small like 5
-    const temp_limit = 5 // this.animation_clips.length 
+    const temp_limit = this.animation_clips.length
 
     if (this.current_animation_index_processing < temp_limit) {
       await this.process_animation_clip()
-    } else {
-      console.log('finished processing')
-      await this.generate_zip()
     }
   }
 

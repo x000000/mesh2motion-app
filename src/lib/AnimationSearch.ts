@@ -100,17 +100,68 @@ export class AnimationSearch {
       const was_checked: boolean = animation_clip.isChecked ?? false
       const checked_attribute = was_checked ? 'checked' : ''
 
+      // Use a placeholder for the video preview, to be replaced by IntersectionObserver
       this.animation_list_container.innerHTML +=
-              `<div class="anim-item">
-                    <button class="secondary-button play" data-index="${original_index}">                  
-                    ${this.animation_name_clean(animation_clip.name)}
-                    </button>
-
-                  <div class="styled-checkbox">
-                      <input type="checkbox" name="${animation_clip.name}" value="${original_index}" ${checked_attribute}>
-                  </div>
-              </div>`
+        `<div class="anim-item">
+            <div class="anim-preview-placeholder" data-src="../animpreviews/sample.webm" style="width:80px;height:80px;background:#222;"></div>
+            <button class="secondary-button play" data-index="${original_index}">
+              ${this.animation_name_clean(animation_clip.name)}
+            </button>
+            <div class="styled-checkbox">
+                <input type="checkbox" name="${animation_clip.name}" value="${original_index}" ${checked_attribute}>
+            </div>
+        </div>`
     })
+
+    // only so many WebM videos can be playing at the same time
+    // so this is an optimization to convert only elements in the active scroll area to video elements
+    this.setup_lazy_video_loading()
+  }
+
+  /**
+   * Sets up lazy loading for video previews using Intersection Observer.
+   * Only loads video elements when their placeholders are visible in the viewport.
+   */
+  private setup_lazy_video_loading (): void {
+    // Only set up IntersectionObserver if the container exists
+    // any animation entry that is in view will run this code to convert it to a video element
+    const observer = new IntersectionObserver((entries: IntersectionObserverEntry[], _obs: IntersectionObserver) => {
+      entries.forEach(entry => {
+        const placeholder = entry.target as HTMLElement
+
+        // abort if animation entry is outside active viewing area
+        if (!entry.isIntersecting) {
+          placeholder.innerHTML = ''
+          return
+        }
+
+        // if element is already a video, and it is in view, don't convert
+        // it to a video again, it is ok so abort any further work
+        const existing_video = placeholder.querySelector('video')
+        if (existing_video != null) {
+          return
+        }
+
+        // element that just came into view and needs to be converted
+        // to a video element
+        const video = document.createElement('video')
+        video.className = 'anim-preview'
+        const src = placeholder.getAttribute('data-src') ?? ''
+        video.src = src
+        video.width = 80
+        video.height = 80
+        video.loop = true
+        video.muted = true
+        video.playsInline = true // tells mobile browsers to play inline instead of going fullscreen
+        video.autoplay = true
+        placeholder.innerHTML = ''
+        placeholder.appendChild(video)
+      })
+    }, { rootMargin: '100px' }) // rootMargin will make sure partially visible elements are also turned into videos
+
+    // grabs all the animation list elements and tells the observer to start watching them for processing
+    const placeholders = this.animation_list_container?.querySelectorAll('.anim-preview-placeholder')
+    placeholders?.forEach(ph => { observer.observe(ph) })
   }
 
   public animation_name_clean (input: string): string {

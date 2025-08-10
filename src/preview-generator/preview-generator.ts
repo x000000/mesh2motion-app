@@ -1,198 +1,66 @@
 import * as THREE from 'three'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+
+import { WebMRecorder } from './webm-recorder.ts'
+import { saveAs } from 'file-saver'
+import JSZip from 'jszip'
 
 import { Utility } from '../lib/Utilities.ts'
 import { Generators } from '../lib/Generators.ts'
 import { ThemeManager } from '../lib/ThemeManager.ts'
 
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import { WebMRecorder } from './webm-recorder.ts'
+class PreviewGenerator {
+  private readonly renderer_: THREE.WebGLRenderer
+  private readonly scene_: THREE.Scene
+  private readonly camera_: THREE.PerspectiveCamera
+  private readonly controls_: OrbitControls
+  private mixer_: THREE.AnimationMixer | null = null
+  private readonly clock_: THREE.Clock
+  public readonly theme_manager: ThemeManager
 
-import { saveAs } from 'file-saver'
-import JSZip from 'jszip'
+  private readonly recorder: WebMRecorder
+  private readonly zip: JSZip
 
-export class PreviewGeneratorBootstrap {
-  public readonly camera = Generators.create_camera()
-  public readonly renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
-  public controls: OrbitControls | undefined = undefined
-  public readonly scene: THREE.Scene = new THREE.Scene()
-  public readonly theme_manager = new ThemeManager()
-
-  private readonly recorder: WebMRecorder = new WebMRecorder(this.renderer)
-  private readonly zip = new JSZip()
-
-  private environment_container: THREE.Group = new THREE.Group()
-
-  // loading model and animation stuff
-
-  private readonly gltf_animation_loader: GLTFLoader = new GLTFLoader()
+  private environment_container: THREE.Group
+  private new_skinned_mesh: THREE.SkinnedMesh
   private animation_clips: THREE.AnimationClip[] = []
-  private readonly mixers: THREE.AnimationMixer[] = []
-  private readonly skinned_meshes: THREE.SkinnedMesh[] = []
 
   private current_animation_index_processing: number = 0
 
   constructor () {
-    this.animate = this.animate.bind(this)
-    this.gltf_animation_loader = new GLTFLoader()
-  }
+    // Setup renderer, scene, camera
+    this.renderer_ = new THREE.WebGLRenderer({ antialias: true, alpha: true })
+    this.renderer_.setSize(window.innerWidth, window.innerHeight)
+    document.body.appendChild(this.renderer_.domElement)
 
-  public initialize (): void {
-    this.setup_environment()
+    this.theme_manager = new ThemeManager()
+    this.zip = new JSZip()
+    this.recorder = new WebMRecorder(this.renderer_)
+    this.environment_container = new THREE.Group()
 
-    // for now, let's load the human model
-    this.load_human_model_and_animations()
+    this.scene_ = new THREE.Scene()
+    this.camera_ = Generators.create_camera()
 
-    // setup event listener for record button
-    const record_button = document.getElementById('record-button')
-    record_button?.addEventListener('click', () => {
-      void this.start_recording()
-    })
-
-    this.animate()
-  }
-
-  private async start_recording (): Promise<void> {
-    if (this.skinned_meshes.length === 0 || this.animation_clips.length === 0) {
-      alert('Animation or animations not loaded yet.')
-      return
-    }
-
-    await this.process_animation_clip()
-  }
-
-  private async process_animation_clip (): Promise<void> {
-    // if we have processed all animations, we can stop
-    const temp_limit = 4 // this.animation_clips.length
-    if (this.current_animation_index_processing >= temp_limit) {
-      console.log('All animations processed.')
-      return
-    }
-
-    const clip = this.animation_clips[this.current_animation_index_processing]
-
-    console.log('processing', clip.name)
-
-    // Stop all previous actions
-    this.mixers.forEach(mixer => {
-      mixer.stopAllAction()
-    })
-
-    // go through each mixer and play clip
-    this.mixers.forEach(mixer => {
-      const action = mixer.clipAction(clip)
-      action.reset()
-      action.setLoop(THREE.LoopOnce, 1) // Play only once
-      action.clampWhenFinished = true // Hold the last frame
-      action.play()
-    })
-
-    // Wait for a short moment to ensure animation is visible
-    // before we start recording
-    // await new Promise(resolve => setTimeout(resolve, 200))
-
-    // wait for animation to complete
-    await new Promise(resolve => {
-      this.mixers[0].addEventListener('finished', resolve)
-    })
-
-    // Record for the duration of the clip (or a max duration)
-    // const duration = Math.min(clip.duration, 10) // max 10s per clip
-    // const file = await recorder.record_webm(duration, `${clip.name}.webm`)
-    // zip.file(`${clip.name}.webm`, file)
-
-    // stop each mixer
-    this.mixers.forEach(mixer => {
-      mixer.stopAllAction()
-    })
-
-    // increment animation index
-    this.current_animation_index_processing += 1
-    await this.process_animation_clip()
-  }
-
-  // Generate zip and trigger download
-  private async generate_zip (): Promise<void> {
-    const blob = await this.zip.generateAsync({ type: 'blob' })
-    saveAs(blob, 'animation-previews.zip')
-  }
-
-  private load_human_model_and_animations (): void {
-    // Load the human model here
-    const filepath: string = '../animations/human-base-animations.glb'
-    this.gltf_animation_loader.load(filepath, (gltf: any) => {
-      // grabbed all the skinned meshes in the scene
-      gltf.scene.traverse((child: any) => {
-        if (child.isSkinnedMesh) {
-          this.skinned_meshes.push(child)
-        }
-      })
-
-      // load the skinned mesh into the scene to see
-      // some models have multiple skinned meshes
-      this.scene.add(...this.skinned_meshes)
-
-      console.log(this.skinned_meshes)
-
-      // grab a list of the animations from file
-      // these are stored outside the mesh at the root level on a GLTF file
-      this.animation_clips = gltf.animations
-
-      if (this.skinned_meshes.length === 0) {
-        console.warn('No SkinnedMesh found. Cannot proceed with animations.')
-        return
-      }
-
-      // create a mixer for each skinned mesh
-      // each mixer can only control one skinned mesh
-      this.skinned_meshes.forEach(skin_mesh => {
-        const mixer = new THREE.AnimationMixer(skin_mesh)
-        this.mixers.push(mixer)
-      })
-    })
-  }
-
-  private setup_environment (): void {
-    this.renderer.setSize(window.innerWidth, window.innerHeight)
-    this.renderer.shadowMap.enabled = true
-
-    // Set default camera position for front view
-    // this will help because we first want the user to rotate the model to face the front
-    this.camera.position.set(0, 1.7, 15) // X:0 (centered), Y:1.7 (eye-level), Z:5 (front view)
-
-    Generators.create_window_resize_listener(this.renderer, this.camera)
-    document.body.appendChild(this.renderer.domElement)
-
-    // center orbit controls around mid-section area with target change
-    this.controls = new OrbitControls(this.camera, this.renderer.domElement)
-    this.controls.target.set(0, 0.9, 0)
-
-    // Set zoom limits to prevent excessive zooming in or out
-    this.controls.minDistance = 5 // Minimum zoom (closest to model)
-    this.controls.maxDistance = 30 // Maximum zoom (farthest from model)
-
-    this.controls.update()
-
-    // basic things in another group, to better isolate what we are working on
     this.regenerate_floor_grid()
-  }
 
-  private animate (): void {
-    requestAnimationFrame(this.animate)
+    console.log(this.scene_)
 
-    // update each mixer
-    this.mixers.forEach(mixer => {
-      mixer.update(1 / 30)
-    })
+    // Add orbit controls
+    this.controls_ = new OrbitControls(this.camera_, this.renderer_.domElement)
+    this.controls_.target.set(0, 0.9, 0)
+    this.controls_.minDistance = 5
+    this.controls_.maxDistance = 30
+    this.controls_.update()
 
-    this.renderer.render(this.scene, this.camera)
+    this.clock_ = new THREE.Clock()
   }
 
   public regenerate_floor_grid (): void {
     // remove previous setup objects from scene if they exist
-    const setup_container = this.scene.getObjectByName('Setup objects')
+    const setup_container = this.scene_.getObjectByName('Setup objects')
     if (setup_container !== null) {
-      this.scene.remove(setup_container)
+      this.scene_.remove(setup_container)
     }
 
     // change color of grid based on theme
@@ -205,16 +73,119 @@ export class PreviewGeneratorBootstrap {
       light_strength = 14
     }
 
-    this.scene.fog = new THREE.Fog(floor_color, 20, 80)
-
+    this.scene_.fog = new THREE.Fog(floor_color, 20, 80)
     this.environment_container = new THREE.Group()
     this.environment_container.name = 'Setup objects'
     this.environment_container.add(...Generators.create_default_lights(light_strength))
     this.environment_container.add(...Generators.create_grid_helper(grid_color, floor_color))
-    this.scene.add(this.environment_container)
+    this.scene_.add(this.environment_container)
+  }
+
+  public initialize (): void {
+    const loader = new GLTFLoader()
+    loader.load('../animations/human-base-animations.glb', (gltf) => {
+      this.scene_.add(gltf.scene)
+
+      // Find the first SkinnedMesh
+      gltf.scene.traverse((child: any) => {
+        if (child.isSkinnedMesh) {
+          this.new_skinned_mesh = child
+        }
+      })
+
+      if (this.new_skinned_mesh && gltf.animations && gltf.animations.length > 1) {
+        this.mixer_ = new THREE.AnimationMixer(this.new_skinned_mesh)
+
+        this.animation_clips = gltf.animations
+        const clip = this.animation_clips[1]
+        const action = this.mixer_.clipAction(clip)
+        action.reset()
+        action.play()
+        this.animate_()
+      }
+    }) // end GLTF loading
+
+    // setup event listener for record button
+    const record_button = document.getElementById('record-button')
+    record_button?.addEventListener('click', () => {
+      void this.start_recording()
+    })
+  }
+
+  private async start_recording (): Promise<void> {
+    if (this.new_skinned_mesh === null) {
+      console.warn('Animation or animations not loaded yet.')
+      return
+    }
+    this.current_animation_index_processing = 0 // reset counter if we do it again
+    await this.process_animation_clip()
+  }
+
+  private async process_animation_clip (): Promise<void> {
+    // load up new animation to play
+    const clip = this.animation_clips[this.current_animation_index_processing]
+    const action: THREE.AnimationAction = this.mixer_.clipAction(clip)
+
+    console.log('processing animation', this.current_animation_index_processing, clip.name)
+
+    action.setLoop(THREE.LoopOnce, 1)
+    action.reset()
+
+    // wait for the animation to finish
+    // this includes cleanup from the last event listener finish
+    await new Promise<void>(resolve => {
+      // Define handler in the same scope as resolve
+      const handler = (e: any) => {
+        this.mixer_.removeEventListener('finished', handler)
+        resolve()
+      }
+
+      // Remove any previous instance of this handler (safe even if not present)
+      this.mixer_.removeEventListener('finished', handler)
+
+      // the "real" event listener after the previous cleanup work happened
+      this.mixer_.addEventListener('finished', handler)
+      action.play()
+    })
+
+    // Wait for a short moment to ensure animation is visible
+    // before we start recording
+    // await new Promise(resolve => setTimeout(resolve, 200))
+
+    // Record for the duration of the clip (or a max duration)
+    const duration = Math.min(clip.duration, 5) // max 5s per clip
+    const file = await this.recorder.record_webm(duration, `${clip.name}.webm`)
+    this.zip.file(`${clip.name}.webm`, file)
+
+    // stop all animations in mixer
+    this.mixer_.stopAllAction()
+
+    this.current_animation_index_processing += 1
+
+    const temp_limit = 6 // this.animation_clips.length
+    if (this.current_animation_index_processing <= temp_limit) {
+      await this.process_animation_clip()
+    } else {
+      console.log('finished processing')
+      await this.generate_zip()
+    }
+  }
+
+  // Generate zip and trigger download
+  private async generate_zip (): Promise<void> {
+    const blob = await this.zip.generateAsync({ type: 'blob' })
+    saveAs(blob, 'animation-previews.zip')
+  }
+
+  private readonly animate_ = (): void => {
+    requestAnimationFrame(this.animate_)
+    if (this.mixer_) {
+      this.mixer_.update(this.clock_.getDelta())
+    }
+    this.controls_.update()
+    this.renderer_.render(this.scene_, this.camera_)
   }
 }
 
-// Create an instance of the Bootstrap class when the script is loaded
-const app = new PreviewGeneratorBootstrap()
+const app = new PreviewGenerator()
 app.initialize()

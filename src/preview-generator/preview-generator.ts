@@ -32,6 +32,7 @@ class PreviewGenerator {
     // Setup renderer, scene, camera
     this.renderer_ = new THREE.WebGLRenderer({ antialias: true, alpha: true })
     this.renderer_.setSize(window.innerWidth, window.innerHeight)
+    this.renderer_.shadowMap.enabled = true // Enable shadow mapping
     document.body.appendChild(this.renderer_.domElement)
 
     this.theme_manager = new ThemeManager()
@@ -90,6 +91,10 @@ class PreviewGenerator {
       gltf.scene.traverse((child: any) => {
         if (child.isSkinnedMesh) {
           this.new_skinned_mesh = child
+          this.new_skinned_mesh.castShadow = true // Enable shadow casting for mesh
+        }
+        if (child.isMesh) {
+          child.receiveShadow = true // Let all meshes receive shadows (e.g., grid/floor)
         }
       })
 

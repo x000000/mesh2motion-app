@@ -310,7 +310,7 @@ option {
     gap: 0.25rem;
     flex-wrap: wrap;
     overflow-x: hidden;
-    width: 25.7rem; /* createss 3 column of animation items */
+    width: 23.7rem; /* createss 3 column of animation items */
 }
 
 #animations-items div {
@@ -332,12 +332,13 @@ option {
     padding: 0;
 
     /* specify dimensions helps grid layout without jumbling elements */
-    width: 100px;
-    height: 153px;
+    width: 102px;
+    height: 160px;
 }
 
 .anim-preview-label {
     font-size: 75%;
+    cursor: pointer;
 }
 
 
@@ -448,8 +449,9 @@ input[type="file"] {
 .styled-checkbox {
     display: flex;
     align-items: center;
-    gap: 0; /* Space between checkbox and label */
+    gap: 0.2rem; /* Space between checkbox and label */
     margin-bottom: 0.4rem;
+    margin-top: 0.4rem;
 }
 
 .styled-checkbox input[type="checkbox"] {

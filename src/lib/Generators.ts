@@ -153,7 +153,7 @@ export class Generators {
     light_1.shadow.mapSize = new Vector2(shadow_map_size, shadow_map_size) // decreases moire effect on mesh
 
     light_1.position.set(-2, 2, 2)
-    const light_2 = new AmbientLight(0xffffff, 0.9)
+    const light_2 = new AmbientLight(0xffffff, 1.2)
 
     // backfill light
     const backfill_light = new DirectionalLight(0x777777, light_strength * 0.5)

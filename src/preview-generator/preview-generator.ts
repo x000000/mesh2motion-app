@@ -31,7 +31,13 @@ class PreviewGenerator {
     // Setup renderer, scene, camera
     this.renderer_ = new THREE.WebGLRenderer({ antialias: true, alpha: true })
     this.renderer_.setSize(window.innerWidth, window.innerHeight)
-    this.renderer_.shadowMap.enabled = true // Enable shadow mapping
+    this.renderer_.shadowMap.enabled = true // Enable shadows
+
+    // Set Filmic tone mapping for less saturated, more cinematic look
+    this.renderer_.toneMapping = THREE.ACESFilmicToneMapping // a bit softer of a look
+    this.renderer_.toneMappingExposure = 2.0 // tweak this value for brightness
+
+
     document.body.appendChild(this.renderer_.domElement)
 
     this.theme_manager = new ThemeManager()
@@ -48,7 +54,7 @@ class PreviewGenerator {
 
     // Add orbit controls
     this.controls_ = new OrbitControls(this.camera_, this.renderer_.domElement)
-    this.controls_.target.set(0, 0.9, 0)
+    this.controls_.target.set(0, 0.4, 0)
     this.controls_.minDistance = 5
     this.controls_.maxDistance = 30
     this.controls_.update()
@@ -174,7 +180,7 @@ class PreviewGenerator {
     this.current_animation_index_processing += 1
 
     // for testing a few, change to something small like 5
-    const temp_limit = this.animation_clips.length
+    const temp_limit = 16 //this.animation_clips.length
 
     if (this.current_animation_index_processing < temp_limit) {
       await this.process_animation_clip()

@@ -101,6 +101,10 @@ export class Bootstrap {
     this.renderer.setSize(window.innerWidth, window.innerHeight)
     this.renderer.shadowMap.enabled = true
 
+    // Set Filmic tone mapping for less saturated, more cinematic look
+    this.renderer.toneMapping = THREE.ACESFilmicToneMapping // a bit softer of a look
+    this.renderer.toneMappingExposure = 2.0 // tweak this value for brightness
+
     // Set default camera position for front view
     // this will help because we first want the user to rotate the model to face the front
     this.camera.position.set(0, 1.7, 15) // X:0 (centered), Y:1.7 (eye-level), Z:5 (front view)

@@ -181,8 +181,8 @@ export class AnimationSearch {
         video.className = 'anim-preview'
         const src = placeholder.getAttribute('data-src') ?? ''
         video.src = src
-        video.width = 140
-        video.height = 80
+        video.width = 100
+        video.height = 120
         video.loop = true
         video.muted = true
         video.playsInline = true // tells mobile browsers to play inline instead of going fullscreen

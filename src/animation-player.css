@@ -2,7 +2,7 @@
 #animation-player {
     position: fixed;
     bottom: 0;
-    left: 43%;
+    left: 38%;
     transform: translateX(-50%);
     display: none; /* Hidden by default, shown only during AnimationsListing step */
     flex-direction: column;

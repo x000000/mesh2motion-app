@@ -139,7 +139,7 @@ export class Bootstrap {
     }
 
     // change color of grid based on theme
-    let grid_color = 0x4b6368
+    let grid_color = 0x4f6f6f
     let floor_color = 0x2d4353
     let light_strength: number = 10
     if (this.theme_manager.get_current_theme() === 'light') {

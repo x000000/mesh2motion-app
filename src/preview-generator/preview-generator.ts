@@ -6,7 +6,6 @@ import { WebMRecorder } from './webm-recorder.ts'
 import { saveAs } from 'file-saver'
 import JSZip from 'jszip'
 
-import { Utility } from '../lib/Utilities.ts'
 import { Generators } from '../lib/Generators.ts'
 import { ThemeManager } from '../lib/ThemeManager.ts'
 
@@ -142,14 +141,18 @@ class PreviewGenerator {
         this.mixer_.removeEventListener('finished', handler)
         // Stop recording after animation ends
         const file = await this.recorder.stop()
-        this.zip.file(`${clip.name}.webm`, file)
+
+        console.log('file name saved ', file.name)
+
+        // Start recording before playing the animation
+        this.zip.file(file.name, file)
         resolve()
       }
       this.mixer_.removeEventListener('finished', handler)
       this.mixer_.addEventListener('finished', handler)
 
-      // Start recording before playing the animation
-      this.recorder.start(`${clip.name}.webm`)
+      const theme_name: string = this.theme_manager.get_current_theme()
+      this.recorder.start(`${theme_name}_${clip.name}.webm`)
       action.play()
     })
 
@@ -158,8 +161,10 @@ class PreviewGenerator {
 
     this.current_animation_index_processing += 1
 
-    const temp_limit = 6 // this.animation_clips.length
-    if (this.current_animation_index_processing <= temp_limit) {
+    // for testing a few, change to something small like 5
+    const temp_limit = 5 // this.animation_clips.length 
+
+    if (this.current_animation_index_processing < temp_limit) {
       await this.process_animation_clip()
     } else {
       console.log('finished processing')

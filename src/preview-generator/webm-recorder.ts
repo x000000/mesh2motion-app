@@ -1,8 +1,8 @@
 import * as THREE from 'three'
 
 export class WebMRecorder {
-  public width: number = 160
-  public height: number = 140
+  public width: number = 120
+  public height: number = 80
   public fps: number = 24
   public kbps: number = 1000
 
@@ -13,20 +13,20 @@ export class WebMRecorder {
   private old_pr: number | null = null
   private recorder: MediaRecorder | null = null
   private chunks: Blob[] = []
-  private file_name: string = ''
   private stopped_promise: Promise<void> | null = null
   private stopped_resolve: (() => void) | null = null
+  private file_name: string = ''
 
   constructor (renderer: THREE.WebGLRenderer) {
     this.renderer_ref = renderer
   }
 
-  public start(fileName: string): void {
-    this.file_name = fileName
+  public start (saved_name: string): void {
     this.old_size = this.renderer_ref.getSize(new THREE.Vector2())
     this.old_pr = this.renderer_ref.getPixelRatio()
     this.renderer_ref.setPixelRatio(1)
     this.renderer_ref.setSize(this.width, this.height, false)
+    this.file_name = saved_name
 
     const stream: MediaStream = this.renderer_ref.domElement.captureStream(this.fps)
     this.recorder = new MediaRecorder(stream, {
@@ -37,12 +37,12 @@ export class WebMRecorder {
     this.recorder.ondataavailable = e => (e.data.size !== 0) && this.chunks.push(e.data)
     this.stopped_promise = new Promise<void>(resolve => {
       this.stopped_resolve = resolve
-      this.recorder!.onstop = () => resolve()
+      this.recorder!.onstop = () => { resolve() }
     })
     this.recorder.start()
   }
 
-  public async stop(): Promise<File> {
+  public async stop (): Promise<File> {
     if (!this.recorder) throw new Error('Recorder not started')
     this.recorder.stop()
     if (this.stopped_promise) {

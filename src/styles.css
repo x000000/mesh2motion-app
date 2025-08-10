@@ -58,9 +58,6 @@ h1, h2, h3, h4, h5, h6, input, button, select {
 }
 
 
-#skinned-step-animation-export-options {
-    width: 18rem;
-}
 
 #skinned-step-tools
 {
@@ -317,6 +314,11 @@ option {
 .anim-item {
     display: flex;
     justify-content: space-between;
+    padding: 0;
+}
+
+.anim-preview-label {
+    font-size: 75%;
 }
 
 

@@ -103,9 +103,9 @@ export class AnimationSearch {
       // Use a placeholder for the video preview, to be replaced by IntersectionObserver
       this.animation_list_container.innerHTML +=
         `<div class="anim-item">
-            <div class="anim-preview-placeholder" data-src="../animpreviews/sample.webm" style="width:80px;height:80px;background:#222;"></div>
-            <button class="secondary-button play" data-index="${original_index}">
-              ${this.animation_name_clean(animation_clip.name)}
+            <button class="secondary-button play" data-index="${original_index}" style="display: flex; flex-direction:column">
+              <div class="anim-preview-placeholder" data-src="../animpreviews/sample.webm" style="pointer-events: none;"></div>
+              <span class="anim-preview-label">${this.animation_name_clean(animation_clip.name)}</span>
             </button>
             <div class="styled-checkbox">
                 <input type="checkbox" name="${animation_clip.name}" value="${original_index}" ${checked_attribute}>

@@ -3,7 +3,7 @@ import {
   Bone, MeshBasicMaterial, Skeleton, AmbientLight, PlaneGeometry, Mesh,
   SphereGeometry, MeshPhongMaterial, AxesHelper,
   Vector3, BufferGeometry, type Object3D, type WebGLRenderer,
-  Group, Line, LineBasicMaterial, BufferAttribute
+  Group, Line, LineBasicMaterial, BufferAttribute, Vector2
 } from 'three'
 
 import { CustomSkeletonHelper } from './CustomSkeletonHelper'
@@ -147,8 +147,10 @@ export class Generators {
   }
 
   static create_default_lights (light_strength: number): Array<DirectionalLight | AmbientLight> {
+    const shadow_map_size: number = 1024
     const light_1 = new DirectionalLight(0x777777, light_strength)
     light_1.castShadow = true
+    light_1.shadow.mapSize = new Vector2(shadow_map_size, shadow_map_size) // decreases moire effect on mesh
 
     light_1.position.set(-2, 2, 2)
     const light_2 = new AmbientLight(0xffffff, 0.9)

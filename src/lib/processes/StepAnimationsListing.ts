@@ -161,7 +161,8 @@ export class StepAnimationsListing extends EventTarget {
         const cloned_anims: AnimationClip[] = Utility.deep_clone_animation_clips(gltf.animations)
 
         // only keep position tracks
-        this.remove_position_tracks(cloned_anims, true)
+        // this mutates the cloned_anims, so no need for returning anything
+        Utility.clean_track_data(cloned_anims, true)
 
         // apply hip bone offset
         this.apply_hip_bone_offset(cloned_anims)
@@ -191,25 +192,6 @@ export class StepAnimationsListing extends EventTarget {
     // create user interface with all available animation clips
     this.ui.build_animation_clip_ui(this.animation_clips_loaded, this.theme_manager, this.skeleton_type)
     this.play_animation(0) // play the first animation by default
-  }
-
-  // mutates the animation clips passed in and only keeps rotation/quaternion tracks
-  // also removes scale tracks
-  private remove_position_tracks (animation_clips: AnimationClip[], preserve_root_position: boolean = false): void {
-    animation_clips.forEach((animation_clip: AnimationClip) => {
-      // remove all position nodes except root
-      let rotation_tracks: KeyframeTrack[] = []
-
-
-      if (preserve_root_position) {
-        rotation_tracks = animation_clip.tracks.filter((x: KeyframeTrack) => x.name.includes('quaternion') || x.name.toLowerCase().includes('hips.position'))
-      } else {
-        rotation_tracks = animation_clip.tracks.filter((x: KeyframeTrack) => x.name.includes('quaternion') || x.name.includes('hips.position'))
-      }
-
-      animation_clip.tracks = rotation_tracks // update track data
-      // console.log(animation_clip.tracks) // UNUSED DEBUG CODE
-    })
   }
 
   private apply_hip_bone_offset (animation_clips: AnimationClip[]): void {

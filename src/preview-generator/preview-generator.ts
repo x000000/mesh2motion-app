@@ -6,6 +6,7 @@ import { WebMRecorder } from './webm-recorder.ts'
 import { saveAs } from 'file-saver'
 import JSZip from 'jszip'
 
+import { Utility } from '../lib/Utilities.ts'
 import { Generators } from '../lib/Generators.ts'
 import { ThemeManager } from '../lib/ThemeManager.ts'
 
@@ -37,7 +38,6 @@ class PreviewGenerator {
     this.renderer_.toneMapping = THREE.ACESFilmicToneMapping // a bit softer of a look
     this.renderer_.toneMappingExposure = 2.0 // tweak this value for brightness
 
-
     document.body.appendChild(this.renderer_.domElement)
 
     this.theme_manager = new ThemeManager()
@@ -49,8 +49,6 @@ class PreviewGenerator {
     this.camera_ = Generators.create_camera()
 
     this.regenerate_floor_grid()
-
-    console.log(this.scene_)
 
     // Add orbit controls
     this.controls_ = new OrbitControls(this.camera_, this.renderer_.domElement)
@@ -107,7 +105,12 @@ class PreviewGenerator {
         this.mixer_ = new THREE.AnimationMixer(this.new_skinned_mesh)
 
         this.animation_clips = gltf.animations
-        const clip = this.animation_clips[1]
+
+        // remove all root motion data. This is the same function that the animation listing
+        // does
+        Utility.clean_track_data(this.animation_clips)
+
+        const clip = this.animation_clips[0]
         const action = this.mixer_.clipAction(clip)
         action.reset()
         action.play()
@@ -180,7 +183,7 @@ class PreviewGenerator {
     this.current_animation_index_processing += 1
 
     // for testing a few, change to something small like 5
-    const temp_limit = 16 //this.animation_clips.length
+    const temp_limit = this.animation_clips.length
 
     if (this.current_animation_index_processing < temp_limit) {
       await this.process_animation_clip()

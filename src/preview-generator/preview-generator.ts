@@ -86,8 +86,14 @@ class PreviewGenerator {
   }
 
   public initialize (): void {
+    // swap this out. Eventually make this a UI option
+    let file_to_load: string = '../animations/human-base-animations.glb'
+    file_to_load = '../animations/quad-creature-animations.glb'
+    // file_to_load = '../animations/bird-animations.glb'
+
+
     const loader = new GLTFLoader()
-    loader.load('../animations/human-base-animations.glb', (gltf) => {
+    loader.load(file_to_load, (gltf) => {
       this.scene_.add(gltf.scene)
 
       // Find the first SkinnedMesh
@@ -106,11 +112,15 @@ class PreviewGenerator {
 
         this.animation_clips = gltf.animations
 
-        // remove all root motion data. This is the same function that the animation listing
-        // does
-        Utility.clean_track_data(this.animation_clips)
+        // remove all root motion data.
+        // This is the same function that the animation listing done
+        // TODO: with cleaning up data, the fox sitting has a weird height offset
+        // I would think the cleanup should work with all skeleton types
+        if (file_to_load.includes('human')) {
+          Utility.clean_track_data(this.animation_clips)
+        }
 
-        const clip = this.animation_clips[0]
+        const clip = this.animation_clips[1]
         const action = this.mixer_.clipAction(clip)
         action.reset()
         action.play()

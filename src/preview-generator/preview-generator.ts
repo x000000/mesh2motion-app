@@ -28,6 +28,8 @@ class PreviewGenerator {
 
   private current_animation_index_processing: number = 0
 
+  private selected_file_to_load: string = ''
+
   constructor () {
     // Setup renderer, scene, camera
     this.renderer_ = new THREE.WebGLRenderer({ antialias: true, alpha: true })
@@ -85,15 +87,11 @@ class PreviewGenerator {
     this.scene_.add(this.environment_container)
   }
 
-  public initialize (): void {
-    // swap this out. Eventually make this a UI option
-    let file_to_load: string = '../animations/human-base-animations.glb'
-    file_to_load = '../animations/quad-creature-animations.glb'
-    // file_to_load = '../animations/bird-animations.glb'
-
+  public initialize (file_to_load: string): void {
+    this.selected_file_to_load = file_to_load
 
     const loader = new GLTFLoader()
-    loader.load(file_to_load, (gltf) => {
+    loader.load(this.selected_file_to_load, (gltf) => {
       this.scene_.add(gltf.scene)
 
       // Find the first SkinnedMesh
@@ -107,7 +105,7 @@ class PreviewGenerator {
         }
       })
 
-      if (this.new_skinned_mesh && gltf.animations && gltf.animations.length > 1) {
+      if (this.new_skinned_mesh && gltf.animations && gltf.animations.length > 0) {
         this.mixer_ = new THREE.AnimationMixer(this.new_skinned_mesh)
 
         this.animation_clips = gltf.animations
@@ -120,7 +118,7 @@ class PreviewGenerator {
           Utility.clean_track_data(this.animation_clips)
         }
 
-        const clip = this.animation_clips[1]
+        const clip = this.animation_clips[0]
         const action = this.mixer_.clipAction(clip)
         action.reset()
         action.play()
@@ -217,4 +215,15 @@ class PreviewGenerator {
 }
 
 const app = new PreviewGenerator()
-app.initialize()
+
+// look out for select change
+// don't start the application logic until we pick a model to use
+const animation_file_dropdown = document.getElementById('animation-file-dropdown')
+animation_file_dropdown?.addEventListener('change', (event) => {
+  const selected_file = (event.target as HTMLSelectElement).value
+
+  // disable the select drop-down to prevent re-initialization
+  animation_file_dropdown.disabled = true
+
+  app.initialize(selected_file)
+})

@@ -163,7 +163,7 @@ button.secondary-button.play
     border-radius: 0;
     box-shadow: none;
     margin-right: 0;
-    border: 1px solid var(--bg-tertiary);
+    border: 1px solid transparent;
 }
 button.secondary-button.play:hover {
     transform: scale(1.0);

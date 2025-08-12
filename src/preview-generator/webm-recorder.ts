@@ -1,8 +1,8 @@
 import * as THREE from 'three'
 
 export class WebMRecorder {
-  public width: number = 100
-  public height: number = 120
+  public width: number
+  public height: number
   public fps: number = 24
   public kbps: number = 2600
 
@@ -17,8 +17,12 @@ export class WebMRecorder {
   private stopped_resolve: (() => void) | null = null
   private file_name: string = ''
 
-  constructor (renderer: THREE.WebGLRenderer) {
+  constructor (renderer: THREE.WebGLRenderer, preview_width: number, preview_height: number) {
     this.renderer_ref = renderer
+    this.width = preview_width
+    this.height = preview_height
+
+    console.log(this.renderer_ref.domElement.height, this.renderer_ref.domElement.width)
   }
 
   public start (saved_name: string): void {

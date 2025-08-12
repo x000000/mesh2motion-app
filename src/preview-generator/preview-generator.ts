@@ -30,11 +30,14 @@ class PreviewGenerator {
 
   private selected_file_to_load: string = ''
 
+  private readonly preview_height: number = 120
+  private readonly preview_width: number = 100
+
   constructor () {
     // Setup renderer, scene, camera
     this.renderer_ = new THREE.WebGLRenderer({ antialias: true, alpha: true })
-    this.renderer_.setSize(window.innerWidth, window.innerHeight)
     this.renderer_.shadowMap.enabled = true // Enable shadows
+    this.recorder = new WebMRecorder(this.renderer_, this.preview_width, this.preview_height)
 
     // Set Filmic tone mapping for less saturated, more cinematic look
     this.renderer_.toneMapping = THREE.ACESFilmicToneMapping // a bit softer of a look
@@ -44,13 +47,20 @@ class PreviewGenerator {
 
     this.theme_manager = new ThemeManager()
     this.zip = new JSZip()
-    this.recorder = new WebMRecorder(this.renderer_)
     this.environment_container = new THREE.Group()
 
     this.scene_ = new THREE.Scene()
     this.camera_ = Generators.create_camera()
 
     this.regenerate_floor_grid()
+
+    // set the canvas size and aspect ratio, otherwise distortion happens for models
+    // we are adding a multiplier so the preview is higher resolution and easier to position
+    const preview_multiplier: number = 4
+    this.renderer_.setSize(this.preview_width * preview_multiplier, this.preview_height * preview_multiplier)
+    this.camera_.aspect = (this.preview_width * preview_multiplier) / (this.preview_height * preview_multiplier)
+    this.camera_.updateProjectionMatrix()
+
 
     // Add orbit controls
     this.controls_ = new OrbitControls(this.camera_, this.renderer_.domElement)

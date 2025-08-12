@@ -298,22 +298,21 @@
                             <input type="number" id="extend-arm-input" name="arm-extend-input" value="3" min="-25" max="25" step="1">
                             <span class="suffix-unit">%</span>
                             <button id="extend-arm-button" class="secondary-button" >Open Arms</button>
+
+                                                <!-- checkbox option to show skeleton -->
+                            <div class="styled-checkbox icon-toggle">
+                                <input type="checkbox" id="show-skeleton-checkbox" name="show-skeleton" value="show" style="display:none;">
+                                <label for="show-skeleton-checkbox" title="Show skeleton" tabindex="0">
+                                    <span class="material-symbols-outlined">visibility</span>
+                                </label>
+                            </div>
                         </div>
 
                          <hr />
                          
                     </div>
         
-                   
-
-                    <!-- checkbox option to show skeleton -->
-                    <div class="styled-checkbox">
-                        <input type="checkbox" id="show-skeleton-checkbox" name="show-skeleton" value="show">
-                        <label for="show-skeleton-checkbox">Show skeleton</label>
-                    </div>
-
-                    <hr />
-        
+       
 
                     <div style="display: flex; gap: 0.5rem;">
                         <button class="secondary-button" id="action_back_to_edit_skeleton" >&#x2039; Back</button>

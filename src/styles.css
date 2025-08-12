@@ -57,6 +57,26 @@ h1, h2, h3, h4, h5, h6, input, button, select {
     display: inline-block;
 }
 
+/* Icon toggle for show skeleton */
+.icon-toggle label {
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+    transition: background 0.2s, color 0.2s;
+    color: #888;
+    background: none;
+    display: inline-flex;
+    align-items: center;
+}
+
+.icon-toggle input[type="checkbox"]:checked + label,
+.icon-toggle input[type="checkbox"] + label:hover {
+    background: var(--button-primary-bg);
+}
+.icon-toggle input[type="checkbox"]:checked + label:hover {
+    background: var(--button-alternate-bg);
+}
+
 
 
 #skinned-step-tools
@@ -296,7 +316,7 @@ option {
 
 
 #animations-items{
-    max-height: 15rem;
+    max-height: 27rem;
     display: inline-flex;
     overflow: auto;;
     flex-direction: row;

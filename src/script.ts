@@ -117,7 +117,7 @@ export class Bootstrap {
     this.controls.target.set(0, 0.9, 0)
 
     // Set zoom limits to prevent excessive zooming in or out
-    this.controls.minDistance = 5 // Minimum zoom (closest to model)
+    this.controls.minDistance = 2 // Minimum zoom (closest to model)
     this.controls.maxDistance = 30 // Maximum zoom (farthest from model)
 
     this.controls.update()
@@ -247,6 +247,8 @@ export class Bootstrap {
         this.transform_controls.enabled = true
         this.transform_controls.setMode(this.transform_controls_type) // 'translate', 'rotate'
 
+        this.skeleton_helper?.setJointsVisible(true)
+
         this.mesh_preview_display_type = ModelPreviewDisplay.WeightPainted
         this.changed_model_preview_display(this.mesh_preview_display_type) // show weight painted mesh by default
         break
@@ -262,6 +264,13 @@ export class Bootstrap {
       case ProcessStep.AnimationsListing:
         this.process_step = ProcessStep.AnimationsListing
         this.animations_listing_step.begin()
+
+        this.skeleton_helper?.setJointsVisible(false)
+
+        // hide skeleton by default in animations listing step
+        if (this.ui.dom_show_skeleton_checkbox !== null) {
+          this.ui.dom_show_skeleton_checkbox.checked = false 
+        }
 
         // Show/hide A-Pose correction options based on skeleton type
         this.update_a_pose_options_visibility()

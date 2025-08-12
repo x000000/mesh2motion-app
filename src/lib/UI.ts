@@ -41,7 +41,7 @@ export class UI {
   dom_skinning_algorithm_selection: HTMLElement | null = null
   dom_skinned_mesh_tools: HTMLElement | null = null
   dom_skinned_mesh_animation_tools: HTMLElement | null = null
-  dom_show_skeleton_checkbox: HTMLElement | null = null
+  dom_show_skeleton_checkbox: HTMLInputElement | null = null
   dom_back_to_edit_skeleton_button: HTMLButtonElement | null = null
   dom_back_to_load_skeleton_button: HTMLButtonElement | null = null
   dom_back_to_load_model_button: HTMLButtonElement | null = null

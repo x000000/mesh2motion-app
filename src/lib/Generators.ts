@@ -6,8 +6,6 @@ import {
   Group, Line, LineBasicMaterial, BufferAttribute, Vector2
 } from 'three'
 
-import { CustomSkeletonHelper } from './CustomSkeletonHelper'
-
 import { Utility } from './Utilities'
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
@@ -78,11 +76,6 @@ export class Generators {
     const bone_list = Utility.bone_list_from_hierarchy(bone_hierarchy)
     const skeleton = new Skeleton(bone_list)
     return skeleton
-  }
-
-  static create_skeleton_helper (skeleton: Skeleton): CustomSkeletonHelper {
-    const skeleton_helper = new CustomSkeletonHelper(skeleton.bones[0], { lineWidth: 5, dashed: true })
-    return skeleton_helper
   }
 
   // create x markers at a location in space

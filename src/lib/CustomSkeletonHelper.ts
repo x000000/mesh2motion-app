@@ -129,6 +129,10 @@ class CustomSkeletonHelper extends Line2 {
   public hide(): void {
     this.visible = false
   }
+
+  public setJointsVisible (visible: boolean): void {
+    this.joint_points.visible = visible
+  }
 }
 
 function getBoneList (object: any): any[] {

@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js'
+import { CustomViewHelper } from './lib/CustomViewHelper.ts'
 
 import { Utility } from './lib/Utilities.ts'
 import { Generators } from './lib/Generators.ts'
@@ -35,6 +36,8 @@ export class Bootstrap {
   public readonly transform_controls: TransformControls = new TransformControls(this.camera, this.renderer.domElement)
   public is_transform_controls_dragging: boolean = false
   public readonly transform_controls_hover_distance: number = 0.03 // distance to hover over bones to select them
+
+  public view_helper: CustomViewHelper // mini 3d view to help orient orthographic views
 
   // has UI elements on the HTML page that we will reference/use
   public readonly theme_manager = new ThemeManager()
@@ -105,6 +108,10 @@ export class Bootstrap {
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping // a bit softer of a look
     this.renderer.toneMappingExposure = 2.0 // tweak this value for brightness
 
+    //  renderer should automatically clear its output before rendering a frame
+    // This was added/needed when the view helper was implemented.
+    this.renderer.autoClear = false
+
     // Set default camera position for front view
     // this will help because we first want the user to rotate the model to face the front
     this.camera.position.set(0, 1.7, 15) // X:0 (centered), Y:1.7 (eye-level), Z:5 (front view)
@@ -121,6 +128,9 @@ export class Bootstrap {
     this.controls.maxDistance = 30 // Maximum zoom (farthest from model)
 
     this.controls.update()
+
+    this.view_helper = new CustomViewHelper(this.camera, document.getElementById('view-control-hitbox'))
+    this.view_helper.set_labels('X', 'Y', 'Z')
 
     this.scene.add(this.transform_controls.getHelper())
 
@@ -300,7 +310,7 @@ export class Bootstrap {
 
   private animate (): void {
     requestAnimationFrame(this.animate)
-    const delta_time = this.clock.getDelta()
+    const delta_time: number = this.clock.getDelta()
 
     // if we are in the animation listing step, we can call
     // render/update functions in that
@@ -313,6 +323,12 @@ export class Bootstrap {
     this.load_model_step.lerp_model_rotation()
 
     this.renderer.render(this.scene, this.camera)
+
+    // view helper
+    this.view_helper.render(this.renderer) // updates current viewport
+    if (this.view_helper.animating) {
+      this.view_helper.update(delta_time) // updates animation when clicking on axis
+    }
   }
 
   public changed_model_preview_display (mesh_textured_display_type: ModelPreviewDisplay): void {

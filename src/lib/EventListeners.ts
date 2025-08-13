@@ -13,6 +13,14 @@ export class EventListeners {
       this.bootstrap.regenerate_floor_grid()
     })
 
+    // listen for view helper changes
+    document.getElementById('view-control-hitbox')?.addEventListener('pointerdown', (event: PointerEvent) => {
+      if (this.bootstrap.view_helper.handleClick(event)) {
+        event.stopPropagation()
+        event.preventDefault()
+      }
+    })
+
     this.bootstrap.renderer.domElement.addEventListener('mousemove', (event: MouseEvent) => {
       if (this.bootstrap.is_transform_controls_dragging) {
         this.bootstrap.handle_transform_controls_moving()

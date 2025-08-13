@@ -363,9 +363,9 @@ input[type="file"] {
 }
 
 #github-logo {
-    position: fixed;
-    bottom: 10px;
-    left: 10px;
+position: fixed;
+    top: 50px;
+    left: 5px;
     display: flex;
     column-gap: 6px;
     align-items: center;
@@ -510,7 +510,7 @@ input[type="file"] {
 /* Theme toggle button styles */
 #theme-toggle-container {
     position: fixed;
-    bottom: 4rem;
+    top: 6rem;
     left: 1rem;
 }
 
@@ -536,4 +536,16 @@ input[type="file"] {
 
 #theme-toggle:hover .theme-icon {
     transform: rotate(20deg);
+}
+
+/* this is a weird view helper three.js thing
+   This helps place the view helper in the 3D scene by using a div
+   The event listener for the click events latches onto this
+*/
+#view-control-hitbox {
+    height: 120px;
+    width: 120px;
+    position: absolute;
+    bottom: 0px;
+    left: 0;
 }

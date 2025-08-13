@@ -136,11 +136,6 @@ export class EventListeners {
       this.bootstrap.process_step = this.bootstrap.process_step_changed(ProcessStep.LoadModel)
     })
 
-    // change view event listeners when configuring skeleton
-    this.bootstrap.ui.dom_view_front_change?.addEventListener('click', () => { this.bootstrap.switchToView('front') })
-    this.bootstrap.ui.dom_view_side_change?.addEventListener('click', () => { this.bootstrap.switchToView('side') })
-    this.bootstrap.ui.dom_view_top_change?.addEventListener('click', () => { this.bootstrap.switchToView('top') })
-
     this.bootstrap.ui.dom_transform_type_radio_group?.addEventListener('change', (event: Event) => {
       const radio_button_selected: string | null = event.target?.value
 

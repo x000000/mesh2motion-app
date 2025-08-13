@@ -216,18 +216,6 @@
 
                 <hr />
 
-
-                <!-- change camera to orthographic views to help position skeleton-->
-                <div style="text-align: center; padding: 0">View</div>
-                <div id="view-buttons-container" style="display: flex; gap: 0px; padding-top: 0">
-                    <button class="secondary-button" id="front-view-button">Front</button>
-                    <button class="secondary-button" id="side-view-button">Side</button>
-                    <button class="secondary-button" id="top-view-button">Top</button>
-                </div>
-            
-
-                <hr />
-
                 <!-- add number input for changing scale of skeleton-->
                 <div style="display: flex; flex-direction: row; justify-content: space-evenly; align-items: center; gap: 0.4rem;">
                     <input type="number" id="scale-input" name="scale-input" value="-3" min="-90" max="90" step="1.0">
@@ -235,10 +223,6 @@
                     <button id="scale-skeleton-button" class="secondary-button" >Scale skeleton</button>
                 </div>
 
-                <!-- hide this move to origin for now as is it seems to cause more trouble than it helps -->
-                <!-- <button id="action_move_to_origin"  class="secondary-button" >Move to origin</button> -->
-
-                <!-- <hr /> -->
 
                 <!-- option to change out skinning algorithm -->
                 <label style="display: none" for="skinning-algorithm-options">Skinning algorithm:</label>
@@ -248,15 +232,6 @@
                     <option value="closest-bone-child">Closest Distance Child</option>
                 </select>
 
-                <!-- checkbox for enabling weight skin debug mode. -->
-                <!-- <div class="styled-checkbox">
-                    <input type="checkbox" id="debug-skinning-checkbox" >
-                    <label for="debug-skinning-checkbox">Visualize Weight Painting</label>
-                    <div class="tooltip">
-                        <span class="material-symbols-outlined" style="font-size: 16px;">help</span>
-                        <span class="tooltiptext">Preview weight painted mesh</span>
-                    </div>
-                </div>  -->
 
                 <!-- back to load skeleton -->
                  <div class="display: flex; gap: 0.5rem;">

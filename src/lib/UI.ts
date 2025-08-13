@@ -68,12 +68,7 @@ export class UI {
   dom_export_button_hidden_link: HTMLElement | null = null
   dom_build_version: HTMLElement | null = null
 
-  // changing views buttons when editing skeleton
-  dom_view_front_change: HTMLButtonElement | null = null
-  dom_view_side_change: HTMLButtonElement | null = null
-  dom_view_top_change: HTMLButtonElement | null = null
-
-  constructor () {
+   constructor () {
     this.initialize_dom_elements()
     // AnimationSearch will be initialized when needed
   }
@@ -117,11 +112,6 @@ export class UI {
     this.dom_skinning_algorithm_selection = document.querySelector('#skinning-algorithm-options')
 
     this.dom_mesh_preview_group = document.querySelector('#mesh-preview-group')
-
-    // UI controls for changing views
-    this.dom_view_front_change = document.querySelector('#front-view-button')
-    this.dom_view_side_change = document.querySelector('#side-view-button')
-    this.dom_view_top_change = document.querySelector('#top-view-button')
 
     // UI controls for working with skinned mesh
     this.dom_skinned_mesh_tools = document.querySelector('#skinned-step-tools')

@@ -508,50 +508,6 @@ export class Bootstrap {
 
     return true
   }
-
-  public switchToView (view: 'front' | 'side' | 'top'): void {
-    if (this.controls === undefined) {
-      console.log('switching to view failed: controls are undefined')
-      return
-    }
-
-    const distance = 10
-    const target_position = new THREE.Vector3()
-    switch (view) {
-      case 'front':
-        target_position.set(0, 0, distance)
-        break
-      case 'side':
-        target_position.set(distance, 0, 0)
-        break
-      case 'top':
-        target_position.set(0, distance, 0)
-        break
-    }
-
-    const bounding_box = this.load_model_step.model_meshes().children[0].geometry.boundingBox
-    const model_height = bounding_box.max.y - bounding_box.min.y
-    const target = new THREE.Vector3(0, model_height / 2, 0) // look at origin, adjusted for model height
-
-    const start_position = this.camera.position.clone()
-    const start_time = performance.now()
-    const duration = 0.25 // seconds
-
-    const animate = (current_time: number) => {
-      const elapsed_time = (current_time - start_time) / 1000
-      const t = Math.min(elapsed_time / duration, 1) // normalize time to [0, 1]
-
-      this.camera.position.lerpVectors(start_position, target_position, t)
-      this.controls.target.lerp(target, t)
-      this.controls.update()
-
-      if (t < 1) {
-        requestAnimationFrame(animate)
-      }
-    }
-
-    requestAnimationFrame(animate)
-  }
 } // end Bootstrap class
 
 // Create an instance of the Bootstrap class when the script is loaded

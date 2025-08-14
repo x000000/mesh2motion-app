@@ -24,6 +24,9 @@ If you want to run this locally or do any improvements, the main dependency you 
 ## Running and creating video previews
 There is separate tool in the web app where you can generate video previews for each animation. It isn't too hard to run, but it has a separate README file that explains how that works. It is more of an internal tool, so I didn't want to muddy up this page too much.
 
+[Preview Generator Documentation](src/preview-generator/README.md)
+
+
 ## Creating a production build for the web
 We mostly just have typescript for this project, which web browsers cannot just read, so we need to do a build step to get everything ready for deploying. This project uses Vite for the web server and builder. See the vite.config.js for more info. This command will create a "dist" folder with all the files to serve to the web:
 

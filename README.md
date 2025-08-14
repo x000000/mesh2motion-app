@@ -2,6 +2,7 @@
 Import a 3D Model and automatically assign and export animations with Mesh2Motion. This is kind of similar to a web application like Mixamo, but I would like it to be more flexible so it can support other model and skeleton types. Hopefully the open source nature means it can be expanded on and evolve more than than the closed tools have. 
 
 The marketing site that explains features and release notes: https://mesh2motion.org/
+
 Try it live: https://app.mesh2motion.org/
 
 ![Screenshot](./readme.png)

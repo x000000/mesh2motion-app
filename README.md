@@ -1,4 +1,5 @@
-![Mesh2Motion Logo](./mesh2motion.svg)
+<img src="./mesh2motion.svg" alt="Mesh2Motion Logo" width="300"/>
+
 Import a 3D Model and automatically assign and export animations with Mesh2Motion. This is kind of similar to a web application like Mixamo, but I would like it to be more flexible so it can support other model and skeleton types. Hopefully the open source nature means it can be expanded on and evolve more than than the closed tools have. 
 
 The marketing site that explains features and release notes: https://mesh2motion.org/
@@ -46,7 +47,7 @@ If you come up with anything, just get me the source .blend file and let me know
 ## Contribute to the animation fund
 I don't expect to be receiving money for working on this, but I am also not the best animator. If people want to see better, and more, animations made, add to the fund. I can pay for an animator to help build out the animation library better. Or, if you know an animator that wants to help with this, send them my way! I am just a dude working on this during nights and weekends.
 
-![Venmo animator fund](./venmo.png)
+<img src="./venmo.png" alt="Venmo Animator Fund" width="200"/>
 
 
 

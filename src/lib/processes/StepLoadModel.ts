@@ -30,12 +30,6 @@ export class StepLoadModel extends EventTarget {
   triangle_count = 0
   objects_count = 0
 
-  // Smooth rotation (lerp) support for rotating mesh
-  private readonly rotationStart = { x: 0, y: 0, z: 0 }
-  private readonly rotationTarget = { x: 0, y: 0, z: 0 }
-  private rotationStartTime: number = 0
-  private rotationDuration: number = 0.25 // seconds (twice as fast)
-  private isRotating: boolean = false
 
   // function that goes through all our geometry data and calculates how many triangles we have
   private calculate_mesh_metrics (): void {
@@ -311,54 +305,23 @@ export class StepLoadModel extends EventTarget {
     return this.material_list
   }
 
-  /**
-   * Set the target rotation for the model (in degrees, per axis) and start smooth animation.
-   * @param axis 'x' | 'y' | 'z'
-   * @param angle Angle in degrees
-   * @param duration Optional duration in seconds (default: 0.5)
-   */
-  public set_model_rotation_target (axis: 'x' | 'y' | 'z', angle: number, duration: number = 0.25): void {
-    // Get current rotation from the first mesh (assumes all meshes rotate together)
-    let mesh: Mesh | undefined
-    this.final_mesh_data.traverse((obj: Object3D) => {
-      if (!mesh && obj.type === 'Mesh') mesh = obj as Mesh
-    })
-    if (!(mesh)) return
-
-    this.rotationStart.x = mesh.rotation.x
-    this.rotationStart.y = mesh.rotation.y
-    this.rotationStart.z = mesh.rotation.z
-    // Make rotation cumulative: add angle to current target
-    this.rotationTarget[axis] = this.rotationTarget[axis] + MathUtils.degToRad(angle)
-    this.rotationStartTime = performance.now() / 1000
-    this.rotationDuration = duration
-    this.isRotating = true
-  }
 
   /**
-   * Called in the main animation loop to smoothly animate the model's rotation toward the target.
-   * Uses a timed lerp for smooth, predictable results.
+   * Rotate all geometry data in the model by the given angle (in degrees) around the specified axis.
+   * This directly modifies the geometry vertices.
    */
-  public lerp_model_rotation (): void {
-    if (!this.isRotating) return // only call if the model is actively rotating
-    const now = performance.now() / 1000
-    const t = Math.min((now - this.rotationStartTime) / this.rotationDuration, 1)
-    // Interpolate each axis
-    const lerped = {
-      x: MathUtils.lerp(this.rotationStart.x, this.rotationTarget.x, t),
-      y: MathUtils.lerp(this.rotationStart.y, this.rotationTarget.y, t),
-      z: MathUtils.lerp(this.rotationStart.z, this.rotationTarget.z, t)
-    }
+  public rotate_model_geometry(axis: 'x' | 'y' | 'z', angle: number): void {
+    const radians = MathUtils.degToRad(angle)
     this.final_mesh_data.traverse((obj: Object3D) => {
       if (obj.type === 'Mesh') {
-        obj.rotation.x = lerped.x
-        obj.rotation.y = lerped.y
-        obj.rotation.z = lerped.z
+        const mesh = obj as Mesh
+        mesh.geometry.rotateX(axis === 'x' ? radians : 0)
+        mesh.geometry.rotateY(axis === 'y' ? radians : 0)
+        mesh.geometry.rotateZ(axis === 'z' ? radians : 0)
+        mesh.geometry.computeBoundingBox()
+        mesh.geometry.computeBoundingSphere()
       }
     })
-
-    // stop animating if we are done
-    if (t >= 1) this.isRotating = false
   }
 
   public move_model_to_floor (): void {

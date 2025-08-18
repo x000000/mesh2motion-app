@@ -318,10 +318,6 @@ export class Bootstrap {
       this.animations_listing_step.frame_change(delta_time)
     }
 
-    // if we rotate the model manually, show lerped 
-    // only does logic when actively rotating mesh
-    this.load_model_step.lerp_model_rotation()
-
     this.renderer.render(this.scene, this.camera)
 
     // view helper

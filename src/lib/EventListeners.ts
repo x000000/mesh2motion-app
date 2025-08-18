@@ -80,15 +80,15 @@ export class EventListeners {
 
     // rotate model after loading it in to orient it correctly
     this.bootstrap.ui.dom_rotate_model_x_button?.addEventListener('click', () => {
-      this.bootstrap.load_model_step.set_model_rotation_target('x', 90)
+  this.bootstrap.load_model_step.rotate_model_geometry('x', 90)
     })
 
     this.bootstrap.ui.dom_rotate_model_y_button?.addEventListener('click', () => {
-      this.bootstrap.load_model_step.set_model_rotation_target('y', 90)
+  this.bootstrap.load_model_step.rotate_model_geometry('y', 90)
     })
 
     this.bootstrap.ui.dom_rotate_model_z_button?.addEventListener('click', () => {
-      this.bootstrap.load_model_step.set_model_rotation_target('z', 90)
+  this.bootstrap.load_model_step.rotate_model_geometry('z', 90)
     })
 
     this.bootstrap.ui.dom_move_model_to_floor_button?.addEventListener('click', () => {

@@ -33,6 +33,13 @@ We mostly just have typescript for this project, which web browsers cannot just 
 
     npm run build
 
+## Running in Docker
+For a quick start, ensure that both the Dockerfile and docker-compose.yaml are in your current directory. Then, simply execute the following command, and Mesh2Motion will be up and running in moments! This assumes you have Docker and Docker Compose already installed.
+
+    docker-compose up -d
+
+To try it out, visit http://localhost:3000, assuming you have Docker installed locally.
+
 ## Animator Guide
 Are you an animator who wants to help build out animations for this tool? This is by far my weakest skill, which is why I have been avoiding it. In the **static > blender** folder, you can see all the source Blender files where I have been working. There are a couple of model files where I just have the model, and other files that actually contain the animations. These are the files we can build animations into.
 

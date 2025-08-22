@@ -16,11 +16,21 @@ There are instructions built into the web application, but this is the general f
 4. Test out various animations to see the results.
 5. Select which animations you want to use, then export (currently only GLB/GLTF supported format)
 
-## Building and running
-If you want to run this locally or do any improvements, the main dependency you need is Node.js. I am using 18.15, but other versions probably work fine too.Open you command line tool to the directory this readme is in. Run ths following commands to start the web server.
+## Building and running locally
+The main dependency you need is Node.js. I am using 18.15, but other versions probably work fine too. Open you command line tool to the directory this readme is in. Run ths following commands to start the web server.
 
     npm install
     npm run dev
+
+## Running in Docker
+If you don't want to modify your local file system, you can alternitvely build and run the project from Docker. Make sure you have Docker and Docker Compose installed. Navigate your command line tool to this directory where your Dockerfile is at. Make sure Docker is actually started and running before you run this command.
+
+Execute the following command.
+
+    docker-compose up -d
+
+To try it out, visit http://localhost:3000
+
 
 ## Running and creating video previews
 There is separate tool in the web app where you can generate video previews for each animation. It isn't too hard to run, but it has a separate README file that explains how that works. It is more of an internal tool, so I didn't want to muddy up this page too much.

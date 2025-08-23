@@ -105,7 +105,9 @@ export class EventListeners {
 
     this.bootstrap.ui.dom_export_button?.addEventListener('click', () => {
       const all_clips = this.bootstrap.animations_listing_step.animation_clips()
-      this.bootstrap.file_export_step.set_animation_clips_to_export(all_clips)
+      const animations_to_export: number[] = this.bootstrap.animations_listing_step.get_animation_indices_to_export()
+
+      this.bootstrap.file_export_step.set_animation_clips_to_export(all_clips, animations_to_export)
       this.bootstrap.file_export_step.export(this.bootstrap.weight_skin_step.final_skinned_meshes(), 'exported-model')
     })
 

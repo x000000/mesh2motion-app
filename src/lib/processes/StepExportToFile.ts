@@ -7,16 +7,12 @@ export class StepExportToFile extends EventTarget {
   private readonly ui: UI = new UI()
   private animation_clips_to_export: AnimationClip[] = []
 
-  public set_animation_clips_to_export (all_animations_clips: AnimationClip[]): void {
+  public set_animation_clips_to_export (all_animations_clips: AnimationClip[], animation_checkboxes: number[]): void {
     this.animation_clips_to_export = []
-    const animation_checkboxes = this.ui.get_animated_selected_elements()
-    animation_checkboxes.forEach((checkbox) => {
-      if (checkbox.checked === true) {
-        const animation_index = checkbox.getAttribute('value')
-        const original_clip: AnimationClip = all_animations_clips[animation_index]
-        const cloned_clip: AnimationClip = original_clip.clone()
-        this.animation_clips_to_export.push(cloned_clip)
-      }
+    animation_checkboxes.forEach((indx) => {
+      const original_clip: AnimationClip = all_animations_clips[indx]
+      const cloned_clip: AnimationClip = original_clip.clone()
+      this.animation_clips_to_export.push(cloned_clip)
     })
   }
 

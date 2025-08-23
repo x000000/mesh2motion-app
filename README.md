@@ -16,17 +16,11 @@ There are instructions built into the web application, but this is the general f
 4. Test out various animations to see the results.
 5. Select which animations you want to use, then export (currently only GLB/GLTF supported format)
 
-## Building and running
-If you want to run this locally or do any improvements, the main dependency you need is Node.js. I am using 18.15, but other versions probably work fine too.Open you command line tool to the directory this readme is in. Run ths following commands to start the web server.
+## Building and running locally
+The main dependency you need is Node.js. I am using 18.15, but other versions probably work fine too. Open you command line tool to the directory this readme is in. Run ths following commands to start the web server.
 
     npm install
     npm run dev
-
-## Running and creating video previews
-There is separate tool in the web app where you can generate video previews for each animation. It isn't too hard to run, but it has a separate README file that explains how that works. It is more of an internal tool, so I didn't want to muddy up this page too much.
-
-[Preview Generator Documentation](src/preview-generator/README.md)
-
 
 ## Creating a production build for the web
 We mostly just have typescript for this project, which web browsers cannot just read, so we need to do a build step to get everything ready for deploying. This project uses Vite for the web server and builder. See the vite.config.js for more info. This command will create a "dist" folder with all the files to serve to the web:
@@ -34,11 +28,18 @@ We mostly just have typescript for this project, which web browsers cannot just 
     npm run build
 
 ## Running in Docker
-For a quick start, ensure that both the Dockerfile and docker-compose.yaml are in your current directory. Then, simply execute the following command, and Mesh2Motion will be up and running in moments! This assumes you have Docker and Docker Compose already installed.
+If you don't want to modify your local file system, you can alternitvely build and run the project from Docker. Make sure you have Docker and Docker Compose installed. Navigate your command line tool to this directory where your Dockerfile is at. Make sure Docker is actually started and running before you run this command.
+
+Execute the following command.
 
     docker-compose up -d
 
-To try it out, visit http://localhost:3000, assuming you have Docker installed locally.
+To try it out, visit http://localhost:3000
+
+## Running and creating video previews
+There is separate tool in the web app where you can generate video previews for each animation. It isn't too hard to run, but it has a separate README file that explains how that works. It is more of an internal tool, so I didn't want to muddy up this page too much.
+
+[Preview Generator Documentation](src/preview-generator/README.md)
 
 ## Animator Guide
 Are you an animator who wants to help build out animations for this tool? This is by far my weakest skill, which is why I have been avoiding it. In the **static > blender** folder, you can see all the source Blender files where I have been working. There are a couple of model files where I just have the model, and other files that actually contain the animations. These are the files we can build animations into.

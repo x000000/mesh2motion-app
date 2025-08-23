@@ -1,5 +1,5 @@
 import {
-  PerspectiveCamera, DoubleSide, DirectionalLight, GridHelper,
+  PerspectiveCamera, DoubleSide, FrontSide, DirectionalLight, GridHelper,
   Bone, MeshBasicMaterial, Skeleton, AmbientLight, PlaneGeometry, Mesh,
   SphereGeometry, MeshPhongMaterial, AxesHelper,
   Vector3, BufferGeometry, type Object3D, type WebGLRenderer,
@@ -23,8 +23,14 @@ export class Generators {
     const grid_size: number = 180
     const divisions: number = 100
     const floor_geometry = new PlaneGeometry(grid_size, grid_size, divisions, divisions)
-    const floor_material = new MeshPhongMaterial({ color: floor_color, wireframe: false, transparent: false, shininess: 0.0, specular: 0.0 })
-    floor_material.side = DoubleSide // helps us see that we are below the character
+    const floor_material = new MeshPhongMaterial({
+      color: floor_color,
+      wireframe: false,
+      transparent: false,
+      shininess: 0.0,
+      specular: 0.0
+    })
+    floor_material.side = FrontSide // helps us see the mesh when we are below the character
 
     const floor_mesh = new Mesh(floor_geometry, floor_material)
     floor_mesh.name = 'Floor Mesh'

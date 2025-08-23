@@ -1,8 +1,3 @@
-import { type AnimationClip } from 'three'
-import { AnimationSearch, type AnimationWithState } from './AnimationSearch'
-import { ThemeManager } from './ThemeManager'
-import { SkeletonType } from './enums/SkeletonType'
-
 export class UI {
   dom_current_step_index: HTMLElement | null = null
   dom_current_step_element: HTMLElement | null = null
@@ -10,9 +5,6 @@ export class UI {
   dom_upload_model_button: HTMLButtonElement | null = null
   dom_load_model_button: HTMLButtonElement | null = null
   dom_load_model_debug_checkbox: HTMLInputElement | null = null
-
-  // Animation search functionality
-  private animation_search: AnimationSearch | null = null
 
   // load skeleton UI
   dom_rotate_model_x_button: HTMLButtonElement | null = null
@@ -66,6 +58,10 @@ export class UI {
   dom_extend_arm_button: HTMLButtonElement | null = null
   dom_a_pose_correction_options: HTMLElement | null = null
   dom_export_button_hidden_link: HTMLElement | null = null
+  dom_animation_count: HTMLElement | null = null
+  dom_animations_listing_count: HTMLElement | null = null
+
+
   dom_build_version: HTMLElement | null = null
 
    constructor () {
@@ -143,6 +139,8 @@ export class UI {
 
     // UI for exporting the animation
     this.dom_export_button_hidden_link = document.querySelector('#download-hidden-link')
+    this.dom_animation_count = document.querySelector('#animation-selection-count')
+    this.dom_animations_listing_count = document.querySelector('#animation-listing-count')
   }
 
   public hide_all_elements (): void {
@@ -161,34 +159,5 @@ export class UI {
     if (this.dom_skinned_mesh_animation_tools != null) {
       this.dom_skinned_mesh_animation_tools.style.display = 'none'
     }
-  }
-
-  public build_animation_clip_ui (animation_clips_to_load: AnimationClip[], theme_manager: ThemeManager, skeleton_type: SkeletonType): void {
-    // Initialize AnimationSearch if not already done
-    if (this.animation_search === null) {
-      this.animation_search = new AnimationSearch('animation-filter', 'animations-items', theme_manager, skeleton_type)
-    }
-
-    // Use the animation search class to handle the UI
-    this.animation_search.initialize_animations(animation_clips_to_load)
-  }
-
-  public get_animated_selected_elements (): NodeListOf<Element> {
-    // this needs to be called ad-hoc as selections might change
-    return document.querySelectorAll('#animations-items input[type="checkbox"]')
-  }
-
-  public get_selected_animations (): AnimationWithState[] {
-    if (this.animation_search === null) {
-      return []
-    }
-    return this.animation_search.get_selected_animations()
-  }
-
-  public get_selected_animation_indices (): number[] {
-    if (this.animation_search === null) {
-      return []
-    }
-    return this.animation_search.get_selected_animation_indices()
   }
 }

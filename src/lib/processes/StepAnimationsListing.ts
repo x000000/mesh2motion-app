@@ -10,6 +10,8 @@ import { AnimationClip, AnimationMixer, Quaternion, Vector3, type SkinnedMesh, t
 import { SkeletonType } from '../enums/SkeletonType.ts'
 import { Utility } from '../Utilities.ts'
 import { ThemeManager } from '../ThemeManager.ts'
+import { AnimationSearch, AnimationWithState } from '../AnimationSearch.ts'
+
 
 // Note: EventTarget is a built-ininterface and do not need to import it
 export class StepAnimationsListing extends EventTarget {
@@ -26,6 +28,9 @@ export class StepAnimationsListing extends EventTarget {
   private skeleton_type: SkeletonType = SkeletonType.Human
 
   private _added_event_listeners: boolean = false
+
+  // Animation search functionality
+  public animation_search: AnimationSearch | null = null
 
   // -z will bring hip bone down
   private hip_bone_offset: Vector3 = new Vector3(0, 0, 0) // -z will bring hip bone down. Helps set new base hip position
@@ -187,11 +192,28 @@ export class StepAnimationsListing extends EventTarget {
       return 0
     })
 
-    console.log('all animations loaded:', this.animation_clips_loaded)
-
     // create user interface with all available animation clips
-    this.ui.build_animation_clip_ui(this.animation_clips_loaded, this.theme_manager, this.skeleton_type)
+    this.build_animation_clip_ui(this.animation_clips_loaded, this.theme_manager, this.skeleton_type)
+
+    // add event listener to listem for checkbox changes when we change
+    // the amount of animations to export
+    this.animation_search?.addEventListener('export-options-changed', () => {
+      // update the count for the download button
+      this.ui.dom_animation_count.innerHTML = this.animation_search?.get_selected_animation_indices().length.toString() ?? '0'
+    })
+
+    // add event listener to listen for filtered animations listing
+    this.update_filtered_animation_listing_ui()
+    this.animation_search?.addEventListener('filtered-animations-listing', () => {
+      this.update_filtered_animation_listing_ui()
+    })
+
     this.play_animation(0) // play the first animation by default
+  }
+
+  private update_filtered_animation_listing_ui (): void {
+    const animation_length_string: string = this.animation_search?.filtered_animations().length.toString() ?? '0'
+    this.ui.dom_animations_listing_count.innerHTML = animation_length_string
   }
 
   private apply_hip_bone_offset (animation_clips: AnimationClip[]): void {
@@ -298,7 +320,7 @@ export class StepAnimationsListing extends EventTarget {
 
   private update_download_button_enabled (): void {
     // see if any of the "export" checkboxes are active. if not we need to disable the "Download" button
-    const animation_checkboxes = this.ui.get_animated_selected_elements()
+    const animation_checkboxes = this.get_animated_selected_elements()
     const is_any_checkbox_checked: boolean = Array.from(animation_checkboxes).some((checkbox) => {
       return checkbox.checked === true
     })
@@ -335,5 +357,34 @@ export class StepAnimationsListing extends EventTarget {
 
     // helps ensure we don't add event listeners multiple times
     this.has_added_event_listeners = true
+  }
+
+  public build_animation_clip_ui (animation_clips_to_load: AnimationClip[], theme_manager: ThemeManager, skeleton_type: SkeletonType): void {
+    // Initialize AnimationSearch if not already done
+    if (this.animation_search === null) {
+      this.animation_search = new AnimationSearch('animation-filter', 'animations-items', theme_manager, skeleton_type)
+    }
+
+    // Use the animation search class to handle the UI
+    this.animation_search.initialize_animations(animation_clips_to_load)
+  }
+
+  public get_animated_selected_elements (): NodeListOf<Element> {
+    // this needs to be called ad-hoc as selections might change
+    return document.querySelectorAll('#animations-items input[type="checkbox"]')
+  }
+
+  public get_filtered_animations_list (): AnimationWithState[] {
+    if (this.animation_search === null) {
+      return []
+    }
+    return this.animation_search.get_selected_animations()
+  }
+
+  public get_animation_indices_to_export (): number[] {
+    if (this.animation_search === null) {
+      return []
+    }
+    return this.animation_search.get_selected_animation_indices()
   }
 }

@@ -7,15 +7,19 @@ export interface AnimationWithState extends AnimationClip {
   name: string
 }
 
-export class AnimationSearch {
+export class AnimationSearch extends EventTarget {
   private all_animations: AnimationWithState[] = []
   private readonly filter_input: HTMLInputElement | null = null
   private readonly animation_list_container: HTMLElement | null = null
+  private filtered_animations_list: AnimationWithState[] = []
 
   private readonly theme_manager: ThemeManager
   private readonly skeleton_type: SkeletonType
 
+  private custom_event: CustomEvent | null = null
+
   constructor (filter_input_id: string, animation_list_container_id: string, theme_manager: ThemeManager, skeleton_type: SkeletonType) {
+    super()
     this.filter_input = document.querySelector(`#${filter_input_id}`)
     this.animation_list_container = document.querySelector(`#${animation_list_container_id}`)
     this.theme_manager = theme_manager
@@ -57,6 +61,10 @@ export class AnimationSearch {
     this.filter_input.addEventListener('input', (event) => {
       const filter_text = (event.target as HTMLInputElement).value.toLowerCase()
       this.render_filtered_animations(filter_text)
+
+      // emit an event to notify that we have filtered our animation listing
+      this.custom_event = new CustomEvent('filtered-animations-listing', { detail: { selectedAnimations: this.get_selected_animation_indices() } })
+      this.dispatchEvent(this.custom_event)
     })
   }
 
@@ -71,6 +79,10 @@ export class AnimationSearch {
       if (target?.type === 'checkbox') {
         this.save_current_checkbox_states()
       }
+
+      // emit an event to notify other parts of the application that export options have changed
+      this.custom_event = new CustomEvent('export-options-changed', { detail: { selectedAnimations: this.get_selected_animation_indices() } })
+      this.dispatchEvent(this.custom_event)
     })
   }
 
@@ -90,20 +102,26 @@ export class AnimationSearch {
     })
   }
 
+  /* animations that are shown on UI after filtering */
+  public filtered_animations (): AnimationWithState[] {
+    return this.filtered_animations_list
+  }
+
   private render_filtered_animations (filter_text: string): void {
     if (this.animation_list_container === null) {
       return
     }
 
     // Filter animations based on search text
-    const filtered_animations = this.all_animations.filter((animation_clip) => {
-      return animation_clip.name.toLowerCase().includes(filter_text)
+    this.filtered_animations_list = this.all_animations.filter(animation => {
+      return animation.name.toLowerCase().includes(filter_text)
     })
+
 
     // Clear and rebuild the animation list
     this.animation_list_container.innerHTML = ''
 
-    filtered_animations.forEach((animation_clip) => {
+    this.filtered_animations_list.forEach((animation_clip) => {
       if (this.animation_list_container == null) {
         return
       }
@@ -201,10 +219,18 @@ export class AnimationSearch {
     return input.replace(/_/g, ' ')
   }
 
+  /**
+   * Gets the list of filtered animations. Returns all animations if no filtering
+   * @returns An array of selected animations.
+   */
   public get_selected_animations (): AnimationWithState[] {
     return this.all_animations.filter(animation => animation.isChecked === true)
   }
 
+  /**
+   * Gets the list of animations that are checked to be exported
+   * @returns An array of selected animation indices.
+   */
   public get_selected_animation_indices (): number[] {
     return this.all_animations
       .map((animation, index) => (animation.isChecked === true) ? index : -1)

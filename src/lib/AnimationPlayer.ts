@@ -6,6 +6,10 @@ export class AnimationPlayer {
   private current_animation_clip: AnimationClip | null = null
   private current_animation_actions: AnimationAction[] = []
   private is_playing: boolean = false
+  /// When the user grabs the scrubber, the animation is paused.
+  /// If it was playing before the scrubber was grabbed, it will
+  /// resume playing after the user lets go.
+  private was_playing_before_user_scrubbed: boolean = false
   private is_user_scrubbing: boolean = false
 
   private readonly has_added_event_listeners: boolean = false
@@ -34,11 +38,17 @@ export class AnimationPlayer {
       })
 
       this.ui.dom_animation_scrubber.addEventListener('mousedown', () => {
+        this.was_playing_before_user_scrubbed = this.is_playing
+        this.pause()
         this.is_user_scrubbing = true
       })
 
       this.ui.dom_animation_scrubber.addEventListener('mouseup', () => {
         this.is_user_scrubbing = false
+        if (this.was_playing_before_user_scrubbed) {
+          this.was_playing_before_user_scrubbed = false
+          this.play()
+        }
       })
     }
   }
@@ -162,7 +172,7 @@ export class AnimationPlayer {
 
     const icon = this.ui.dom_play_pause_button.querySelector('.material-symbols-outlined')
     if (icon !== null) {
-      icon.textContent = this.is_playing ? 'pause' : 'play_arrow'
+      icon.textContent = this.is_playing || this.was_playing_before_user_scrubbed ? 'pause' : 'play_arrow'
     }
   }
 

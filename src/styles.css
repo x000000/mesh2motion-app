@@ -93,6 +93,21 @@ h1, h2, h3, h4, h5, h6, input, button, select {
     border-radius: 4px;
     margin-bottom: 0.5rem;
 }
+#animation-listing-count {
+    font-size: 90%;
+    position: absolute;
+    right: 3rem;
+    top: 5rem;
+}
+
+/* indicator on download buton with how many are selected */
+#animation-selection-count {
+    color: var(--text-primary);
+    padding: 0.1rem .5rem;
+    background-color: var(--bg-primary);
+    border-radius: 50%;
+    font-size: 80%;
+}
 
 hr {
     border:1px solid var(--bg-alternate);
@@ -355,6 +370,7 @@ option {
 .anim-preview-label {
     font-size: 75%;
     cursor: pointer;
+    line-height: 110%;
 }
 
 

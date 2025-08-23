@@ -59,6 +59,7 @@ export class UI {
   dom_a_pose_correction_options: HTMLElement | null = null
   dom_export_button_hidden_link: HTMLElement | null = null
   dom_animation_count: HTMLElement | null = null
+  dom_animations_listing_count: HTMLElement | null = null
 
 
   dom_build_version: HTMLElement | null = null
@@ -139,6 +140,7 @@ export class UI {
     // UI for exporting the animation
     this.dom_export_button_hidden_link = document.querySelector('#download-hidden-link')
     this.dom_animation_count = document.querySelector('#animation-selection-count')
+    this.dom_animations_listing_count = document.querySelector('#animation-listing-count')
   }
 
   public hide_all_elements (): void {

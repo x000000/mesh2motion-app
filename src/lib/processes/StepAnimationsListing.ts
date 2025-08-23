@@ -192,8 +192,6 @@ export class StepAnimationsListing extends EventTarget {
       return 0
     })
 
-    console.log('all animations loaded:', this.animation_clips_loaded)
-
     // create user interface with all available animation clips
     this.build_animation_clip_ui(this.animation_clips_loaded, this.theme_manager, this.skeleton_type)
 
@@ -202,12 +200,21 @@ export class StepAnimationsListing extends EventTarget {
     this.animation_search?.addEventListener('export-options-changed', () => {
       // update the count for the download button
       this.ui.dom_animation_count.innerHTML = this.animation_search?.get_selected_animation_indices().length.toString() ?? '0'
-       this.ui.dom_animation_count.innerHTML = ' (' +  this.ui.dom_animation_count.innerHTML + ')'
+    })
+
+    // add event listener to listen for filtered animations listing
+    this.update_filtered_animation_listing_ui()
+    this.animation_search?.addEventListener('filtered-animations-listing', () => {
+      this.update_filtered_animation_listing_ui()
     })
 
     this.play_animation(0) // play the first animation by default
   }
 
+  private update_filtered_animation_listing_ui (): void {
+    const animation_length_string: string = this.animation_search?.filtered_animations().length.toString() ?? '0'
+    this.ui.dom_animations_listing_count.innerHTML = animation_length_string
+  }
 
   private apply_hip_bone_offset (animation_clips: AnimationClip[]): void {
     // update the position keyframes for the hips bone

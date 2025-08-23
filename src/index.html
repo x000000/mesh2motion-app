@@ -270,21 +270,21 @@
                         </div>
 
                         <div style="display: flex; flex-direction: row; gap: 1rem; justify-content: flex-start; align-items: center;">
-                            <input type="number" id="extend-arm-input" name="arm-extend-input" value="3" min="-25" max="25" step="1">
+                            <input type="number" id="extend-arm-numeric-input" name="arm-extend-input" value="0" min="-50" max="50" step="1">
                             <span class="suffix-unit">%</span>
-                            <button id="extend-arm-button" class="secondary-button" >Open Arms</button>
-
-                                                <!-- checkbox option to show skeleton -->
-                            <div class="styled-checkbox icon-toggle">
-                                <input type="checkbox" id="show-skeleton-checkbox" name="show-skeleton" value="show" style="display:none;">
-                                <label for="show-skeleton-checkbox" title="Show skeleton" tabindex="0">
-                                    <img src="images/icons/bone-display.svg" width="30" height="30" alt="Show skeleton" />
-                                </label>
-                            </div>
+                            <label><input id="extend-arm-range-input" type="range" min="-50" max="50" value="0" /> Open Arms</label>
                         </div>
-
-                         <hr />
-                         
+                        
+                        <hr />
+                        
+                    </div>
+                    
+                    <!-- checkbox option to show skeleton -->
+                    <div class="styled-checkbox icon-toggle">
+                        <input type="checkbox" id="show-skeleton-checkbox" name="show-skeleton" value="show" style="display:none;">
+                        <label for="show-skeleton-checkbox" title="Show skeleton" tabindex="0">
+                            <img src="images/icons/bone-display.svg" width="30" height="30" alt="Show skeleton" />
+                        </label>
                     </div>
         
        

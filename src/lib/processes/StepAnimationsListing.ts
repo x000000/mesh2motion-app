@@ -12,13 +12,29 @@ import { Utility } from '../Utilities.ts'
 import { ThemeManager } from '../ThemeManager.ts'
 import { AnimationSearch, AnimationWithState } from '../AnimationSearch.ts'
 
+export interface WarpedAnimationClip {
+  /**
+   * The original version of the animation clip, without any transformations
+   * applied to it.
+   * 
+   * This allows for simple non-destructive modification of the animation,
+   * since we can always reset to the original.
+   */
+  original_animation_clip: AnimationClip
+  /**
+   * The warped version of the animation clip, which is what will be displayed
+   * and downloaded by the user.
+   */
+  display_animation_clip: AnimationClip
+}
+
 
 // Note: EventTarget is a built-ininterface and do not need to import it
 export class StepAnimationsListing extends EventTarget {
   private readonly theme_manager: ThemeManager
   private readonly ui: UI
   private readonly animation_player: AnimationPlayer
-  private animation_clips_loaded: AnimationClip[] = []
+  private animation_clips_loaded: WarpedAnimationClip[] = []
   private gltf_animation_loader: GLTFLoader = new GLTFLoader()
   private readonly fbx_animation_loader: FBXLoader = new FBXLoader()
 
@@ -35,6 +51,11 @@ export class StepAnimationsListing extends EventTarget {
   // -z will bring hip bone down
   private hip_bone_offset: Vector3 = new Vector3(0, 0, 0) // -z will bring hip bone down. Helps set new base hip position
   private hip_bone_scale_factor_z: number = 1.0 // this is used to scale the hip bone position for animations
+
+  /**
+   * The amount to raise the arms.
+   */
+  private warp_arm_amount: number = 0.0
 
   // the human model has a hip bone that needs position changes applied
   // This will be for animations like falling. We need to capture the offset between
@@ -127,8 +148,11 @@ export class StepAnimationsListing extends EventTarget {
     this.animation_player.update(delta_time)
   }
 
+  /**
+   * Returns a list of all of the currently-displayed animation clips. 
+   */
   public animation_clips (): AnimationClip[] {
-    return this.animation_clips_loaded
+    return this.animation_clips_loaded.map(clip => clip.original_animation_clip)
   }
 
   public load_and_apply_default_animation_to_skinned_mesh (final_skinned_meshes: SkinnedMesh[], skeleton_type: SkeletonType): void {
@@ -174,7 +198,10 @@ export class StepAnimationsListing extends EventTarget {
 
         // we did all the processing needed, so add them
         // to the full list of animation clips
-        this.animation_clips_loaded.push(...cloned_anims)
+        this.animation_clips_loaded.push(...cloned_anims.map(clip => ({
+          original_animation_clip: clip,
+          display_animation_clip: Utility.deep_clone_animation_clip(clip),
+        })))
 
         remaining_loads--
         if (remaining_loads === 0) {
@@ -186,14 +213,18 @@ export class StepAnimationsListing extends EventTarget {
 
   private onAllAnimationsLoaded (): void {
     // sort all animation names alphabetically
-    this.animation_clips_loaded.sort((a: AnimationClip, b: AnimationClip) => {
-      if (a.name < b.name) { return -1 }
-      if (a.name > b.name) { return 1 }
+    this.animation_clips_loaded.sort((a: WarpedAnimationClip, b: WarpedAnimationClip) => {
+      if (a.display_animation_clip.name < b.display_animation_clip.name) { return -1 }
+      if (a.display_animation_clip.name > b.display_animation_clip.name) { return 1 }
       return 0
     })
 
     // create user interface with all available animation clips
-    this.build_animation_clip_ui(this.animation_clips_loaded, this.theme_manager, this.skeleton_type)
+    this.build_animation_clip_ui(
+      this.animation_clips_loaded.map(clip => clip.display_animation_clip),
+      this.theme_manager,
+      this.skeleton_type,
+    )
 
     // add event listener to listem for checkbox changes when we change
     // the amount of animations to export
@@ -233,11 +264,22 @@ export class StepAnimationsListing extends EventTarget {
     })
   }
 
-  private extend_arm_animations_by_percentage (percentage: number): void {
+  /**
+   * Rebuilds all of the warped animations by applying the specified warps.
+   */
+  private rebuild_warped_animations (): void {
+    // Reset all of the warped clips to the corresponding original clip.
+    this.animation_clips_loaded.forEach((warped_clip: WarpedAnimationClip) => {
+      warped_clip.display_animation_clip = Utility.deep_clone_animation_clip(warped_clip.original_animation_clip)
+    })
+    /// Apply the arm extension warp:
+    this.apply_arm_extension_warp(this.warp_arm_amount)
+  }
 
+  private apply_arm_extension_warp (percentage: number): void {
     // loop through each animation clip to update the tracks
-    this.animation_clips_loaded.forEach((animation_clip: AnimationClip) => {
-      animation_clip.tracks.forEach((track: KeyframeTrack) => {
+    this.animation_clips_loaded.forEach((warped_clip: WarpedAnimationClip) => {
+      warped_clip.display_animation_clip.tracks.forEach((track: KeyframeTrack) => {
         // if our name does not contain 'quaternion', we need to exit
         // since we are only modifying the quaternion tracks (e.g. L_Arm.quaternion )
         if (track.name.indexOf('quaternion') < 0) {
@@ -301,7 +343,7 @@ export class StepAnimationsListing extends EventTarget {
     const all_animation_actions: AnimationAction[] = []
 
     this.skinned_meshes_to_animate.forEach((skinned_mesh) => {
-      const clip_to_play: AnimationClip = this.animation_clips_loaded[this.current_playing_index]
+      const clip_to_play: AnimationClip = this.animation_clips_loaded[this.current_playing_index].display_animation_clip
       const anim_action: AnimationAction = this.animation_mixer.clipAction(clip_to_play, skinned_mesh)
 
       anim_action.stop()
@@ -313,7 +355,7 @@ export class StepAnimationsListing extends EventTarget {
 
     // Update the animation player with the current animation and all actions
     if (all_animation_actions.length > 0) {
-      const clip_to_play: AnimationClip = this.animation_clips_loaded[this.current_playing_index]
+      const clip_to_play: AnimationClip = this.animation_clips_loaded[this.current_playing_index].display_animation_clip
       this.animation_player.set_animation(clip_to_play, all_animation_actions)
     }
   }
@@ -348,10 +390,27 @@ export class StepAnimationsListing extends EventTarget {
       })
     }
 
-    // A-Pose arm extension event listner
-    this.ui.dom_extend_arm_button?.addEventListener('click', (event) => {
-      const extend_arm_value: number = this.ui.dom_extend_arm_input?.value
-      this.extend_arm_animations_by_percentage(extend_arm_value)
+    // A-Pose arm extension event listener
+    this.ui.dom_extend_arm_numeric_input?.addEventListener('input', (event) => {
+      const extend_arm_value: number = Utility.parse_input_number(this.ui.dom_extend_arm_numeric_input?.value)
+      if (this.ui.dom_extend_arm_range_input !== null) {
+        // Copy the value from the numeric onto the slider input.
+        this.ui.dom_extend_arm_range_input.value = extend_arm_value.toString()
+      }
+      this.warp_arm_amount = extend_arm_value
+
+      this.rebuild_warped_animations()
+      this.play_animation(this.current_playing_index)
+    })
+    this.ui.dom_extend_arm_range_input?.addEventListener('input', (event) => {
+      const extend_arm_value: number = Utility.parse_input_number(this.ui.dom_extend_arm_range_input?.value)
+      if (this.ui.dom_extend_arm_numeric_input !== null) {
+        // Copy the value from the slider onto the numeric input.
+        this.ui.dom_extend_arm_numeric_input.value = extend_arm_value.toString()
+      }
+      this.warp_arm_amount = extend_arm_value
+
+      this.rebuild_warped_animations()
       this.play_animation(this.current_playing_index)
     })
 

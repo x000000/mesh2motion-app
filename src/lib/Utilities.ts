@@ -290,10 +290,14 @@ export class Utility {
     return closest_bone_index
   }
 
+  static deep_clone_animation_clip (clip: AnimationClip): AnimationClip {
+    const tracks = clip.tracks.map((track: KeyframeTrack) => track.clone())
+    return new AnimationClip(clip.name, clip.duration, tracks)
+  }
+
   static deep_clone_animation_clips (animation_clips: AnimationClip[]): AnimationClip[] {
     return animation_clips.map((clip: AnimationClip) => {
-      const tracks = clip.tracks.map((track: KeyframeTrack) => track.clone())
-      return new AnimationClip(clip.name, clip.duration, tracks)
+      return Utility.deep_clone_animation_clip(clip)
     })
   }
 
@@ -314,5 +318,16 @@ export class Utility {
       animation_clip.tracks = rotation_tracks // update track data
       // console.log(animation_clip.tracks) // UNUSED DEBUG CODE
     })
+  }
+
+  static parse_input_number (value: string | undefined): number {
+    if (value === '' || value === undefined) {
+      return 0
+    }
+    const value_numeric = parseFloat(value);
+    if (typeof value_numeric !== 'number' || !isFinite(value_numeric)) {
+      return 0
+    }
+    return value_numeric;
   }
 }

@@ -12,7 +12,7 @@ import { Utility } from '../Utilities.ts'
 import { ThemeManager } from '../ThemeManager.ts'
 import { AnimationSearch, AnimationWithState } from '../AnimationSearch.ts'
 
-export interface WarpedAnimationClip {
+export interface TransformedAnimationClipPair {
   /**
    * The original version of the animation clip, without any transformations
    * applied to it.
@@ -34,7 +34,7 @@ export class StepAnimationsListing extends EventTarget {
   private readonly theme_manager: ThemeManager
   private readonly ui: UI
   private readonly animation_player: AnimationPlayer
-  private animation_clips_loaded: WarpedAnimationClip[] = []
+  private animation_clips_loaded: TransformedAnimationClipPair[] = []
   private gltf_animation_loader: GLTFLoader = new GLTFLoader()
   private readonly fbx_animation_loader: FBXLoader = new FBXLoader()
 
@@ -213,7 +213,7 @@ export class StepAnimationsListing extends EventTarget {
 
   private onAllAnimationsLoaded (): void {
     // sort all animation names alphabetically
-    this.animation_clips_loaded.sort((a: WarpedAnimationClip, b: WarpedAnimationClip) => {
+    this.animation_clips_loaded.sort((a: TransformedAnimationClipPair, b: TransformedAnimationClipPair) => {
       if (a.display_animation_clip.name < b.display_animation_clip.name) { return -1 }
       if (a.display_animation_clip.name > b.display_animation_clip.name) { return 1 }
       return 0
@@ -269,7 +269,7 @@ export class StepAnimationsListing extends EventTarget {
    */
   private rebuild_warped_animations (): void {
     // Reset all of the warped clips to the corresponding original clip.
-    this.animation_clips_loaded.forEach((warped_clip: WarpedAnimationClip) => {
+    this.animation_clips_loaded.forEach((warped_clip: TransformedAnimationClipPair) => {
       warped_clip.display_animation_clip = Utility.deep_clone_animation_clip(warped_clip.original_animation_clip)
     })
     /// Apply the arm extension warp:
@@ -278,7 +278,7 @@ export class StepAnimationsListing extends EventTarget {
 
   private apply_arm_extension_warp (percentage: number): void {
     // loop through each animation clip to update the tracks
-    this.animation_clips_loaded.forEach((warped_clip: WarpedAnimationClip) => {
+    this.animation_clips_loaded.forEach((warped_clip: TransformedAnimationClipPair) => {
       warped_clip.display_animation_clip.tracks.forEach((track: KeyframeTrack) => {
         // if our name does not contain 'quaternion', we need to exit
         // since we are only modifying the quaternion tracks (e.g. L_Arm.quaternion )

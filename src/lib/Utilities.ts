@@ -321,13 +321,17 @@ export class Utility {
   }
 
   static parse_input_number (value: string | undefined): number {
-    if (value === '' || value === undefined) {
+    if (value === undefined || value === null) {
       return 0
     }
-    const value_numeric = parseFloat(value);
+    value = value.trim()
+    if (value === '') {
+      return 0
+    }
+    const value_numeric = parseFloat(value)
     if (typeof value_numeric !== 'number' || !isFinite(value_numeric)) {
       return 0
     }
-    return value_numeric;
+    return value_numeric
   }
 }

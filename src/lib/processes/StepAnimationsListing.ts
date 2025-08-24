@@ -152,7 +152,7 @@ export class StepAnimationsListing extends EventTarget {
    * Returns a list of all of the currently-displayed animation clips. 
    */
   public animation_clips (): AnimationClip[] {
-    return this.animation_clips_loaded.map(clip => clip.original_animation_clip)
+    return this.animation_clips_loaded.map(clip => clip.display_animation_clip)
   }
 
   public load_and_apply_default_animation_to_skinned_mesh (final_skinned_meshes: SkinnedMesh[], skeleton_type: SkeletonType): void {

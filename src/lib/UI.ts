@@ -54,8 +54,8 @@ export class UI {
   dom_total_time: HTMLElement | null = null
 
   dom_import_animations_button: HTMLButtonElement | null = null
-  dom_extend_arm_input: HTMLElement | null = null
-  dom_extend_arm_button: HTMLButtonElement | null = null
+  dom_extend_arm_range_input: HTMLInputElement | null = null
+  dom_extend_arm_numeric_input: HTMLInputElement | null = null
   dom_a_pose_correction_options: HTMLElement | null = null
   dom_export_button_hidden_link: HTMLElement | null = null
   dom_animation_count: HTMLElement | null = null
@@ -131,8 +131,8 @@ export class UI {
     this.dom_current_time = document.querySelector('#current-time')
     this.dom_total_time = document.querySelector('#total-time')
 
-    this.dom_extend_arm_input = document.querySelector('#extend-arm-input')
-    this.dom_extend_arm_button = document.querySelector('#extend-arm-button')
+    this.dom_extend_arm_range_input = document.querySelector('#extend-arm-range-input')
+    this.dom_extend_arm_numeric_input = document.querySelector('#extend-arm-numeric-input')
     this.dom_a_pose_correction_options = document.querySelector('#a-pose-correction-options')
 
     this.dom_build_version = document.querySelector('#build-version')

@@ -1,23 +1,24 @@
 import { UI } from '../../UI.ts'
-import { Object3D, type Scene, type Object3DEventMap } from 'three'
+import { Object3D, type Scene, type Object3DEventMap, Skeleton } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { SkeletonType, HandSkeletonType } from '../../enums/SkeletonType.js'
 import type GLTFResult from './interfaces/GLTFResult.ts'
 import { add_origin_markers, remove_origin_markers } from './OriginMarkerManager'
+import { add_preview_skeleton } from './PreviewSkeletonManager.ts'
 
 // Note: EventTarget is a built-ininterface and do not need to import it
 export class StepLoadSkeleton extends EventTarget {
   private readonly loader: GLTFLoader = new GLTFLoader()
   private readonly ui: UI = UI.getInstance()
   private loaded_armature: Object3D = new Object3D()
-  private skeleton_t: SkeletonType = SkeletonType.Human
+  private skeleton_t: SkeletonType = SkeletonType.None
   private hand_skeleton_t: HandSkeletonType = HandSkeletonType.AllFingers
 
   private _added_event_listeners: boolean = false
   private readonly _main_scene: Scene
 
   public skeleton_type (): SkeletonType {
-    return this.skeleton_t
+    return this.skeleton_file_path() // this is actually the type/filepath combo
   }
 
   constructor (main_scene: Scene) {
@@ -44,7 +45,7 @@ export class StepLoadSkeleton extends EventTarget {
       this._added_event_listeners = true
     }
 
-    // Initialize hand skeleton options visibility
+    // Initialize hand skeleton hand options visibility
     this.toggle_hand_skeleton_options()
 
     // add origin markers for debugging model loading issues
@@ -67,23 +68,49 @@ export class StepLoadSkeleton extends EventTarget {
     remove_origin_markers(this._main_scene)
   }
 
+  private skeleton_file_path (): SkeletonType {
+    // get currently selected option out of the model-selection drop-down
+    const skeleton_selection = this.ui.dom_skeleton_drop_type.options
+    const skeleton_file: string = skeleton_selection[skeleton_selection.selectedIndex].value
+
+    // set the skeleton type. This will be used for the animations listing later
+    // so it knows what animations to load
+    switch (skeleton_file) {
+      case 'quadraped':
+        return SkeletonType.Quadraped
+      case 'human':
+        return SkeletonType.Human
+      case 'bird':
+        return SkeletonType.Bird
+      default:
+        console.error('unknown skeleton type selected: ', skeleton_file)
+        return SkeletonType.Error
+    }
+  }
+
   private add_event_listeners (): void {
     // Add event listener for skeleton type changes to show/hide hand options
     if (this.ui.dom_skeleton_drop_type !== null) {
       this.ui.dom_skeleton_drop_type.addEventListener('change', () => {
         // get selected value from skeleton options
         const skeleton_selection = this.ui.dom_skeleton_drop_type.options
-        const skeleton_selected_option: string = skeleton_selection[skeleton_selection.selectedIndex].value
+        this.skeleton_t = skeleton_selection[skeleton_selection.selectedIndex].value
 
-        this.toggle_hand_skeleton_options(skeleton_selected_option)
+        this.toggle_hand_skeleton_options()
 
         // remove the "select a skeleton" option if we picked something else
         if (this.has_select_skeleton_ui_option()) {
           this.ui.dom_skeleton_drop_type?.options.remove(0)
         }
 
-        // enable the ability to progress to next step
-        this.allow_proceeding_to_next_step(true)
+        // load the preview skeleton
+        // need to get the file name for the correct skeleton
+        add_preview_skeleton(this._main_scene, this.skeleton_file_path()).then(() => {
+          // enable the ability to progress to next step
+          this.allow_proceeding_to_next_step(true)
+        }).catch((err) => {
+          console.error('error loading preview skeleton: ', err)
+        })
       })
     }
 
@@ -94,31 +121,10 @@ export class StepLoadSkeleton extends EventTarget {
           return
         }
 
-        // get currently selected option out of the model-selection drop-down
-        const skeleton_selection = this.ui.dom_skeleton_drop_type.options
-
-        const skeleton_file: string = skeleton_selection[skeleton_selection.selectedIndex].value
-
         // Get hand skeleton selection for human skeletons
-        let hand_skeleton_selection = HandSkeletonType.AllFingers
-        if (skeleton_file === 'human' && this.ui.dom_hand_skeleton_selection !== null) {
-          const hand_selection = this.ui.dom_hand_skeleton_selection.options
-          hand_skeleton_selection = hand_selection[hand_selection.selectedIndex].value as HandSkeletonType
-          this.hand_skeleton_t = hand_skeleton_selection
-        }
-
-        // set the skeleton type. This will be used for the animations listing later
-        // so it knows what animations to load
-        switch (skeleton_file) {
-          case 'quadraped':
-            this.skeleton_t = SkeletonType.Quadraped
-            break
-          case 'human':
-            this.skeleton_t = SkeletonType.Human
-            break
-          case 'bird':
-            this.skeleton_t = SkeletonType.Bird
-            break
+        if (this.skeleton_file_path() === SkeletonType.Human) {
+          const hand_selection = this.ui.dom_hand_skeleton_selection?.options
+          this.hand_skeleton_t = hand_selection[hand_selection.selectedIndex].value as HandSkeletonType
         }
 
         // load skeleton from GLB file
@@ -144,14 +150,12 @@ export class StepLoadSkeleton extends EventTarget {
             }
           })
 
-          console.log('loaded GLTF file with data: ', gltf)
-
           this.loaded_armature = original_armature.clone()
           this.loaded_armature.name = 'Loaded Armature'
 
           // Apply hand skeleton modifications for human skeletons
           if (this.skeleton_t === SkeletonType.Human) {
-            this.modify_hand_skeleton(this.loaded_armature, hand_skeleton_selection)
+            this.modify_hand_skeleton(this.loaded_armature, this.hand_skeleton_t)
           }
 
           // reset the armature to 0,0,0 in case it is off for some reason
@@ -178,12 +182,12 @@ export class StepLoadSkeleton extends EventTarget {
     return this.loaded_armature
   }
 
-  private toggle_hand_skeleton_options (skeleton_value: string): void {
+  private toggle_hand_skeleton_options (): void {
     if (this.ui.dom_skeleton_drop_type === null || this.ui.dom_hand_skeleton_options === null) {
       return
     }
 
-    if (skeleton_value === 'human') {
+    if (this.skeleton_file_path() === SkeletonType.Human) {
       this.ui.dom_hand_skeleton_options.style.display = 'flex'
     } else {
       this.ui.dom_hand_skeleton_options.style.display = 'none'

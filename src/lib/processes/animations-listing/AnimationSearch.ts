@@ -1,6 +1,6 @@
 import { type AnimationClip } from 'three'
-import { ThemeManager } from './ThemeManager'
-import { SkeletonType } from './enums/SkeletonType'
+import { type ThemeManager } from '../../ThemeManager'
+import { SkeletonType } from '../../enums/SkeletonType'
 
 export interface AnimationWithState extends AnimationClip {
   isChecked?: boolean

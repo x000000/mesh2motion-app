@@ -1,6 +1,6 @@
 import { type Skeleton, type Bone } from 'three'
-import { Utility } from './Utilities.ts'
-import type BoneTransformState from './models/BoneTransformState.ts'
+import { Utility } from '../../Utilities.ts'
+import type BoneTransformState from '../../models/BoneTransformState.ts'
 
 /**
  * UndoRedoSystem

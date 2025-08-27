@@ -1,5 +1,5 @@
 import { type AnimationClip, type AnimationAction } from 'three'
-import { UI } from './UI'
+import { UI } from '../../UI'
 
 export class AnimationPlayer {
   private readonly ui: UI

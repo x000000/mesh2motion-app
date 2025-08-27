@@ -1,5 +1,5 @@
 import { UI } from '../../UI.ts'
-import { AnimationPlayer } from '../../AnimationPlayer.ts'
+import { AnimationPlayer } from './AnimationPlayer.ts'
 
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js'
@@ -10,7 +10,7 @@ import { AnimationClip, AnimationMixer, Quaternion, Vector3, type SkinnedMesh, t
 import { SkeletonType } from '../../enums/SkeletonType.ts'
 import { Utility } from '../../Utilities.ts'
 import { type ThemeManager } from '../../ThemeManager.ts'
-import { AnimationSearch, type AnimationWithState } from '../../AnimationSearch.ts'
+import { AnimationSearch, type AnimationWithState } from './AnimationSearch.ts'
 
 export interface TransformedAnimationClipPair {
   /**

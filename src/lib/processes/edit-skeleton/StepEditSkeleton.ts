@@ -1,10 +1,9 @@
 import { UI } from '../../UI.ts'
 import { Generators } from '../../Generators.ts'
 import { Utility } from '../../Utilities.ts'
-import { UndoRedoSystem } from '../../UndoRedoSystem.ts'
+import { UndoRedoSystem } from './UndoRedoSystem.ts'
 import { Vector3, Euler, Object3D, Skeleton, type Scene, type Bone, BufferGeometry, 
-  PointsMaterial, Points, Float32BufferAttribute, TextureLoader,
-  Raycaster, type Intersection, type Camera, SphereGeometry, MeshBasicMaterial, Mesh } from 'three'
+  PointsMaterial, Points, Float32BufferAttribute, TextureLoader, type Camera } from 'three'
 import { SkinningFormula } from '../../enums/SkinningFormula.ts'
 
 /*

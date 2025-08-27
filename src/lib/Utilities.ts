@@ -1,5 +1,5 @@
 import {
-  Vector3, Vector2, type Object3D, Mesh, Group, Bone, type Skeleton, Euler, Raycaster, AnimationClip, KeyframeTrack,
+  Vector3, Vector2, type Object3D, Mesh, Group, Bone, type Skeleton, Euler, Raycaster, AnimationClip, type KeyframeTrack,
   type PerspectiveCamera, type Scene, type Object3DEventMap, type BufferAttribute, type BufferGeometry, type InterleavedBufferAttribute
 } from 'three'
 import BoneTransformState from './interfaces/BoneTransformState'

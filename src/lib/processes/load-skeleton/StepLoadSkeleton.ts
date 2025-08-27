@@ -1,18 +1,17 @@
 import { UI } from '../../UI.ts'
 import { Object3D, type Scene, type Object3DEventMap, Skeleton } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import { SkeletonType, HandSkeletonType } from '../../enums/SkeletonType.js'
+import { SkeletonType, type HandSkeletonType } from '../../enums/SkeletonType.js'
 import type GLTFResult from './interfaces/GLTFResult.ts'
 import { add_origin_markers, remove_origin_markers } from './OriginMarkerManager'
 import { add_preview_skeleton, remove_preview_skeleton } from './PreviewSkeletonManager.ts'
+import { HandHelper } from './HandHelper.ts'
 
 // Note: EventTarget is a built-ininterface and do not need to import it
 export class StepLoadSkeleton extends EventTarget {
   private readonly loader: GLTFLoader = new GLTFLoader()
   private readonly ui: UI = UI.getInstance()
   private loaded_armature: Object3D = new Object3D()
-  private skeleton_t: SkeletonType = SkeletonType.None
-  private hand_skeleton_t: HandSkeletonType = HandSkeletonType.AllFingers
 
   private _added_event_listeners: boolean = false
   private readonly _main_scene: Scene
@@ -156,8 +155,9 @@ export class StepLoadSkeleton extends EventTarget {
           this.loaded_armature.name = 'Loaded Armature'
 
           // Apply hand skeleton modifications for human skeletons
-          if (this.skeleton_t === SkeletonType.Human) {
-            this.modify_hand_skeleton(this.loaded_armature, this.hand_skeleton_type())
+          if (this.skeleton_file_path() === SkeletonType.Human) {
+            const helper = new HandHelper()
+            helper.modify_hand_skeleton(this.loaded_armature, this.hand_skeleton_type())
           }
 
           // reset the armature to 0,0,0 in case it is off for some reason
@@ -202,93 +202,5 @@ export class StepLoadSkeleton extends EventTarget {
     } else {
       this.ui.dom_hand_skeleton_options.style.display = 'none'
     }
-  }
-
-  private modify_hand_skeleton (armature: Object3D, hand_type: HandSkeletonType): void {
-    const bones_to_remove: Object3D[] = []
-
-    armature.traverse((child: Object3D) => {
-      if (child.type === 'Bone') {
-        const bone = child
-        const bone_name = (bone.name ?? '').toLowerCase() as string
-
-        // bone is not part of hand, we can just skip it
-        // we also always keep the palm of the hand
-        if (!this.is_hand_bone(bone_name) || this.is_palm_bone(bone_name)) {
-          return
-        }
-
-        // remove bones on mesh based on hand type selected on UI
-        switch (hand_type) {
-          case HandSkeletonType.ThumbAndIndex:
-            // Remove all finger bones except thumb and index finger
-            if (!this.is_thumb_bone(bone_name) &&
-                !this.is_middle_finger_bone(bone_name)) {
-              bones_to_remove.push(bone)
-            }
-
-            // also remove tip bones since we want something simplified
-            if (this.is_end_tip_bone(bone_name)) {
-              bones_to_remove.push(bone)
-            }
-            break
-
-          case HandSkeletonType.SimplifiedHand:
-            // Remove all finger/feet tip bones (bones ending with 'tip')
-            if (this.is_end_tip_bone(bone_name)) {
-              bones_to_remove.push(bone)
-            }
-            break
-
-          case HandSkeletonType.SingleBone:
-            // Remove all non-middle finger bones, keeping one line of bones
-            if (!this.is_middle_finger_bone(bone_name)) {
-              bones_to_remove.push(bone)
-              break
-            }
-
-            // remove all tip bones
-            if (this.is_end_tip_bone(bone_name) || bone_name.includes('03') || bone_name.includes('04') || bone_name.includes('02')) {
-              bones_to_remove.push(bone)
-            }
-
-            break
-        }
-      }
-    })
-
-    // Remove the identified bones
-    bones_to_remove.forEach(bone => {
-      if (bone.parent != null) {
-        bone.parent.remove(bone)
-      }
-    })
-
-    console.log(`Modified hand skeleton: ${hand_type}, removed ${bones_to_remove.length} bones`)
-  }
-
-  private is_hand_bone (bone_name: string): boolean {
-    const hand_patterns = ['hand', 'finger', 'thumb', 'index', 'middle', 'ring', 'pinky']
-    return hand_patterns.some(pattern => bone_name.includes(pattern))
-  }
-
-  private is_palm_bone (bone_name: string): boolean {
-    const hand_patterns = ['hand']
-    return hand_patterns.some(pattern => bone_name.includes(pattern))
-  }
-
-  private is_thumb_bone (bone_name: string): boolean {
-    return bone_name.includes('thumb')
-  }
-
-  private is_middle_finger_bone (bone_name: string): boolean {
-    return bone_name.includes('middle')
-  }
-
-  // "tip" bones are the last bone at the end of the fingers and feet
-  // they have the word 'tip' in the bone name
-  private is_end_tip_bone (bone_name: string): boolean {
-    // Look for bones that are finger tips - usually end with 'tip', 'end', or numbers like '3'
-    return bone_name.toLowerCase().includes('tip')
   }
 }

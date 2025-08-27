@@ -49,6 +49,14 @@ export class StepLoadSkeleton extends EventTarget {
 
     // add origin markers for debugging model loading issues
     add_origin_markers(this._main_scene)
+
+    // if there is a "select skeleton" option, disable proceeding
+    // putting this check here helps us if we come back to this step later
+    if (this.has_select_skeleton_ui_option()) {
+      this.allow_proceeding_to_next_step(false)
+    } else {
+      this.allow_proceeding_to_next_step(true)
+    }
   }
 
   public regenerate_origin_markers (): void {
@@ -63,7 +71,19 @@ export class StepLoadSkeleton extends EventTarget {
     // Add event listener for skeleton type changes to show/hide hand options
     if (this.ui.dom_skeleton_drop_type !== null) {
       this.ui.dom_skeleton_drop_type.addEventListener('change', () => {
-        this.toggle_hand_skeleton_options()
+        // get selected value from skeleton options
+        const skeleton_selection = this.ui.dom_skeleton_drop_type.options
+        const skeleton_selected_option: string = skeleton_selection[skeleton_selection.selectedIndex].value
+
+        this.toggle_hand_skeleton_options(skeleton_selected_option)
+
+        // remove the "select a skeleton" option if we picked something else
+        if (this.has_select_skeleton_ui_option()) {
+          this.ui.dom_skeleton_drop_type?.options.remove(0)
+        }
+
+        // enable the ability to progress to next step
+        this.allow_proceeding_to_next_step(true)
       })
     }
 
@@ -144,19 +164,26 @@ export class StepLoadSkeleton extends EventTarget {
     }// end if statement
   }
 
+  private has_select_skeleton_ui_option (): boolean {
+    return this.ui.dom_skeleton_drop_type?.options[0].value === 'select-skeleton'
+  }
+
+  private allow_proceeding_to_next_step (allow: boolean): void {
+    const btn = this.ui.dom_load_skeleton_button as HTMLButtonElement | null
+    if (!btn) return
+    btn.disabled = !allow // disable when not allowed
+  }
+
   public armature (): Object3D<Object3DEventMap> {
     return this.loaded_armature
   }
 
-  private toggle_hand_skeleton_options (): void {
+  private toggle_hand_skeleton_options (skeleton_value: string): void {
     if (this.ui.dom_skeleton_drop_type === null || this.ui.dom_hand_skeleton_options === null) {
       return
     }
 
-    const skeleton_selection = this.ui.dom_skeleton_drop_type.options
-    const skeleton_file: string = skeleton_selection[skeleton_selection.selectedIndex].value
-
-    if (skeleton_file === 'human') {
+    if (skeleton_value === 'human') {
       this.ui.dom_hand_skeleton_options.style.display = 'flex'
     } else {
       this.ui.dom_hand_skeleton_options.style.display = 'none'

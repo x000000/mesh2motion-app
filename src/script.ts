@@ -229,10 +229,6 @@ export class Bootstrap {
         this.load_model_step.begin()
         break
       case ProcessStep.LoadSkeleton:
-
-        // Resetting state for the load skeleton step
-        this.load_skeleton_step.begin()
-
         // add event listener. TODO: put this in the load skeleton process step
         this.load_skeleton_step.addEventListener('skeletonLoaded', () => {
           this.edit_skeleton_step.load_original_armature_from_model(this.load_skeleton_step.armature())
@@ -251,6 +247,9 @@ export class Bootstrap {
         // initializing all the load skeleton step stuff
         this.scene.add(this.load_model_step.model_meshes())
         process_step = ProcessStep.LoadSkeleton
+
+        // finish initialization and add origin markers
+        // this needs to happen at the end since it is expecting the mesh data
         this.load_skeleton_step.begin()
         break
       case ProcessStep.EditSkeleton:

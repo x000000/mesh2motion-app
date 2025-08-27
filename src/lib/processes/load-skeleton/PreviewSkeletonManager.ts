@@ -1,7 +1,9 @@
 import { Group, type Object3D, type Object3DEventMap, SkeletonHelper, type Scene } from 'three'
 import { type GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import type GLTFResult from './interfaces/GLTFResult'
-import { type HandSkeletonType, type SkeletonType } from '../../enums/SkeletonType'
+import { type HandSkeletonType, SkeletonType } from '../../enums/SkeletonType'
+import { HandHelper } from './HandHelper'
+
 
 const skeleton_group_name: string = 'preview_skeleton_group'
 
@@ -24,6 +26,13 @@ export async function add_preview_skeleton (root: Scene, skeleton_file_path: Ske
   const loaded_scene: Object3D<Object3DEventMap> = await load_skeleton(skeleton_file_path)
 
   console.log('loaded skeleton file path: ', loaded_scene, hand_skeleton_type)
+
+  // skeleton customization options here. Right now only for humans and hands
+  if (skeleton_file_path === SkeletonType.Human) {
+    // apply hand skeleton modifications for human skeletons
+    const helper = new HandHelper()
+    helper.modify_hand_skeleton(loaded_scene, hand_skeleton_type)
+  }
 
   // need to convert the loaded scene into a custom skeleton helper
   const skeleton_helper = new SkeletonHelper(loaded_scene.children[0])

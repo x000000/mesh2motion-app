@@ -1,5 +1,5 @@
 import { UI } from '../../UI.ts'
-import { Object3D, type Scene, type Object3DEventMap, Skeleton } from 'three'
+import { Object3D, type Scene, type Object3DEventMap } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { SkeletonType, type HandSkeletonType } from '../../enums/SkeletonType.js'
 import type GLTFResult from './interfaces/GLTFResult.ts'
@@ -42,6 +42,14 @@ export class StepLoadSkeleton extends EventTarget {
     if (!this._added_event_listeners) {
       this.add_event_listeners()
       this._added_event_listeners = true
+    }
+
+    // when we come back to this step, there is a good chance we already selected a skeleton
+    // so just use that and load the preview right when we enter this step
+    if (!this.has_select_skeleton_ui_option()) {
+      add_preview_skeleton(this._main_scene, this.skeleton_file_path(), this.hand_skeleton_type()).catch((err) => {
+        console.error('error loading preview skeleton: ', err)
+      })
     }
 
     // Initialize hand skeleton hand options visibility
@@ -113,7 +121,7 @@ export class StepLoadSkeleton extends EventTarget {
 
         // load the preview skeleton
         // need to get the file name for the correct skeleton
-        add_preview_skeleton(this._main_scene, this.skeleton_file_path()).then(() => {
+        add_preview_skeleton(this._main_scene, this.skeleton_file_path(), this.hand_skeleton_type()).then(() => {
           // enable the ability to progress to next step
           this.allow_proceeding_to_next_step(true)
         }).catch((err) => {

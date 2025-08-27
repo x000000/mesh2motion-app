@@ -248,6 +248,10 @@ export class Bootstrap {
         this.scene.add(this.load_model_step.model_meshes())
         process_step = ProcessStep.LoadSkeleton
 
+        // we generate a preview skeleton on this step, and we don't want
+        // the user to start trying to edit the skeleton at this point
+        this.transform_controls.enabled = false
+
         // finish initialization and add origin markers
         // this needs to happen at the end since it is expecting the mesh data
         this.load_skeleton_step.begin()

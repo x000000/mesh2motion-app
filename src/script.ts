@@ -37,18 +37,18 @@ export class Bootstrap {
   public is_transform_controls_dragging: boolean = false
   public readonly transform_controls_hover_distance: number = 0.03 // distance to hover over bones to select them
 
-  public view_helper: CustomViewHelper // mini 3d view to help orient orthographic views
+  public view_helper: CustomViewHelper | undefined // mini 3d view to help orient orthographic views
 
   // has UI elements on the HTML page that we will reference/use
-  public readonly theme_manager = new ThemeManager()
-  public readonly ui = UI.getInstance()
-  public readonly load_model_step = new StepLoadModel()
-  public readonly load_skeleton_step = new StepLoadSkeleton()
-  public readonly edit_skeleton_step = new StepEditSkeleton()
-  public readonly weight_skin_step = new StepWeightSkin()
-  public readonly animations_listing_step = new StepAnimationsListing(this.theme_manager)
-  public readonly file_export_step = new StepExportToFile()
-  public readonly scene: Scene = new Scene()
+  public scene: Scene
+  public theme_manager: ThemeManager
+  public ui: UI
+  public load_model_step: StepLoadModel
+  public load_skeleton_step: StepLoadSkeleton
+  public edit_skeleton_step: StepEditSkeleton
+  public weight_skin_step: StepWeightSkin
+  public animations_listing_step: StepAnimationsListing
+  public file_export_step: StepExportToFile
 
   // for looking at specific bones
   public process_step: ProcessStep = ProcessStep.LoadModel
@@ -65,31 +65,28 @@ export class Bootstrap {
   private readonly eventListeners: EventListeners
 
 
-  public initialize (): void {
-    this.setup_environment()
-    this.eventListeners.addEventListeners()
-    this.process_step = this.process_step_changed(ProcessStep.LoadModel)
-    this.animate() // start the render loop which will continue rendering the scene
-    this.inject_build_version()
-  } // end initialize()
-
   constructor () {
     this.eventListeners = new EventListeners(this)
     // helps resolve requestAnimationFrame calling animate() with wrong context
     this.animate = this.animate.bind(this)
 
-    // Listen for skeleton transformation events to update UI and visuals
-    this.edit_skeleton_step.addEventListener('skeletonTransformed', () => {
-      // Update skeleton helper if it exists
-      if (this.skeleton_helper !== undefined) {
-        this.regenerate_skeleton_helper(this.edit_skeleton_step.skeleton(), 'Skeleton Helper')
-      }
+    this.scene = new Scene()
+    this.theme_manager = new ThemeManager()
+    this.ui = UI.getInstance()
 
-      // Refresh weight painting if in weight painted mode
-      if (this.mesh_preview_display_type === ModelPreviewDisplay.WeightPainted) {
-        this.regenerate_weight_painted_preview_mesh()
-      }
-    })
+    // setting up steps
+    this.load_model_step = new StepLoadModel()
+    this.load_skeleton_step = new StepLoadSkeleton(this.scene)
+    this.edit_skeleton_step = new StepEditSkeleton()
+    this.weight_skin_step = new StepWeightSkin()
+    this.animations_listing_step = new StepAnimationsListing(this.theme_manager)
+    this.file_export_step = new StepExportToFile()
+
+    this.setup_environment()
+    this.eventListeners.addEventListeners()
+    this.process_step = this.process_step_changed(ProcessStep.LoadModel)
+    this.animate() // start the render loop which will continue rendering the scene
+    this.inject_build_version()
   }
 
   private inject_build_version (): void {
@@ -205,8 +202,9 @@ export class Bootstrap {
     // we will have the current step turn on the UI elements it needs
     this.ui.hide_all_elements()
 
-    // clean up things related to edit step in case we are leaving it
+    // clean up things related to steps in since we can navigate back and forth
     this.edit_skeleton_step.cleanup_on_exit_step()
+    this.load_skeleton_step.dispose()
 
     // only show animation player on the animation listing page
     if (this.ui.dom_animation_player !== null) {
@@ -219,7 +217,6 @@ export class Bootstrap {
 
     switch (process_step) {
       case ProcessStep.LoadModel:
-
         // reset the state in the case of coming back to this step
         if (this.load_model_step.model_meshes() !== undefined) {
           const imported_model = this.scene.getObjectByName('Imported Model')
@@ -234,6 +231,13 @@ export class Bootstrap {
       case ProcessStep.LoadSkeleton:
 
         // Resetting state for the load skeleton step
+        this.load_skeleton_step.begin()
+
+        // add event listener. TODO: put this in the load skeleton process step
+        this.load_skeleton_step.addEventListener('skeletonLoaded', () => {
+          this.edit_skeleton_step.load_original_armature_from_model(this.load_skeleton_step.armature())
+          this.process_step = this.process_step_changed(ProcessStep.EditSkeleton)
+        })
 
         // if skeleton helper existed because we are going back to this
         if (this.skeleton_helper !== undefined) {
@@ -250,6 +254,8 @@ export class Bootstrap {
         this.load_skeleton_step.begin()
         break
       case ProcessStep.EditSkeleton:
+        this.load_skeleton_step?.dispose()
+
         this.regenerate_skeleton_helper(this.edit_skeleton_step.skeleton())
         process_step = ProcessStep.EditSkeleton
         this.edit_skeleton_step.begin()
@@ -406,8 +412,8 @@ export class Bootstrap {
   }
 
   public remove_skinned_meshes_from_scene (): void {
-    const existing_skinned_meshes = this.scene.children.filter((child: Object3D) => child.name === 'Skinned Mesh')
-    existing_skinned_meshes.forEach((existing_skinned_mesh: Object3D) => {
+    const existing_skinned_meshes = this.scene.children.filter((child: THREE.Object3D) => child.name === 'Skinned Mesh')
+    existing_skinned_meshes.forEach((existing_skinned_mesh: THREE.Object3D) => {
       Utility.remove_object_with_children(existing_skinned_mesh)
     })
   }
@@ -508,4 +514,3 @@ export class Bootstrap {
 
 // Create an instance of the Bootstrap class when the script is loaded
 const app = new Bootstrap()
-app.initialize()

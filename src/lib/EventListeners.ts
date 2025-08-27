@@ -3,7 +3,6 @@ import { ModelPreviewDisplay } from './enums/ModelPreviewDisplay'
 import { ProcessStep } from './enums/ProcessStep'
 import { Utility } from './Utilities'
 
-
 export class EventListeners {
   constructor (private readonly bootstrap: Bootstrap) {}
 
@@ -12,6 +11,20 @@ export class EventListeners {
     this.bootstrap.theme_manager.addEventListener('theme-changed', (event: any) => {
       this.bootstrap.regenerate_floor_grid()
     })
+
+    // Listen for skeleton transformation events to update UI and visuals
+    this.bootstrap.edit_skeleton_step.addEventListener('skeletonTransformed', () => {
+      // Update skeleton helper if it exists
+      if (this.bootstrap.skeleton_helper !== undefined) {
+        this.bootstrap.regenerate_skeleton_helper(this.bootstrap.edit_skeleton_step.skeleton(), 'Skeleton Helper')
+      }
+
+      // Refresh weight painting if in weight painted mode
+      if (this.bootstrap.mesh_preview_display_type === ModelPreviewDisplay.WeightPainted) {
+        this.bootstrap.regenerate_weight_painted_preview_mesh()
+      }
+    })
+
 
     // listen for view helper changes
     document.getElementById('view-control-hitbox')?.addEventListener('pointerdown', (event: PointerEvent) => {
@@ -66,11 +79,6 @@ export class EventListeners {
       this.bootstrap.process_step = this.bootstrap.process_step_changed(ProcessStep.LoadSkeleton)
     })
 
-    this.bootstrap.load_skeleton_step.addEventListener('skeletonLoaded', () => {
-      this.bootstrap.edit_skeleton_step.load_original_armature_from_model(this.bootstrap.load_skeleton_step.armature())
-      this.bootstrap.process_step = this.bootstrap.process_step_changed(ProcessStep.EditSkeleton)
-    })
-
     this.bootstrap.ui.dom_bind_pose_button?.addEventListener('click', () => {
       const passed_bone_skinning_test = this.bootstrap.test_bone_weighting_success()
       if (passed_bone_skinning_test) {
@@ -84,11 +92,11 @@ export class EventListeners {
     })
 
     this.bootstrap.ui.dom_rotate_model_y_button?.addEventListener('click', () => {
-  this.bootstrap.load_model_step.rotate_model_geometry('y', 90)
+      this.bootstrap.load_model_step.rotate_model_geometry('y', 90)
     })
 
     this.bootstrap.ui.dom_rotate_model_z_button?.addEventListener('click', () => {
-  this.bootstrap.load_model_step.rotate_model_geometry('z', 90)
+      this.bootstrap.load_model_step.rotate_model_geometry('z', 90)
     })
 
     this.bootstrap.ui.dom_move_model_to_floor_button?.addEventListener('click', () => {

@@ -1,16 +1,9 @@
 import { UI } from '../../UI.ts'
-import { Object3D, type Object3DEventMap } from 'three'
+import { Object3D, type Scene, type Object3DEventMap } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { SkeletonType, HandSkeletonType } from '../../enums/SkeletonType.js'
-
-// Interface for GLTF loader result
-interface GLTFResult {
-  scene: Object3D
-  scenes: Object3D[]
-  animations: any[]
-  cameras: Object3D[]
-  asset: object
-}
+import type GLTFResult from './interfaces/GLTFResult.ts'
+import { add_origin_markers, remove_origin_markers } from './OriginMarkerManager'
 
 // Note: EventTarget is a built-ininterface and do not need to import it
 export class StepLoadSkeleton extends EventTarget {
@@ -21,12 +14,18 @@ export class StepLoadSkeleton extends EventTarget {
   private hand_skeleton_t: HandSkeletonType = HandSkeletonType.AllFingers
 
   private _added_event_listeners: boolean = false
+  private readonly _main_scene: Scene
 
   public skeleton_type (): SkeletonType {
     return this.skeleton_t
   }
 
-  begin (): void {
+  constructor (main_scene: Scene) {
+    super()
+    this._main_scene = main_scene
+  }
+
+  public begin (): void {
     if (this.ui.dom_current_step_index !== null) {
       this.ui.dom_current_step_index.innerHTML = '2'
     }
@@ -47,6 +46,17 @@ export class StepLoadSkeleton extends EventTarget {
 
     // Initialize hand skeleton options visibility
     this.toggle_hand_skeleton_options()
+
+    // add origin markers for debugging model loading issues
+    add_origin_markers(this._main_scene)
+  }
+
+  public regenerate_origin_markers (): void {
+    add_origin_markers(this._main_scene)
+  }
+
+  public dispose (): void {
+    remove_origin_markers(this._main_scene)
   }
 
   private add_event_listeners (): void {

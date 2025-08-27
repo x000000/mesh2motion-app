@@ -2,32 +2,18 @@ import { UI } from '../../UI.ts'
 import { AnimationPlayer } from './AnimationPlayer.ts'
 
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js'
 
-import { AnimationClip, AnimationMixer, Quaternion, Vector3, type SkinnedMesh, type QuaternionKeyframeTrack, 
-  type KeyframeTrack, type AnimationAction, type Object3D, Bone } from 'three'
+import {
+  type AnimationClip, AnimationMixer, Quaternion, Vector3, type SkinnedMesh, type QuaternionKeyframeTrack,
+  type KeyframeTrack, type AnimationAction, type Object3D, Bone
+} from 'three'
 
 import { SkeletonType } from '../../enums/SkeletonType.ts'
 import { Utility } from '../../Utilities.ts'
 import { type ThemeManager } from '../../ThemeManager.ts'
-import { AnimationSearch, type AnimationWithState } from './AnimationSearch.ts'
-
-export interface TransformedAnimationClipPair {
-  /**
-   * The original version of the animation clip, without any transformations
-   * applied to it.
-   * 
-   * This allows for simple non-destructive modification of the animation,
-   * since we can always reset to the original.
-   */
-  original_animation_clip: AnimationClip
-  /**
-   * The warped version of the animation clip, which is what will be displayed
-   * and downloaded by the user.
-   */
-  display_animation_clip: AnimationClip
-}
-
+import { AnimationSearch } from './AnimationSearch.ts'
+import { type TransformedAnimationClipPair } from './interfaces/TransformedAnimationClipPair.ts'
+import { AnimationWithState } from './interfaces/AnimationWithState.ts'
 
 // Note: EventTarget is a built-ininterface and do not need to import it
 export class StepAnimationsListing extends EventTarget {
@@ -36,7 +22,6 @@ export class StepAnimationsListing extends EventTarget {
   private readonly animation_player: AnimationPlayer
   private animation_clips_loaded: TransformedAnimationClipPair[] = []
   private gltf_animation_loader: GLTFLoader = new GLTFLoader()
-  private readonly fbx_animation_loader: FBXLoader = new FBXLoader()
 
   private animation_mixer: AnimationMixer = new AnimationMixer()
   private skinned_meshes_to_animate: SkinnedMesh[] = []

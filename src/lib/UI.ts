@@ -68,7 +68,6 @@ export class UI {
 
   private constructor () {
     this.initialize_dom_elements()
-    // AnimationSearch will be initialized when needed
   }
 
   public static getInstance (): UI {

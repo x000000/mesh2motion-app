@@ -2,9 +2,9 @@ import {
   Vector3, Vector2, type Object3D, Mesh, Group, Bone, type Skeleton, Euler, Raycaster, AnimationClip, KeyframeTrack,
   type PerspectiveCamera, type Scene, type Object3DEventMap, type BufferAttribute, type BufferGeometry, type InterleavedBufferAttribute
 } from 'three'
-import BoneTransformState from './models/BoneTransformState'
-import type BoneCalculationData from './models/BoneCalculationData'
-import IntersectionPointData from './models/IntersectionPointData'
+import BoneTransformState from './interfaces/BoneTransformState'
+import type BoneCalculationData from './interfaces/BoneCalculationData'
+import IntersectionPointData from './interfaces/IntersectionPointData'
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class Utility {

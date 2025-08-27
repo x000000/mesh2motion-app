@@ -17,7 +17,7 @@ import { StepWeightSkin } from './lib/processes/weight-skin/StepWeightSkin.ts'
 
 import { ProcessStep } from './lib/enums/ProcessStep.ts'
 import { type Bone, Group, Scene, type Skeleton, type Vector3 } from 'three'
-import type BoneTesterData from './lib/models/BoneTesterData.ts'
+import type BoneTesterData from './lib/interfaces/BoneTesterData.ts'
 
 import { build_version } from './environment.js'
 import { SkeletonType } from './lib/enums/SkeletonType.ts'

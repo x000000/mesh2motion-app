@@ -9,7 +9,7 @@ import { SkinningFormula } from '../../enums/SkinningFormula.ts'
 import { Generators } from '../../Generators.ts'
 
 import { type BufferGeometry, type Material, type Object3D, type Skeleton, SkinnedMesh, type Scene, Group, Uint16BufferAttribute, Float32BufferAttribute } from 'three'
-import BoneTesterData from '../../models/BoneTesterData.ts'
+import BoneTesterData from '../../interfaces/BoneTesterData.ts'
 import { type SkeletonType } from '../../enums/SkeletonType.ts'
 
 import { type AbstractAutoSkinSolver } from '../../solvers/AbstractAutoSkinSolver.ts'

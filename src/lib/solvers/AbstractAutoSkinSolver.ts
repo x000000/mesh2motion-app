@@ -1,6 +1,6 @@
 import { BufferGeometry, Object3D, type Bone } from 'three'
 import { type SkeletonType } from '../enums/SkeletonType.js'
-import BoneTesterData from '../models/BoneTesterData.js'
+import BoneTesterData from '../interfaces/BoneTesterData.js'
 import { Utility } from '../Utilities.js'
 
 export abstract class AbstractAutoSkinSolver {

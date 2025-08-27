@@ -1,11 +1,7 @@
 import { type AnimationClip } from 'three'
 import { type ThemeManager } from '../../ThemeManager'
 import { SkeletonType } from '../../enums/SkeletonType'
-
-export interface AnimationWithState extends AnimationClip {
-  isChecked?: boolean
-  name: string
-}
+import { type AnimationWithState } from './interfaces/AnimationWithState'
 
 export class AnimationSearch extends EventTarget {
   private all_animations: AnimationWithState[] = []

@@ -8,12 +8,12 @@ import { Generators } from './lib/Generators.ts'
 
 import { UI } from './lib/UI.ts'
 
-import { StepLoadModel } from './lib/processes/StepLoadModel.ts'
-import { StepLoadSkeleton } from './lib/processes/StepLoadSkeleton.ts'
-import { StepEditSkeleton } from './lib/processes/StepEditSkeleton.ts'
-import { StepAnimationsListing } from './lib/processes/StepAnimationsListing.ts'
-import { StepExportToFile } from './lib/processes/StepExportToFile.ts'
-import { StepWeightSkin } from './lib/processes/StepWeightSkin.ts'
+import { StepLoadModel } from './lib/processes/load-model/StepLoadModel.ts'
+import { StepLoadSkeleton } from './lib/processes/load-skeleton/StepLoadSkeleton.ts'
+import { StepEditSkeleton } from './lib/processes/edit-skeleton/StepEditSkeleton.ts'
+import { StepAnimationsListing } from './lib/processes/animations-listing/StepAnimationsListing.ts'
+import { StepExportToFile } from './lib/processes/export-to-file/StepExportToFile.ts'
+import { StepWeightSkin } from './lib/processes/weight-skin/StepWeightSkin.ts'
 
 import { ProcessStep } from './lib/enums/ProcessStep.ts'
 import { type Bone, Group, Scene, type Skeleton, type Vector3 } from 'three'

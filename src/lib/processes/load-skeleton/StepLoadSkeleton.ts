@@ -1,7 +1,7 @@
-import { UI } from '../UI.ts'
+import { UI } from '../../UI.ts'
 import { Object3D, type Object3DEventMap } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import { SkeletonType, HandSkeletonType } from '../enums/SkeletonType.js'
+import { SkeletonType, HandSkeletonType } from '../../enums/SkeletonType.js'
 
 // Interface for GLTF loader result
 interface GLTFResult {

@@ -1,4 +1,4 @@
-import { UI } from '../UI.ts'
+import { UI } from '../../UI.ts'
 import { Box3 } from 'three/src/math/Box3.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js'

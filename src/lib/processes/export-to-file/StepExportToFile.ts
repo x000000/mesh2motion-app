@@ -1,4 +1,4 @@
-import { UI } from '../UI.ts'
+import { UI } from '../../UI.ts'
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js'
 import { type AnimationClip, Scene, type SkinnedMesh, type Object3D } from 'three'
 

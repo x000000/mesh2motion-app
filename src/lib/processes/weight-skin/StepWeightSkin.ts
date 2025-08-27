@@ -1,18 +1,18 @@
-import { UI } from '../UI.ts'
+import { UI } from '../../UI.ts'
 
-import BoneWeightsByDistance from '../solvers/BoneWeightsByDistance.ts'
-import BoneWeightsByDistanceChild from '../solvers/BoneWeightsByDistanceChild.ts'
-import SolverDistanceChildTargeting from '../solvers/SolverDistanceChildTargeting.ts'
+import BoneWeightsByDistance from '../../solvers/BoneWeightsByDistance.ts'
+import BoneWeightsByDistanceChild from '../../solvers/BoneWeightsByDistanceChild.ts'
+import SolverDistanceChildTargeting from '../../solvers/SolverDistanceChildTargeting.ts'
 
-import { SkinningFormula } from '../enums/SkinningFormula.ts'
+import { SkinningFormula } from '../../enums/SkinningFormula.ts'
 
-import { Generators } from '../Generators.ts'
+import { Generators } from '../../Generators.ts'
 
 import { type BufferGeometry, type Material, type Object3D, type Skeleton, SkinnedMesh, type Scene, Group, Uint16BufferAttribute, Float32BufferAttribute } from 'three'
-import BoneTesterData from '../models/BoneTesterData.ts'
-import { type SkeletonType } from '../enums/SkeletonType.ts'
+import BoneTesterData from '../../models/BoneTesterData.ts'
+import { type SkeletonType } from '../../enums/SkeletonType.ts'
 
-import { type AbstractAutoSkinSolver } from '../solvers/AbstractAutoSkinSolver.ts'
+import { type AbstractAutoSkinSolver } from '../../solvers/AbstractAutoSkinSolver.ts'
 
 // Note: EventTarget is a built-ininterface and do not need to import it
 export class StepWeightSkin extends EventTarget {

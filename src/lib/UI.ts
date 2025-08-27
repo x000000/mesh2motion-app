@@ -1,4 +1,6 @@
 export class UI {
+  private static instance: UI
+
   dom_current_step_index: HTMLElement | null = null
   dom_current_step_element: HTMLElement | null = null
   dom_load_model_tools: HTMLElement | null = null
@@ -64,9 +66,16 @@ export class UI {
 
   dom_build_version: HTMLElement | null = null
 
-   constructor () {
+  private constructor () {
     this.initialize_dom_elements()
     // AnimationSearch will be initialized when needed
+  }
+
+  public static getInstance (): UI {
+    if (UI.instance === undefined) {
+      UI.instance = new UI()
+    }
+    return UI.instance
   }
 
   private initialize_dom_elements (): void {

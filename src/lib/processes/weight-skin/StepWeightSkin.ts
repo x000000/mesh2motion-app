@@ -16,7 +16,7 @@ import { type AbstractAutoSkinSolver } from '../../solvers/AbstractAutoSkinSolve
 
 // Note: EventTarget is a built-ininterface and do not need to import it
 export class StepWeightSkin extends EventTarget {
-  private readonly ui: UI = new UI()
+  private readonly ui: UI = UI.getInstance()
   private skinning_armature: Object3D | undefined
   private bone_skinning_formula: AbstractAutoSkinSolver | undefined
   private binding_skeleton: Skeleton | undefined

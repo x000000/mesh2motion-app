@@ -38,7 +38,7 @@ export class StepEditSkeleton extends EventTarget {
 
   constructor () {
     super()
-    this.ui = new UI()
+    this.ui = UI.getInstance()
     this.undo_redo_system = new UndoRedoSystem(50) // Store up to 50 undo states
   }
 

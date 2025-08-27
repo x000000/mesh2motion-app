@@ -15,7 +15,7 @@ export class AnimationPlayer {
   private readonly has_added_event_listeners: boolean = false
 
   constructor () {
-    this.ui = new UI()
+    this.ui = UI.getInstance()
 
     if (!this.has_added_event_listeners) {
       this.setup_event_listeners()

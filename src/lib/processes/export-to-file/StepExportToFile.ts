@@ -4,7 +4,7 @@ import { type AnimationClip, Scene, type SkinnedMesh, type Object3D } from 'thre
 
 // Note: EventTarget is a built-ininterface and do not need to import it
 export class StepExportToFile extends EventTarget {
-  private readonly ui: UI = new UI()
+  private readonly ui: UI = UI.getInstance()
   private animation_clips_to_export: AnimationClip[] = []
 
   public set_animation_clips_to_export (all_animations_clips: AnimationClip[], animation_checkboxes: number[]): void {

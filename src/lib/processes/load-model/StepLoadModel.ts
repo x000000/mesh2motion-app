@@ -14,7 +14,7 @@ import { type BufferGeometry, type Material, type Object3D, type SkinnedMesh } f
 export class StepLoadModel extends EventTarget {
   private readonly gltf_loader = new GLTFLoader()
   private readonly fbx_loader = new FBXLoader()
-  private readonly ui: UI = new UI()
+  private readonly ui: UI = UI.getInstance()
   private original_model_data: Scene = new Scene()
   private final_mesh_data: Scene = new Scene()
   private debug_model_loading: boolean = false

@@ -41,7 +41,7 @@ export class Bootstrap {
 
   // has UI elements on the HTML page that we will reference/use
   public readonly theme_manager = new ThemeManager()
-  public readonly ui = new UI()
+  public readonly ui = UI.getInstance()
   public readonly load_model_step = new StepLoadModel()
   public readonly load_skeleton_step = new StepLoadSkeleton()
   public readonly edit_skeleton_step = new StepEditSkeleton()

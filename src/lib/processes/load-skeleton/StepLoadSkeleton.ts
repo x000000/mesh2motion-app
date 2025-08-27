@@ -15,7 +15,7 @@ interface GLTFResult {
 // Note: EventTarget is a built-ininterface and do not need to import it
 export class StepLoadSkeleton extends EventTarget {
   private readonly loader: GLTFLoader = new GLTFLoader()
-  private readonly ui: UI = new UI()
+  private readonly ui: UI = UI.getInstance()
   private loaded_armature: Object3D = new Object3D()
   private skeleton_t: SkeletonType = SkeletonType.Human
   private hand_skeleton_t: HandSkeletonType = HandSkeletonType.AllFingers

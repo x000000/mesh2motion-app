@@ -92,7 +92,7 @@ export class StepAnimationsListing extends EventTarget {
 
   constructor (theme_manager: ThemeManager) {
     super()
-    this.ui = new UI()
+    this.ui = UI.getInstance()
     this.animation_player = new AnimationPlayer()
     this.theme_manager = theme_manager
   }

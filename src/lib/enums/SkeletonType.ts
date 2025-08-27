@@ -5,7 +5,7 @@ export enum SkeletonType {
   Human = 'skeletons/human-skeleton.glb',
   Bird = 'skeletons/skeleton-bird.glb',
   Error = 'ERROR',
-  None = 'None'
+  None = 'NONE'
 }
 
 // Hand skeleton variation types for human skeleton

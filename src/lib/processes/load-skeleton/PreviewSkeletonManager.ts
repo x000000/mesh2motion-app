@@ -1,14 +1,14 @@
-import { Group, Object3D, Object3DEventMap, SkeletonHelper, type Scene } from 'three'
-import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import { Group, type Object3D, type Object3DEventMap, SkeletonHelper, type Scene } from 'three'
+import { type GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import type GLTFResult from './interfaces/GLTFResult'
-import { type SkeletonType } from '../../enums/SkeletonType'
+import { type HandSkeletonType, type SkeletonType } from '../../enums/SkeletonType'
 
 const skeleton_group_name: string = 'preview_skeleton_group'
 
 // need a function that will add a preview skeleton to the scene
 // this will remove any existing preview skeleton first
 // and then add the new one based on the selected type
-export async function add_preview_skeleton (root: Scene, skeleton_file_path: SkeletonType): Promise<Object3D<Object3DEventMap>> {
+export async function add_preview_skeleton (root: Scene, skeleton_file_path: SkeletonType, hand_skeleton_type: HandSkeletonType): Promise<Object3D<Object3DEventMap>> {
   remove_preview_skeleton(root)
 
   // create new group for the preview skeleton
@@ -22,10 +22,14 @@ export async function add_preview_skeleton (root: Scene, skeleton_file_path: Ske
   // need some logic to load the actual skeleton based on the type
   // we can only see the skeleton helper, so jwe will add that to the group
   const loaded_scene: Object3D<Object3DEventMap> = await load_skeleton(skeleton_file_path)
-  loaded_scene.name = 'preview_skeleton'
-  preview_skeleton_group.add(loaded_scene)
+
+  console.log('loaded skeleton file path: ', loaded_scene, hand_skeleton_type)
+
+  // need to convert the loaded scene into a custom skeleton helper
+  const skeleton_helper = new SkeletonHelper(loaded_scene.children[0])
+  skeleton_helper.name = 'preview_skeleton'
+  preview_skeleton_group.add(skeleton_helper)
   root.add(preview_skeleton_group)
-  console.log('loaded skeleton: ', loaded_scene)
   return loaded_scene
 }
 

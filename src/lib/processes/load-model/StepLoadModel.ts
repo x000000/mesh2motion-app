@@ -233,18 +233,23 @@ export class StepLoadModel extends EventTarget {
     let scale_factor: number = 1.0
 
     // calculate all the meshes to find out the max height
+    // some models are more wide like a bird, so don't just use height for this calculation
     const bounding_box = this.calculate_bounding_box(scene_object)
     const height = bounding_box.max.y - bounding_box.min.y
+    const width = bounding_box.max.x - bounding_box.min.x
+    const depth = bounding_box.max.z - bounding_box.min.z
 
-    // if model is very large, or very small, scale it to 1.0 to help with application
-    if (height > 0.1 && height < 4) {
-      console.log('Model a reasonable size, so no scaling applied: ', height, ' height')
+    const largest_dimension = Math.max(height, width, depth)
+
+    // if model is very large, or very small, scale it to 1.5 to help with application
+    if (largest_dimension > 0.5 && largest_dimension < 8) {
+      console.log('Model a reasonable size, so no scaling applied: ', largest_dimension, ' units is largest dimension')
       return
     } else {
-      console.log('Model is very large or small, so scaling applied: ', height, ' height')
+      console.log('Model is very large or small, so scaling applied: ', largest_dimension, ' units is largest dimension')
     }
 
-    scale_factor = 1.0 / height // goal is to scale the model to 1.0 height
+    scale_factor = 1.5 / height // goal is to scale the model to 1.5 units height (similar to skeleton proportions)
 
     // scale all the meshes down by the calculated amount
     scene_object.traverse((child) => {

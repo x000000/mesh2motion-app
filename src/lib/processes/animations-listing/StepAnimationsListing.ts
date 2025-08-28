@@ -229,7 +229,7 @@ export class StepAnimationsListing extends EventTarget {
 
   private update_filtered_animation_listing_ui (): void {
     const animation_length_string: string = this.animation_search?.filtered_animations().length.toString() ?? '0'
-    this.ui.dom_animations_listing_count.innerHTML = animation_length_string
+    this.ui.dom_animations_listing_count.innerHTML = animation_length_string + ' animations'
   }
 
   private apply_hip_bone_offset (animation_clips: AnimationClip[]): void {

@@ -94,10 +94,10 @@ h1, h2, h3, h4, h5, h6, input, button, select {
     margin-bottom: 0.5rem;
 }
 #animation-listing-count {
-    font-size: 90%;
     position: absolute;
     right: 3rem;
     top: 5rem;
+    color: var(--text-alternate)
 }
 
 /* indicator on download buton with how many are selected */
@@ -178,12 +178,13 @@ button.secondary-button.play
     border-radius: 0;
     box-shadow: none;
     margin-right: 0;
-    border: 1px solid transparent;
+    border: 1px solid var(--bg-tertiary);
+    transform: scale(1.0);
 }
 button.secondary-button.play:hover {
-    transform: scale(1.0);
-    border: 1px solid var(--text-alternate);
+    border: 1px solid var(--text-primary);
     transition: all 0.4s ease;
+    transform: scale(1.0);
 }
 
 button, .button {
@@ -204,7 +205,6 @@ button:hover, .button:hover {
 }
 
 button:active, .button:active {
-
     transform: scale(0.98);
 }
 
@@ -341,7 +341,7 @@ option {
     gap: 0.25rem;
     flex-wrap: wrap;
     overflow-x: hidden;
-    width: 23.7rem; /* createss 3 column of animation items */
+    width: 24rem; /* creates 3 column of animation items */
 }
 
 #animations-items div {
@@ -362,13 +362,15 @@ option {
     justify-content: space-between;
     padding: 0;
 
+    transition: box-shadow 0.2s ease-in-out;
+
     /* specify dimensions helps grid layout without jumbling elements */
-    width: 102px;
+    width: 103px;
     height: 160px;
 }
 
 .anim-preview-label {
-    font-size: 75%;
+    font-size: 90%;
     cursor: pointer;
     line-height: 110%;
 }

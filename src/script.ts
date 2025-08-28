@@ -282,13 +282,13 @@ export class Bootstrap {
         break
       case ProcessStep.AnimationsListing:
         this.process_step = ProcessStep.AnimationsListing
-        this.animations_listing_step.begin()
+        this.animations_listing_step.begin(this.load_skeleton_step.skeleton_type())
 
         this.skeleton_helper?.setJointsVisible(false)
 
         // hide skeleton by default in animations listing step
         if (this.ui.dom_show_skeleton_checkbox !== null) {
-          this.ui.dom_show_skeleton_checkbox.checked = false 
+          this.ui.dom_show_skeleton_checkbox.checked = false
         }
 
         // Show/hide A-Pose correction options based on skeleton type
@@ -300,8 +300,7 @@ export class Bootstrap {
             this.edit_skeleton_step.armature())
         }
 
-        this.animations_listing_step.load_and_apply_default_animation_to_skinned_mesh(this.weight_skin_step.final_skinned_meshes(),
-          this.load_skeleton_step.skeleton_type())
+        this.animations_listing_step.load_and_apply_default_animation_to_skinned_mesh(this.weight_skin_step.final_skinned_meshes())
 
         if (this.skeleton_helper !== undefined) {
           this.skeleton_helper.hide() // hide skeleton helper in animations listing step

@@ -82,7 +82,7 @@ export class StepAnimationsListing extends EventTarget {
     this.theme_manager = theme_manager
   }
 
-  public begin (): void {
+  public begin (skeleton_type: SkeletonType): void {
     if (this.ui.dom_current_step_index != null) {
       this.ui.dom_current_step_index.innerHTML = '4'
     }
@@ -100,6 +100,8 @@ export class StepAnimationsListing extends EventTarget {
     }
 
     this.reset_step_data()
+
+    this.skeleton_type = skeleton_type
 
     // if we are navigating back to this step, we don't want to add the event listeners again
     if (!this._added_event_listeners) {
@@ -140,12 +142,11 @@ export class StepAnimationsListing extends EventTarget {
     return this.animation_clips_loaded.map(clip => clip.display_animation_clip)
   }
 
-  public load_and_apply_default_animation_to_skinned_mesh (final_skinned_meshes: SkinnedMesh[], skeleton_type: SkeletonType): void {
+  public load_and_apply_default_animation_to_skinned_mesh (final_skinned_meshes: SkinnedMesh[]): void {
     this.skinned_meshes_to_animate = final_skinned_meshes
-    this.skeleton_type = skeleton_type
 
     let animations_to_load_filepaths: string[] = []
-    switch (skeleton_type) {
+    switch (this.skeleton_type) {
       case SkeletonType.Human:
         animations_to_load_filepaths = ['animations/human-base-animations.glb', 'animations/human-addon-animations.glb']
         break
@@ -207,8 +208,7 @@ export class StepAnimationsListing extends EventTarget {
     // create user interface with all available animation clips
     this.build_animation_clip_ui(
       this.animation_clips_loaded.map(clip => clip.display_animation_clip),
-      this.theme_manager,
-      this.skeleton_type,
+      this.theme_manager
     )
 
     // add event listener to listem for checkbox changes when we change
@@ -403,11 +403,10 @@ export class StepAnimationsListing extends EventTarget {
     this.has_added_event_listeners = true
   }
 
-  public build_animation_clip_ui (animation_clips_to_load: AnimationClip[], theme_manager: ThemeManager, skeleton_type: SkeletonType): void {
+  public build_animation_clip_ui (animation_clips_to_load: AnimationClip[], theme_manager: ThemeManager): void {
     // Initialize AnimationSearch if not already done
-    if (this.animation_search === null) {
-      this.animation_search = new AnimationSearch('animation-filter', 'animations-items', theme_manager, skeleton_type)
-    }
+    // we could switch skeleton types using navigation, so need to re-create in case this happens
+    this.animation_search = new AnimationSearch('animation-filter', 'animations-items', theme_manager, this.skeleton_type)
 
     // Use the animation search class to handle the UI
     this.animation_search.initialize_animations(animation_clips_to_load)

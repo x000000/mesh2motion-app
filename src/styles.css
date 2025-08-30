@@ -567,3 +567,9 @@ position: fixed;
     bottom: 0px;
     left: 0;
 }
+
+#animations-items .no-animations-message {
+    padding: 0.5rem;
+    font-style: italic;
+    font-size: 90%;
+}

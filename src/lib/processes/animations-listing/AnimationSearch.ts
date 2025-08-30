@@ -117,6 +117,13 @@ export class AnimationSearch extends EventTarget {
     // Clear and rebuild the animation list
     this.animation_list_container.innerHTML = ''
 
+    // Show "no animations found" if the filtered list is empty
+    if (this.filtered_animations_list.length === 0) {
+      this.animation_list_container.innerHTML = '<div class="no-animations-message">No animations found</div>'
+      return
+    }
+
+
     this.filtered_animations_list.forEach((animation_clip) => {
       if (this.animation_list_container == null) {
         return

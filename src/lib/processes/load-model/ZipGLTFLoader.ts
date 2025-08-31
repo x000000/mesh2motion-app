@@ -1,4 +1,5 @@
 import JSZip from 'jszip'
+import { EventDispatcher } from 'three'
 import { type GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { type Scene } from 'three/src/scenes/Scene.js'
 
@@ -6,17 +7,18 @@ import { type Scene } from 'three/src/scenes/Scene.js'
  * Loads a GLTF (with BIN and textures) from a ZIP file buffer, using in-memory URLs for all assets.
  * Usage: new ZipGLTFLoader(gltfLoaderInstance).loadFromZip(zipBuffer, (scene) => { ... })
  */
-export class ZipGLTFLoader {
+export class ZipGLTFLoader extends EventDispatcher {
   private readonly loader: GLTFLoader
 
   constructor (loader: GLTFLoader) {
+    super()
     this.loader = loader
   }
 
   /**
    * Main entry: Loads a GLTF (with BIN and textures) from a ZIP file buffer, using in-memory URLs for all assets.
    */
-  async load_from_zip (zipData: ArrayBuffer,
+  public async load_from_zip (zipData: ArrayBuffer,
     onLoad: (scene: Scene) => void,
     onError?: (err: any) => void
   ): Promise<void> {
@@ -135,7 +137,7 @@ export class ZipGLTFLoader {
           buffer = file_map[decoded] || file_map[decoded.toLowerCase()]
         } catch {}
       }
-      
+
       if (buffer) {
         // Guess MIME type
         let mime = 'application/octet-stream'

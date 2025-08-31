@@ -60,6 +60,10 @@ h1, h2, h3, h4, h5, h6, input, button, select {
     display: inline-block;
 }
 
+div, p {
+    display: block;
+}
+
  a {
     color: var(--link-color);
     font-size: 80%;
@@ -583,4 +587,16 @@ position: fixed;
     padding: 0.5rem;
     font-style: italic;
     font-size: 90%;
+}
+
+#attribution-link {
+    color: var(--text-primary);
+    text-decoration: underline;
+    position: absolute;
+    top: 4.1rem;
+    left: 6em;
+    font-size: 90%;
+}
+#attribution-link:hover {
+    text-decoration: none;
 }

@@ -25,6 +25,11 @@ export class EventListeners {
       }
     })
 
+    // attribution link clicking brings up contributors dialog
+    this.bootstrap.ui.dom_attribution_link?.addEventListener('click', (event: MouseEvent) => {
+      event.preventDefault()
+      this.bootstrap.show_contributors_dialog()
+    })
 
     // listen for view helper changes
     document.getElementById('view-control-hitbox')?.addEventListener('pointerdown', (event: PointerEvent) => {

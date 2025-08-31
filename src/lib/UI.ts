@@ -65,6 +65,7 @@ export class UI {
 
 
   dom_build_version: HTMLElement | null = null
+  dom_attribution_link: HTMLAnchorElement | null = null
 
   private constructor () {
     this.initialize_dom_elements()
@@ -144,6 +145,8 @@ export class UI {
     this.dom_a_pose_correction_options = document.querySelector('#a-pose-correction-options')
 
     this.dom_build_version = document.querySelector('#build-version')
+
+    this.dom_attribution_link = document.querySelector('#attribution-link')
 
     // UI for exporting the animation
     this.dom_export_button_hidden_link = document.querySelector('#download-hidden-link')

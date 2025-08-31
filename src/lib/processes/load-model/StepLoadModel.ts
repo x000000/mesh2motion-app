@@ -1,3 +1,4 @@
+import { ZipLoadErrorDialog } from './ZipLoadErrorDialog.ts'
 import { UI } from '../../UI.ts'
 import { ZipGLTFLoader } from './ZipGLTFLoader.ts'
 import { Box3 } from 'three/src/math/Box3.js'
@@ -179,7 +180,11 @@ export class StepLoadModel extends EventTarget {
         this.process_loaded_scene(scene) // loaded successfully...continue
       }, (err) => {
         console.error('Failed to load GLTF from ZIP:', err)
-      }).catch((err) => { console.error('Error loading ZIP:', err) })
+        new ZipLoadErrorDialog('Failed to load GLTF from ZIP: ' + (err?.message || err))
+      }).catch((err) => {
+        console.error('Error loading ZIP:', err)
+        new ZipLoadErrorDialog('Error loading ZIP: ' + (err?.message || err))
+      })
     }
 
     // support both data URLs
@@ -187,9 +192,16 @@ export class StepLoadModel extends EventTarget {
       fetch(model_file_path)
         .then(async res => await res.arrayBuffer())
         .then(buffer => { handle_zip(buffer) })
-        .catch(err => { console.error('Failed to fetch ZIP data:', err) })
+        .catch(err => {
+          console.error('Failed to fetch ZIP data:', err)
+          new ZipLoadErrorDialog('Failed to fetch ZIP data: ' + (err?.message || err))
+        })
+    } else if (model_file_path instanceof ArrayBuffer) {
+      handle_zip(model_file_path)
     } else {
-      console.error('ZIP file data is not in a supported format')
+      const msg = 'ZIP file data is not in a supported format';
+      console.error(msg)
+      new ZipLoadErrorDialog(msg)
     }
   }
 

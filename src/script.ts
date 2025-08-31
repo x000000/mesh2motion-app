@@ -1,4 +1,3 @@
-import { CreditsDialog } from './lib/CreditsDialog.ts';
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js'
@@ -28,6 +27,7 @@ import { EventListeners } from './lib/EventListeners.ts'
 import { ModelPreviewDisplay } from './lib/enums/ModelPreviewDisplay.ts'
 import { TransformControlType } from './lib/enums/TransformControlType.ts'
 import { ThemeManager } from './lib/ThemeManager.ts'
+import { ModalDialog } from './lib/ModalDialog.ts'
 
 export class Bootstrap {
   public readonly camera = Generators.create_camera()
@@ -88,9 +88,6 @@ export class Bootstrap {
     this.process_step = this.process_step_changed(ProcessStep.LoadModel)
     this.animate() // start the render loop which will continue rendering the scene
     this.inject_build_version()
-
-    // Create the credits dialog
-    const creds_dialog: CreditsDialog = new CreditsDialog()
   }
 
   private inject_build_version (): void {
@@ -515,6 +512,23 @@ export class Bootstrap {
     }
 
     return true
+  }
+
+  public show_contributors_dialog (): void {
+    // Show the contributors dialog
+    console.log('Showing contributors dialog')
+    // instantiate modal dialog and show contributors
+    const modal = new ModalDialog('Contributors', this.get_contributors_list())
+    modal.show()
+  }
+
+  private get_contributors_list (): string {
+    // Return a list of contributors
+    return `
+      <p>Contributor 1</p>
+      <p>Contributor 2</p>
+      <p>Contributor 3</p>
+    `
   }
 } // end Bootstrap class
 

@@ -1,4 +1,3 @@
-import { ZipLoadErrorDialog } from './ZipLoadErrorDialog.ts'
 import { UI } from '../../UI.ts'
 import { ZipGLTFLoader } from './ZipGLTFLoader.ts'
 import { Box3 } from 'three/src/math/Box3.js'
@@ -11,6 +10,7 @@ import { MeshNormalMaterial } from 'three/src/materials/MeshNormalMaterial.js'
 import { MathUtils } from 'three/src/math/MathUtils.js'
 import { FrontSide } from 'three/src/constants.js'
 import { type BufferGeometry, type Material, type Object3D, type SkinnedMesh } from 'three'
+import { ModalDialog } from '../../ModalDialog.ts'
 
 // Note: EventTarget is a built-ininterface and do not need to import it
 export class StepLoadModel extends EventTarget {
@@ -178,12 +178,12 @@ export class StepLoadModel extends EventTarget {
       const zip_loader = new ZipGLTFLoader(this.gltf_loader)
       zip_loader.load_from_zip(buffer, (scene) => {
         this.process_loaded_scene(scene) // loaded successfully...continue
-      }, (err) => {
+      }, (err: Error) => {
         console.error('Failed to load GLTF from ZIP:', err)
-        new ZipLoadErrorDialog('Failed to load GLTF from ZIP: ' + (err?.message || err))
-      }).catch((err) => {
+        new ModalDialog('Failed to load GLTF from ZIP: ', err?.message || err).show()
+      }).catch((err: Error) => {
         console.error('Error loading ZIP:', err)
-        new ZipLoadErrorDialog('Error loading ZIP: ' + (err?.message || err))
+        new ModalDialog('Error loading ZIP: ', err?.message || err).show()
       })
     }
 
@@ -192,16 +192,16 @@ export class StepLoadModel extends EventTarget {
       fetch(model_file_path)
         .then(async res => await res.arrayBuffer())
         .then(buffer => { handle_zip(buffer) })
-        .catch(err => {
+        .catch((err: Error) => {
           console.error('Failed to fetch ZIP data:', err)
-          new ZipLoadErrorDialog('Failed to fetch ZIP data: ' + (err?.message || err))
+          new ModalDialog('Failed to fetch ZIP data: ', err?.message || err).show()
         })
     } else if (model_file_path instanceof ArrayBuffer) {
       handle_zip(model_file_path)
     } else {
-      const msg = 'ZIP file data is not in a supported format';
+      const msg = 'ZIP file data is not in a supported format'
       console.error(msg)
-      new ZipLoadErrorDialog(msg)
+      new ModalDialog('ZIP file error decompressing: ', msg).show()
     }
   }
 

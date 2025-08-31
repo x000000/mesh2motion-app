@@ -18,6 +18,17 @@ export class Generators {
     return material
   }
 
+  // put HTML with all the contributors
+  static get_contributors_list (): string {
+    // Return a list of contributors
+    return `
+    <div style="text-align: start">
+      <p><span style="font-size: 120%">Scott Petrovic</span> - Project Maintainer</p>
+      <p><span style="font-size: 120%">Quatnerius</span> - Human model, rig, and animations</p>
+    </div>
+    `
+  }
+
   static create_grid_helper (grid_color: number = 0x111155, floor_color: number = 0x4e4e7a): any[] {
     // create floor mesh and add to scene to help with shadows
     const grid_size: number = 180

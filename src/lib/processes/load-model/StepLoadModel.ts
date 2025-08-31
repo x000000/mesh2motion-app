@@ -1,4 +1,5 @@
 import { UI } from '../../UI.ts'
+import { ZipGLTFLoader } from './ZipGLTFLoader.ts'
 import { Box3 } from 'three/src/math/Box3.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js'
@@ -146,21 +147,42 @@ export class StepLoadModel extends EventTarget {
     return file_extension
   }
 
-  private load_model_file (model_file_path: string, file_extension: string): void {
+  private load_model_file (model_file_path: string | ArrayBuffer | null, file_extension: string): void {
     if (file_extension === 'fbx') {
       console.log('Loading FBX model:', model_file_path)
-      this.fbx_loader.load(model_file_path, (fbx) => {
+      this.fbx_loader.load(model_file_path as string, (fbx) => {
         const loaded_scene: Scene = new Scene()
         loaded_scene.add(fbx)
         this.process_loaded_scene(loaded_scene)
       })
     } else if (file_extension === 'glb') {
-      this.gltf_loader.load(model_file_path, (gltf) => {
+      this.gltf_loader.load(model_file_path as string, (gltf) => {
         const loaded_scene: Scene = gltf.scene
         this.process_loaded_scene(loaded_scene)
       })
     } else if (file_extension === 'zip') {
-      console.log('try to load a GLTF file with separate BIN file from ZIP')
+      // Use ZipGLTFLoader for ZIP files
+      const handle_zip = (buffer: ArrayBuffer): void => {
+        const zip_loader = new ZipGLTFLoader(this.gltf_loader)
+
+        zip_loader.loadFromZip(buffer, (scene) => {
+          this.process_loaded_scene(scene)
+        }, (err) => {
+          console.error('Failed to load GLTF from ZIP:', err)
+        }).catch((err) => { console.error('Error loading ZIP:', err) })
+      }
+
+      if (typeof model_file_path === 'string' && model_file_path.startsWith('data:')) {
+        fetch(model_file_path)
+          .then(async res => await res.arrayBuffer())
+          .then(buffer => { handle_zip(buffer) })
+          .catch(err => { console.error('Failed to fetch ZIP data:', err) })
+      } else if (model_file_path instanceof ArrayBuffer) {
+        handle_zip(model_file_path)
+      } else {
+        console.error('ZIP file data is not in a supported format')
+      }
+      // end logic for handing zip
     } else {
       console.error('Unsupported file format to load. Only acccepts FBX, (ZIP)GLTF+BIN, GLB:', model_file_path)
     }

@@ -161,30 +161,35 @@ export class StepLoadModel extends EventTarget {
         this.process_loaded_scene(loaded_scene)
       })
     } else if (file_extension === 'zip') {
-      // Use ZipGLTFLoader for ZIP files
-      const handle_zip = (buffer: ArrayBuffer): void => {
-        const zip_loader = new ZipGLTFLoader(this.gltf_loader)
-
-        zip_loader.loadFromZip(buffer, (scene) => {
-          this.process_loaded_scene(scene)
-        }, (err) => {
-          console.error('Failed to load GLTF from ZIP:', err)
-        }).catch((err) => { console.error('Error loading ZIP:', err) })
-      }
-
-      if (typeof model_file_path === 'string' && model_file_path.startsWith('data:')) {
-        fetch(model_file_path)
-          .then(async res => await res.arrayBuffer())
-          .then(buffer => { handle_zip(buffer) })
-          .catch(err => { console.error('Failed to fetch ZIP data:', err) })
-      } else if (model_file_path instanceof ArrayBuffer) {
-        handle_zip(model_file_path)
-      } else {
-        console.error('ZIP file data is not in a supported format')
-      }
-      // end logic for handing zip
+      this.handle_zip_file(model_file_path)
     } else {
       console.error('Unsupported file format to load. Only acccepts FBX, (ZIP)GLTF+BIN, GLB:', model_file_path)
+    }
+  }
+
+  /**
+   * Handles loading a model from a ZIP file with GLTF data
+   * supporting both data URLs and ArrayBuffer input.
+   */
+  private handle_zip_file (model_file_path: string | ArrayBuffer | null): void {
+    // Handle loading a ZIP file with GLTF data inside it
+    const handle_zip = (buffer: ArrayBuffer): void => {
+      const zip_loader = new ZipGLTFLoader(this.gltf_loader)
+      zip_loader.load_from_zip(buffer, (scene) => {
+        this.process_loaded_scene(scene) // loaded successfully...continue
+      }, (err) => {
+        console.error('Failed to load GLTF from ZIP:', err)
+      }).catch((err) => { console.error('Error loading ZIP:', err) })
+    }
+
+    // support both data URLs
+    if (typeof model_file_path === 'string' && model_file_path.startsWith('data:')) {
+      fetch(model_file_path)
+        .then(async res => await res.arrayBuffer())
+        .then(buffer => { handle_zip(buffer) })
+        .catch(err => { console.error('Failed to fetch ZIP data:', err) })
+    } else {
+      console.error('ZIP file data is not in a supported format')
     }
   }
 

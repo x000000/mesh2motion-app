@@ -30,7 +30,6 @@ export class StepLoadModel extends EventTarget {
   triangle_count = 0
   objects_count = 0
 
-
   // function that goes through all our geometry data and calculates how many triangles we have
   private calculate_mesh_metrics (): void {
     let triangle_count = 0
@@ -155,13 +154,15 @@ export class StepLoadModel extends EventTarget {
         loaded_scene.add(fbx)
         this.process_loaded_scene(loaded_scene)
       })
-    } else if (file_extension === 'gltf' || file_extension === 'glb') {
+    } else if (file_extension === 'glb') {
       this.gltf_loader.load(model_file_path, (gltf) => {
         const loaded_scene: Scene = gltf.scene
         this.process_loaded_scene(loaded_scene)
       })
+    } else if (file_extension === 'zip') {
+      console.log('try to load a GLTF file with separate BIN file from ZIP')
     } else {
-      console.error('Unsupported file format to load. Only acccepts FBX, GLTF, GLB:', model_file_path)
+      console.error('Unsupported file format to load. Only acccepts FBX, (ZIP)GLTF+BIN, GLB:', model_file_path)
     }
   }
 
@@ -310,12 +311,11 @@ export class StepLoadModel extends EventTarget {
     return this.material_list
   }
 
-
   /**
    * Rotate all geometry data in the model by the given angle (in degrees) around the specified axis.
    * This directly modifies the geometry vertices.
    */
-  public rotate_model_geometry(axis: 'x' | 'y' | 'z', angle: number): void {
+  public rotate_model_geometry (axis: 'x' | 'y' | 'z', angle: number): void {
     const radians = MathUtils.degToRad(angle)
     this.final_mesh_data.traverse((obj: Object3D) => {
       if (obj.type === 'Mesh') {

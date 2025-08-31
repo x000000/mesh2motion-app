@@ -2,6 +2,7 @@ import JSZip from 'jszip'
 import { EventDispatcher } from 'three'
 import { type GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { type Scene } from 'three/src/scenes/Scene.js'
+import { ModalDialog } from '../../ModalDialog'
 
 /**
  * Loads a GLTF (with BIN and textures) from a ZIP file buffer, using in-memory URLs for all assets.
@@ -18,66 +19,85 @@ export class ZipGLTFLoader extends EventDispatcher {
   /**
    * Main entry: Loads a GLTF (with BIN and textures) from a ZIP file buffer, using in-memory URLs for all assets.
    */
-  public async load_from_zip (zipData: ArrayBuffer,
+  public async load_from_zip (zip_data: ArrayBuffer,
     onLoad: (scene: Scene) => void,
     onError?: (err: any) => void
   ): Promise<void> {
     try {
       // 1. Load and scan the ZIP for GLTF and BIN files
-      const zip = await JSZip.loadAsync(zipData)
-      const { gltfFile, binFile, gltfFilename, binFilename } = this.find_gltf_files(zip)
-      if (!gltfFile) throw new Error('No GLTF file found in ZIP')
+      const zip_file: JSZip = await JSZip.loadAsync(zip_data)
+      const gltf_files_result: GltfFilesResult = this.find_gltf_and_bin_files(zip_file)
+      if (!gltf_files_result.gltf_file) throw new Error('No GLTF file found in ZIP')
 
       // 2. Parse GLTF JSON and patch buffer URI if needed
-      const gltf_json: any = await this.parse_gltf_json(gltfFile, binFile, binFilename)
+      const gltf_json: any = await this.parse_gltf_json(gltf_files_result.gltf_file,
+        gltf_files_result.bin_file, gltf_files_result.bin_filename)
 
       // 3. Build a map of all relevant files (textures, bin, gltf) by filename
-      const file_map: Record<string, Uint8Array> = await this.build_file_map(zip)
+      const file_map: Record<string, Uint8Array> = await this.build_file_map(zip_file)
 
       // 4. Patch loader to use in-memory blobs for all referenced files
       this.loader.manager.setURLModifier(this.make_url_modifier(file_map))
 
+      // Add error listener for texture/resource loading
+      this.loader.manager.itemError = (url: string) => {
+        new ModalDialog('Could not find file in ZIP', `${this.get_last_segment_of_url(url)}`).show()
+      }
+
       // 5. Load the GLTF from the in-memory JSON blob
       const gltf_blob = new Blob([JSON.stringify(gltf_json)], { type: 'application/json' })
       const gltf_url = URL.createObjectURL(gltf_blob)
-      this.loader.load(
-        gltf_url,
-        (gltf) => {
-          const loaded_scene: Scene = gltf.scene
-          onLoad(loaded_scene)
-          URL.revokeObjectURL(gltf_url)
-        },
-        undefined,
-        (err) => {
-          if (onError != null) onError(err)
+
+      // Load the GLTF from the in-memory URL
+      this.loader.load(gltf_url, (gltf) => {
+        const loaded_scene: Scene = gltf.scene
+        onLoad(loaded_scene)
+        URL.revokeObjectURL(gltf_url)
+      },
+      undefined,
+      (err) => {
+        if (onError != null) {
+          onError(err)
         }
+      }
       )
     } catch (err) {
-      if (onError != null) onError(err)
+      if (onError != null) {
+        onError(err)
+      }
     }
+    // cleanup error handler
+    this.loader.manager.onError = null
   }
 
   /**
    * Scans the ZIP for .gltf and .bin files and returns their file objects and names.
    */
-  private find_gltf_files (zip: JSZip): {
-    gltfFile: any, binFile: any, gltfFilename: string, binFilename: string
-  } {
-    let gltfFile: any = null
-    let binFile: any = null
-    let gltfFilename = ''
-    let binFilename = ''
+  private find_gltf_and_bin_files (zip: JSZip): GltfFilesResult {
+    let gltf_file: any = null
+    let bin_file: any = null
+    let gltf_filename = ''
+    let bin_filename = ''
+
     zip.forEach((relativePath, file) => {
       const lower = relativePath.toLowerCase()
       if (lower.endsWith('.gltf')) {
-        gltfFile = file
-        gltfFilename = relativePath
+        gltf_file = file
+        gltf_filename = relativePath
       } else if (lower.endsWith('.bin')) {
-        binFile = file
-        binFilename = relativePath
+        bin_file = file
+        bin_filename = relativePath
       }
     })
-    return { gltfFile, binFile, gltfFilename, binFilename }
+
+    // "satisfies" is a TypeScript keyword that can be used to assert
+    // that an object matches a specific type
+    return {
+      gltf_file,
+      bin_file,
+      gltf_filename,
+      bin_filename
+    } satisfies GltfFilesResult
   }
 
   /**
@@ -152,4 +172,22 @@ export class ZipGLTFLoader extends EventDispatcher {
       return url
     }
   }
+
+  /**
+   * Gets the last segment of a URL path.
+   * @param path The URL path.
+   * @returns The last segment of the path.
+   */
+  private get_last_segment_of_url (path: string): string {
+    const segments = path.split('/')
+    return segments[segments.length - 1]
+  }
+}
+
+
+interface GltfFilesResult {
+  gltf_file: any
+  bin_file: any
+  gltf_filename: string
+  bin_filename: string
 }

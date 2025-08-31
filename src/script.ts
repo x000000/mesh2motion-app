@@ -515,14 +515,8 @@ export class Bootstrap {
   }
 
   public show_contributors_dialog (): void {
-    // Show the contributors dialog
-    console.log('Showing contributors dialog')
-    // instantiate modal dialog and show contributors
-    const modal = new ModalDialog('Contributors', Generators.get_contributors_list())
-    modal.show()
+    new ModalDialog('Contributors', Generators.get_contributors_list()).show()
   }
-
-
 } // end Bootstrap class
 
 // Create an instance of the Bootstrap class when the script is loaded

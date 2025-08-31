@@ -5,6 +5,7 @@
   /* Dark theme (default) */
   --text-primary: white;
   --text-alternate: #dae2e6;
+  --link-color: #d0d0d0;
 
   --bg-primary: #2b4353;
   --bg-alternate: #426074;
@@ -24,6 +25,7 @@
 [data-theme="light"] {
   --text-primary: #2c3e50;
   --text-alternate: #96a5ac;
+  --link-color: #3b6081;
 
   --bg-primary: #ecf0f1;
   --bg-alternate: #bac9d2;
@@ -54,8 +56,17 @@ h1, h2, h3, h4, h5, h6, input, button, select {
     color: var(--text-primary);
     font-family: 'Jost', sans-serif;
     font-size: 14px;
+    font-weight: 400;
     display: inline-block;
 }
+
+ a {
+    color: var(--link-color);
+    font-size: 80%;
+ }
+ a:hover {
+    text-decoration: none;
+ }
 
 /* Icon toggle for show skeleton */
 .icon-toggle label {

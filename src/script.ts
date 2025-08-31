@@ -1,3 +1,4 @@
+import { CreditsDialog } from './lib/CreditsDialog.ts';
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js'
@@ -87,6 +88,9 @@ export class Bootstrap {
     this.process_step = this.process_step_changed(ProcessStep.LoadModel)
     this.animate() // start the render loop which will continue rendering the scene
     this.inject_build_version()
+
+    // Create the credits dialog
+    const creds_dialog: CreditsDialog = new CreditsDialog()
   }
 
   private inject_build_version (): void {

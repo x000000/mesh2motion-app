@@ -12,6 +12,7 @@
     <link href="./styles.css" rel="stylesheet" crossorigin="anonymous" />
     <link rel="stylesheet" href="./radio-button-group.css" crossorigin="anonymous" />
     <link rel="stylesheet" href="./animation-player.css" crossorigin="anonymous" />
+    <link rel="stylesheet" href="./credits.css" crossorigin="anonymous" />
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 
@@ -258,8 +259,20 @@
                     <!-- javascript will populate this item with animations
                          that we get from the animations file(s)  -->
                     <div id="animations-items"> </div>
-        
-        
+
+                    <!-- Attribution. clicking will open dialog with attribution information -->
+                    <a href="#" id="attribution-link">Attribution</a>
+                    <div id="attribution-message" style="display: none;"></div>
+                     <div id="credits-dialog">
+                         <div id="credits-contents" >
+                            <div style="display: flex; align-items: center; gap: 2rem;">
+                                <h2 style="margin:0;">Attribution for skeleton &amp; animations</h2>
+                                <button id="close-credits-dialog" >&times;</button>
+                            </div>
+                            <div id="credits-content"></div>
+                        </div>
+                    </div>
+
                     <!-- slider to control arm extension (hide this feature until the base functionality is more stable) -->
                     <div id="a-pose-correction-options">
                         <div style="display: flex; flex-direction: row; align-items: center;">
@@ -342,5 +355,6 @@
     <!-- 3d view control hit box. It is just a container to help with 3d view controls. -->
     <div id="view-control-hitbox"></div>
 
+   
 </body>
 </html>

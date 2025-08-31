@@ -65,6 +65,9 @@
                     </label>
                     <input id="model-upload" type="file" name="file-upload" accept=".glb, .zip, .fbx" />
 
+                    <span class="material-symbols-outlined" data-tippy-content="GLB and FBX preferred. ZIP is for GLTF that includes BIN and textures separately.">help</span>
+
+
                     <div style="text-align: center; font-size: 1.5rem">or</div>
                     
                     <div class="alternate-background-section">
@@ -84,10 +87,8 @@
                         <input type="checkbox" id="load-model-debug-checkbox" name="load-model-debug-checkbox">
                         <label for="load-model-debug-checkbox">Debug</label>
 
-                        <div class="tooltip">
-                            <span class="material-symbols-outlined" style="font-size: 16px;">help</span>
-                            <span class="tooltiptext">Replaces all materials with a 'normal' shader for debugging</span>
-                        </div>
+                        <span class="material-symbols-outlined" data-tippy-content="Replaces all materials with a 'normal' shader for debugging">help</span>
+
                     </div>
 
                 </div>
@@ -131,10 +132,7 @@
 
                             <span>
                                 Hand Options:
-                                <div class="tooltip" style="display: inline-block; margin-left: 0.5rem;">
-                                    <span class="material-symbols-outlined" style="font-size: 16px;">help</span>
-                                    <span class="tooltiptext">Variations on which finger bones you want to keep. Single Hand Bone removes all fingers and keeps only the hand bone.</span>
-                                </div>
+                                <span class="material-symbols-outlined" data-tippy-content="Variations on which finger bones you want to keep. Single Hand Bone removes all fingers and keeps only the hand bone.">help</span>
                             </span>
 
                             <select id="hand-skeleton-selection">
@@ -265,10 +263,7 @@
                     <div id="a-pose-correction-options">
                         <div style="display: flex; flex-direction: row; align-items: center;">
                             <label style="display:inline-flex">A-Pose Correction - Open Arms</label>
-                            <span class="tooltip">
-                                <span class="material-symbols-outlined" style="font-size: 16px;">help</span>
-                                <span class="tooltiptext">If your model uses an A-Pose, this will help expand/contract arms for all animations</span>
-                            </span>
+                             <span class="material-symbols-outlined" data-tippy-content="If your model uses an A-Pose, this will help expand/contract arms for all animations">help</span>
                         </div>
 
                         <div style="display: flex; flex-direction: row; gap: 1rem; justify-content: flex-start; align-items: center;">

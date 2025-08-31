@@ -3,6 +3,9 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js'
 import { CustomViewHelper } from './lib/CustomViewHelper.ts'
 
+import tippy from 'tippy.js'
+import 'tippy.js/dist/tippy.css' // optional for styling
+
 import { Utility } from './lib/Utilities.ts'
 import { Generators } from './lib/Generators.ts'
 
@@ -88,6 +91,12 @@ export class Bootstrap {
     this.process_step = this.process_step_changed(ProcessStep.LoadModel)
     this.animate() // start the render loop which will continue rendering the scene
     this.inject_build_version()
+    this.setup_tooltips()
+  }
+
+  /* Add this attribute to an HTML element to give it a tooltip */
+  private setup_tooltips (): void {
+    tippy('[data-tippy-content]', { theme: 'mesh2motion' })
   }
 
   private inject_build_version (): void {

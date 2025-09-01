@@ -52,7 +52,8 @@ export class StepLoadSkeleton extends EventTarget {
     // when we come back to this step, there is a good chance we already selected a skeleton
     // so just use that and load the preview right when we enter this step
     if (!this.has_select_skeleton_ui_option()) {
-      add_preview_skeleton(this._main_scene, this.skeleton_file_path(), this.hand_skeleton_type()).catch((err) => {
+      add_preview_skeleton(this._main_scene, this.skeleton_file_path(),
+        this.hand_skeleton_type(), this.skeleton_scale_percentage).catch((err) => {
         console.error('error loading preview skeleton: ', err)
       })
     }
@@ -197,6 +198,11 @@ export class StepLoadSkeleton extends EventTarget {
 
       const display_value: string = Math.round(this.skeleton_scale_percentage * 100).toString() + '%'
       this.ui.dom_scale_skeleton_percentage_display!.textContent = display_value
+
+      // re-add the preview skeleton with the new scale
+      add_preview_skeleton(this._main_scene, this.skeleton_file_path(), this.hand_skeleton_type(), this.skeleton_scale_percentage).catch((err) => {
+        console.error('error loading preview skeleton: ', err)
+      })
     })
   }
 

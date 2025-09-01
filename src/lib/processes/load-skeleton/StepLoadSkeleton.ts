@@ -25,6 +25,12 @@ export class StepLoadSkeleton extends EventTarget {
     return this.skeleton_file_path() // this is actually the type/filepath combo
   }
 
+  // The edit skeleton step will use this to scale the skeleton when loading editable skeleton
+  // animations listing will use this to scale all position keyframes
+  public skeleton_scale (): number {
+    return this.skeleton_scale_percentage
+  }
+
   constructor (main_scene: Scene) {
     super()
     this._main_scene = main_scene
@@ -177,6 +183,9 @@ export class StepLoadSkeleton extends EventTarget {
           // reset the armature to 0,0,0 in case it is off for some reason
           this.loaded_armature.position.set(0, 0, 0)
           this.loaded_armature.updateWorldMatrix(true, true)
+
+          // scale the armature to what we picked using the scale slider/preview
+          this.loaded_armature.scale.set(this.skeleton_scale(), this.skeleton_scale(), this.skeleton_scale())
 
           this.dispatchEvent(new CustomEvent('skeletonLoaded', { detail: this.loaded_armature }))
         })

@@ -292,7 +292,7 @@ export class Bootstrap {
         break
       case ProcessStep.AnimationsListing:
         this.process_step = ProcessStep.AnimationsListing
-        this.animations_listing_step.begin(this.load_skeleton_step.skeleton_type())
+        this.animations_listing_step.begin(this.load_skeleton_step.skeleton_type(), this.load_skeleton_step.skeleton_scale())
 
         this.skeleton_helper?.setJointsVisible(false)
 

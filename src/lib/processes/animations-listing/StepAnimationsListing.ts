@@ -28,6 +28,10 @@ export class StepAnimationsListing extends EventTarget {
   private current_playing_index: number = 0
   private skeleton_type: SkeletonType = SkeletonType.Human
 
+  // retrieved from load skeleton step
+  // we will use this to scale all position animation keyframes (uniform scale)
+  private skeleton_scale: number = 1.0 
+
   private _added_event_listeners: boolean = false
 
   // Animation search functionality
@@ -82,7 +86,9 @@ export class StepAnimationsListing extends EventTarget {
     this.theme_manager = theme_manager
   }
 
-  public begin (skeleton_type: SkeletonType): void {
+  public begin (skeleton_type: SkeletonType, skeleton_scale: number): void {
+    this.skeleton_scale = skeleton_scale
+
     if (this.ui.dom_current_step_index != null) {
       this.ui.dom_current_step_index.innerHTML = '4'
     }

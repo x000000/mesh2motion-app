@@ -143,6 +143,19 @@
                             </select>
                         </div>
 
+
+                        <!-- scale skeleton to get it close to the model size -->
+                        <div style="display: flex; flex-direction: row; align-items: center;">
+                            <label style="display:inline-flex">Scale skeleton</label>
+                            <span class="material-symbols-outlined" data-tippy-content="Adjust the overall scale of the skeleton">help</span>
+                        </div>
+
+                        <div style="display: flex; flex-direction: row; gap: 1rem; justify-content: flex-start; align-items: center;">
+                            <span id="scale-skeleton-percentage-display">100%</span>
+                            <input id="scale-skeleton-input" style="flex-grow: 1;" type="range" min=".20" max="1.80" value="1.0" step="0.01" />
+                        </div>
+
+
                         <div style="display: flex; gap: 0.5rem;">
                             <button class="secondary-button" id="action_back_to_load_model" >&#x2039; Back</button>
                             <button id="load-skeleton-button">Edit Skeleton &nbsp;&#x203a;</button>
@@ -217,11 +230,11 @@
                 <hr />
 
                 <!-- add number input for changing scale of skeleton-->
-                <div style="display: flex; flex-direction: row; justify-content: space-evenly; align-items: center; gap: 0.4rem;">
+                <!-- <div style="display: flex; flex-direction: row; justify-content: space-evenly; align-items: center; gap: 0.4rem;">
                     <input type="number" id="scale-input" name="scale-input" value="-3" min="-90" max="90" step="1.0">
                     <span class="suffix-unit">%</span>
                     <button id="scale-skeleton-button" class="secondary-button" >Scale skeleton</button>
-                </div>
+                </div> -->
 
 
                 <!-- option to change out skinning algorithm -->

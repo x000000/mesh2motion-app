@@ -31,6 +31,7 @@ export class EventListeners {
       this.bootstrap.show_contributors_dialog()
     })
 
+
     // listen for view helper changes
     document.getElementById('view-control-hitbox')?.addEventListener('pointerdown', (event: PointerEvent) => {
       if (this.bootstrap.view_helper.handleClick(event)) {

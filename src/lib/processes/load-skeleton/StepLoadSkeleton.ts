@@ -16,6 +16,11 @@ export class StepLoadSkeleton extends EventTarget {
   private _added_event_listeners: boolean = false
   private readonly _main_scene: Scene
 
+  // used to help scale animations later
+  // this is useful since position keyframes will need to be scaled
+  // to prevent large offsets
+  private skeleton_scale_percentage: number = 1.0
+
   public skeleton_type (): SkeletonType {
     return this.skeleton_file_path() // this is actually the type/filepath combo
   }
@@ -183,6 +188,15 @@ export class StepLoadSkeleton extends EventTarget {
       add_preview_skeleton(this._main_scene, this.skeleton_file_path(), this.hand_skeleton_type()).catch((err) => {
         console.error('error loading preview skeleton: ', err)
       })
+    })
+
+    // scale skeleton controls
+    this.ui.dom_scale_skeleton_input?.addEventListener('input', (event) => {
+      // range sliders have rounding errors, so we round the value to avoid issues
+      this.skeleton_scale_percentage = parseFloat((event.target as HTMLInputElement).value)
+
+      const display_value: string = Math.round(this.skeleton_scale_percentage * 100).toString() + '%'
+      this.ui.dom_scale_skeleton_percentage_display!.textContent = display_value
     })
   }
 

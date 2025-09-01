@@ -171,19 +171,19 @@ export class StepEditSkeleton extends EventTarget {
       })
     }
 
-    if (this.ui.dom_scale_skeleton_button !== null && this.ui.dom_scale_skeleton_input_box !== null) {
-      this.ui.dom_scale_skeleton_button.addEventListener('click', () => {
-        // Store undo state before scaling
-        this.store_bone_state_for_undo()
+    // if (this.ui.dom_scale_skeleton_button !== null && this.ui.dom_scale_skeleton_input_box !== null) {
+    //   this.ui.dom_scale_skeleton_button.addEventListener('click', () => {
+    //     // Store undo state before scaling
+    //     this.store_bone_state_for_undo()
 
-        const modify_scale = 1.0 + (this.ui.dom_scale_skeleton_input_box.value / 100.0)
-        Utility.scale_armature_by_scalar(this.edited_armature, modify_scale)
-        this.edited_armature.updateWorldMatrix(true, true)
+    //     const modify_scale = 1.0 + (this.ui.dom_scale_skeleton_input_box.value / 100.0)
+    //     Utility.scale_armature_by_scalar(this.edited_armature, modify_scale)
+    //     this.edited_armature.updateWorldMatrix(true, true)
 
-        // Dispatch skeleton transformed event to update UI
-        this.dispatchEvent(new CustomEvent('skeletonTransformed'))
-      })
-    }
+    //     // Dispatch skeleton transformed event to update UI
+    //     this.dispatchEvent(new CustomEvent('skeletonTransformed'))
+    //   })
+    // }
 
     if (this.ui.dom_mirror_skeleton_checkbox !== null) {
       this.ui.dom_mirror_skeleton_checkbox.addEventListener('change', (event) => {
@@ -285,6 +285,7 @@ export class StepEditSkeleton extends EventTarget {
   */
   public load_original_armature_from_model (armature: Object3D): void {
     this.edited_armature = armature.clone()
+
     this.create_threejs_skeleton_object()
 
     // Initialize the undo/redo system with the skeleton

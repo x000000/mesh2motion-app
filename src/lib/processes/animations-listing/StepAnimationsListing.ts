@@ -30,7 +30,7 @@ export class StepAnimationsListing extends EventTarget {
 
   // retrieved from load skeleton step
   // we will use this to scale all position animation keyframes (uniform scale)
-  private skeleton_scale: number = 1.0 
+  private skeleton_scale: number = 1.0
 
   private _added_event_listeners: boolean = false
 
@@ -38,8 +38,8 @@ export class StepAnimationsListing extends EventTarget {
   public animation_search: AnimationSearch | null = null
 
   // -z will bring hip bone down
-  private hip_bone_offset: Vector3 = new Vector3(0, 0, 0) // -z will bring hip bone down. Helps set new base hip position
-  private hip_bone_scale_factor_z: number = 1.0 // this is used to scale the hip bone position for animations
+  // private hip_bone_offset: Vector3 = new Vector3(0, 0, 0) // -z will bring hip bone down. Helps set new base hip position
+  // private hip_bone_scale_factor_z: number = 1.0 // this is used to scale the hip bone position for animations
 
   /**
    * The amount to raise the arms.
@@ -49,33 +49,33 @@ export class StepAnimationsListing extends EventTarget {
   // the human model has a hip bone that needs position changes applied
   // This will be for animations like falling. We need to capture the offset between
   // the original position and the new position from our edited armature
-  public calculate_hip_bone_offset (original_armature: Object3D, edited_armature: Object3D): void {
-    const original_hip_bone: Bone = this.find_bone_from_armature(original_armature, 'DEF-hips')
-    const edited_hip_bone: Bone = this.find_bone_from_armature(edited_armature, 'DEF-hips')
-    this.hip_bone_offset = this.calculate_position_offset(original_hip_bone.position, edited_hip_bone.position)
+  // public calculate_hip_bone_offset (original_armature: Object3D, edited_armature: Object3D): void {
+  //   const original_hip_bone: Bone = this.find_bone_from_armature(original_armature, 'DEF-hips')
+  //   const edited_hip_bone: Bone = this.find_bone_from_armature(edited_armature, 'DEF-hips')
+  //   this.hip_bone_offset = this.calculate_position_offset(original_hip_bone.position, edited_hip_bone.position)
 
-    // calculate the scale factor for the animation clips
-    // this should take the distance between the original and edited armature
-    // and divide it by the original armature hip bone position
-    this.hip_bone_scale_factor_z = edited_hip_bone.position.z / original_hip_bone.position.z
+  //   // calculate the scale factor for the animation clips
+  //   // this should take the distance between the original and edited armature
+  //   // and divide it by the original armature hip bone position
+  //   this.hip_bone_scale_factor_z = edited_hip_bone.position.z / original_hip_bone.position.z
  
-    // small T-pose offset that somehow is getting lost
-    this.hip_bone_offset = this.hip_bone_offset.sub(new Vector3(0, 0, -0.04))
-  }
+  //   // small T-pose offset that somehow is getting lost
+  //   this.hip_bone_offset = this.hip_bone_offset.sub(new Vector3(0, 0, -0.04))
+  // }
 
-  private find_bone_from_armature (armature: Object3D, bone_name: string): Bone | null {
-    let found_bone: Bone | null = null
-    armature.traverse((object: Object3D) => {
-      if (found_bone === null && object.name === bone_name && object instanceof Bone) {
-        found_bone = object
-      }
-    })
-    return found_bone
-  }
+  // private find_bone_from_armature (armature: Object3D, bone_name: string): Bone | null {
+  //   let found_bone: Bone | null = null
+  //   armature.traverse((object: Object3D) => {
+  //     if (found_bone === null && object.name === bone_name && object instanceof Bone) {
+  //       found_bone = object
+  //     }
+  //   })
+  //   return found_bone
+  // }
 
-  private calculate_position_offset (position_1: Vector3, position_2: Vector3): Vector3 {
-    return new Vector3(position_1.x - position_2.x, position_1.y - position_2.y, position_1.z - position_2.z)
-  }
+  // private calculate_position_offset (position_1: Vector3, position_2: Vector3): Vector3 {
+  //   return new Vector3(position_1.x - position_2.x, position_1.y - position_2.y, position_1.z - position_2.z)
+  // }
 
   private has_added_event_listeners: boolean = false
 
@@ -125,8 +125,8 @@ export class StepAnimationsListing extends EventTarget {
     this.skinned_meshes_to_animate = []
     this.animation_mixer = new AnimationMixer()
     this.current_playing_index = 0
-    this.hip_bone_offset = new Vector3(0, 0, 0)
-    this.hip_bone_scale_factor_z = 1.0
+    // this.hip_bone_offset = new Vector3(0, 0, 0)
+    // this.hip_bone_scale_factor_z = 1.0
     this.animation_player.clear_animation()
   }
 
@@ -185,8 +185,8 @@ export class StepAnimationsListing extends EventTarget {
         // this mutates the cloned_anims, so no need for returning anything
         Utility.clean_track_data(cloned_anims, true)
 
-        // apply hip bone offset
-        this.apply_hip_bone_offset(cloned_anims)
+        // apply scaling to position keyframes if we scaled skeleton up or down
+        this.apply_skeleton_scale_to_position_keyframes(cloned_anims)
 
         // we did all the processing needed, so add them
         // to the full list of animation clips
@@ -238,18 +238,17 @@ export class StepAnimationsListing extends EventTarget {
     this.ui.dom_animations_listing_count.innerHTML = animation_length_string + ' animations'
   }
 
-  private apply_hip_bone_offset (animation_clips: AnimationClip[]): void {
-    // update the position keyframes for the hips bone
-    // this will be used for animations like falling
+  private apply_skeleton_scale_to_position_keyframes (animation_clips: AnimationClip[]): void {
     animation_clips.forEach((animation_clip: AnimationClip) => {
       animation_clip.tracks.forEach((track: KeyframeTrack) => {
-        if (track.name.includes('hips.position')) {
+        if (track.name.includes('.position')) {
           const values = track.values
           for (let i = 0; i < values.length; i += 3) {
-            values[i] = values[i] - this.hip_bone_offset.x
-            values[i + 1] = values[i + 1] - this.hip_bone_offset.y
-            values[i + 2] = values[i + 2] * this.hip_bone_scale_factor_z
+            values[i] *= this.skeleton_scale
+            values[i + 1] *= this.skeleton_scale
+            values[i + 2] *= this.skeleton_scale
           }
+          console.log(track.name, this.skeleton_scale, track.values)
         }
       })
     })

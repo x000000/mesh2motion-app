@@ -285,7 +285,7 @@ export class Bootstrap {
         this.process_step = ProcessStep.BindPose
         this.transform_controls.enabled = false // shouldn't be editing bones
         this.calculate_skin_weighting_for_models()
-        this.regenerate_skeleton_helper(this.weight_skin_step.skeleton())
+        // this.regenerate_skeleton_helper(this.weight_skin_step.skeleton())
         this.scene.add(...this.weight_skin_step.final_skinned_meshes()) // add final skinned mesh to scene
         this.weight_skin_step.weight_painted_mesh_group().visible = false // hide weight painted mesh
         this.process_step_changed(ProcessStep.AnimationsListing)
@@ -303,12 +303,6 @@ export class Bootstrap {
 
         // Show/hide A-Pose correction options based on skeleton type
         this.update_a_pose_options_visibility()
-
-        // calculate hip bone offset for human skeleton type
-        if (this.load_skeleton_step.skeleton_type() === SkeletonType.Human) {
-          this.animations_listing_step.calculate_hip_bone_offset(this.load_skeleton_step.armature(),
-            this.edit_skeleton_step.armature())
-        }
 
         this.animations_listing_step.load_and_apply_default_animation_to_skinned_mesh(this.weight_skin_step.final_skinned_meshes())
 

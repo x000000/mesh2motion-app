@@ -225,8 +225,27 @@ export class StepLoadSkeleton extends EventTarget {
     btn.disabled = !allow // disable when not allowed
   }
 
+  // returns a skeleton object that has been baked (applied) for scale 
   public armature (): Object3D<Object3DEventMap> {
-    return this.loaded_armature
+    return this.bake_scale_for_armature(this.loaded_armature)
+  }
+
+  // this does not mutate armature that goes in
+  // update all positions for bones and resets scale to 1
+  private bake_scale_for_armature (armature: Object3D): Object3D {
+    const scale = armature.scale.x // assumes uniform scale
+    if (scale === 1) return;
+
+    const cloned_armature: Object3D = armature.clone()
+    cloned_armature.traverse((obj) => {
+      if (obj instanceof Object3D && obj !== cloned_armature) {
+        obj.position.multiplyScalar(scale)
+      }
+    })
+    cloned_armature.scale.set(1, 1, 1)
+    cloned_armature.updateMatrixWorld(true)
+
+    return cloned_armature
   }
 
   private toggle_ui_hand_skeleton_options (): void {

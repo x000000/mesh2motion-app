@@ -234,7 +234,7 @@ export class StepLoadSkeleton extends EventTarget {
   // update all positions for bones and resets scale to 1
   private bake_scale_for_armature (armature: Object3D): Object3D {
     const scale = armature.scale.x // assumes uniform scale
-    if (scale === 1) return;
+    if (scale === 1) return armature.clone() // no changes. just return existing skeleton
 
     const cloned_armature: Object3D = armature.clone()
     cloned_armature.traverse((obj) => {

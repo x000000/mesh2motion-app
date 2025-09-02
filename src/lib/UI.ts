@@ -28,6 +28,11 @@ export class UI {
   dom_scale_skeleton_input_box: HTMLElement | null = null
   dom_move_to_origin_button: HTMLButtonElement | null = null
 
+  // scale skeleton contols
+  dom_scale_skeleton_input: HTMLInputElement | null = null
+  dom_scale_skeleton_percentage_display: HTMLElement | null = null
+  dom_scale_skeleton_controls: HTMLElement | null = null
+
   // edit skeleton UI step controls
   dom_selected_bone_label: HTMLElement | null = null
   dom_transform_type_radio_group: HTMLElement | null = null
@@ -112,11 +117,16 @@ export class UI {
     this.dom_transform_type_radio_group = document.querySelector('#transform-control-type-group')
 
     this.dom_bind_pose_button = document.querySelector('#action_bind_pose')
-    this.dom_scale_skeleton_input_box = document.querySelector('#scale-input')
+    // this.dom_scale_skeleton_input_box = document.querySelector('#scale-input')
     this.dom_move_to_origin_button = document.querySelector('#action_move_to_origin')
     this.dom_skinning_algorithm_selection = document.querySelector('#skinning-algorithm-options')
 
     this.dom_mesh_preview_group = document.querySelector('#mesh-preview-group')
+
+    // scaling the skeleton option
+    this.dom_scale_skeleton_input = document.querySelector('#scale-skeleton-input')
+    this.dom_scale_skeleton_percentage_display = document.querySelector('#scale-skeleton-percentage-display')
+    this.dom_scale_skeleton_controls = document.querySelector('#scale-skeleton-controls')
 
     // UI controls for working with skinned mesh
     this.dom_skinned_mesh_tools = document.querySelector('#skinned-step-tools')

@@ -10,7 +10,8 @@ const skeleton_group_name: string = 'preview_skeleton_group'
 // need a function that will add a preview skeleton to the scene
 // this will remove any existing preview skeleton first
 // and then add the new one based on the selected type
-export async function add_preview_skeleton (root: Scene, skeleton_file_path: SkeletonType, hand_skeleton_type: HandSkeletonType): Promise<Object3D<Object3DEventMap>> {
+export async function add_preview_skeleton (root: Scene, skeleton_file_path: SkeletonType, 
+  hand_skeleton_type: HandSkeletonType, skeleton_scale: number = 1.0): Promise<Object3D<Object3DEventMap>> {
   remove_preview_skeleton(root)
 
   // create new group for the preview skeleton
@@ -25,7 +26,7 @@ export async function add_preview_skeleton (root: Scene, skeleton_file_path: Ske
   // we can only see the skeleton helper, so jwe will add that to the group
   const loaded_scene: Object3D<Object3DEventMap> = await load_skeleton(skeleton_file_path)
 
-  console.log('loaded skeleton file path: ', loaded_scene, hand_skeleton_type)
+  // console.log('loaded skeleton file path: ', loaded_scene, hand_skeleton_type)
 
   // skeleton customization options here. Right now only for humans and hands
   if (skeleton_file_path === SkeletonType.Human) {
@@ -38,6 +39,11 @@ export async function add_preview_skeleton (root: Scene, skeleton_file_path: Ske
   const skeleton_helper = new SkeletonHelper(loaded_scene.children[0])
   skeleton_helper.name = 'preview_skeleton'
   preview_skeleton_group.add(skeleton_helper)
+
+  // apply skeleton scaling
+  preview_skeleton_group.scale.set(skeleton_scale, skeleton_scale, skeleton_scale)
+
+  // finally add the preview skeleton group to the final scene
   root.add(preview_skeleton_group)
   return loaded_scene
 }

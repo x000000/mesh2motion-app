@@ -61,8 +61,6 @@ export class HandHelper {
         bone.parent.remove(bone)
       }
     })
-
-    console.log(`Modified hand skeleton: ${hand_type}, removed ${bones_to_remove.length} bones`)
   }
 
   private is_hand_bone (bone_name: string): boolean {

@@ -13,6 +13,7 @@ export class EventListeners {
     })
 
     // Listen for skeleton transformation events to update UI and visuals
+    // this can happen with undo/redo system
     this.bootstrap.edit_skeleton_step.addEventListener('skeletonTransformed', () => {
       // Update skeleton helper if it exists
       if (this.bootstrap.skeleton_helper !== undefined) {
@@ -30,6 +31,7 @@ export class EventListeners {
       event.preventDefault()
       this.bootstrap.show_contributors_dialog()
     })
+
 
     // listen for view helper changes
     document.getElementById('view-control-hitbox')?.addEventListener('pointerdown', (event: PointerEvent) => {
@@ -93,7 +95,7 @@ export class EventListeners {
 
     // rotate model after loading it in to orient it correctly
     this.bootstrap.ui.dom_rotate_model_x_button?.addEventListener('click', () => {
-  this.bootstrap.load_model_step.rotate_model_geometry('x', 90)
+      this.bootstrap.load_model_step.rotate_model_geometry('x', 90)
     })
 
     this.bootstrap.ui.dom_rotate_model_y_button?.addEventListener('click', () => {

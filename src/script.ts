@@ -208,9 +208,32 @@ export class Bootstrap {
     this.debugging_visual_object.add(error_markers)
   }
 
+  private update_current_process_step (process_step: ProcessStep): void {
+    switch (process_step) {
+      case ProcessStep.LoadModel:
+        this.process_step = ProcessStep.LoadModel
+        break
+      case ProcessStep.LoadSkeleton:
+        this.process_step = ProcessStep.LoadSkeleton
+        break
+      case ProcessStep.EditSkeleton:
+        this.process_step = ProcessStep.EditSkeleton
+        break
+      case ProcessStep.BindPose:
+        this.process_step = ProcessStep.BindPose
+        break
+      case ProcessStep.AnimationsListing:
+        this.process_step = ProcessStep.AnimationsListing
+        break
+    }
+  }
+
   public process_step_changed (process_step: ProcessStep): ProcessStep {
     // we will have the current step turn on the UI elements it needs
     this.ui.hide_all_elements()
+
+    // update the current process step variable
+    this.update_current_process_step(process_step)
 
     // clean up things related to steps in since we can navigate back and forth
     this.edit_skeleton_step.cleanup_on_exit_step()
@@ -225,100 +248,101 @@ export class Bootstrap {
       }
     }
 
-    switch (process_step) {
-      case ProcessStep.LoadModel:
-        // reset the state in the case of coming back to this step
-        if (this.load_model_step.model_meshes() !== undefined) {
-          const imported_model = this.scene.getObjectByName('Imported Model')
-          if (imported_model !== null) {
-            this.scene.remove(imported_model)
-          }
+    /**********
+     * MAIN PROCESS FLOW LOGIC
+     *********/
+    if (this.process_step === ProcessStep.LoadModel) {
+      // reset the state in the case of coming back to this step
+      if (this.load_model_step.model_meshes() !== undefined) {
+        const imported_model = this.scene.getObjectByName('Imported Model')
+        if (imported_model !== null) {
+          this.scene.remove(imported_model)
         }
+      }
 
-        process_step = ProcessStep.LoadModel
-        this.load_model_step.begin()
-        break
-      case ProcessStep.LoadSkeleton:
-        // add event listener. TODO: put this in the load skeleton process step
-        this.load_skeleton_step.addEventListener('skeletonLoaded', () => {
-          this.edit_skeleton_step.load_original_armature_from_model(this.load_skeleton_step.armature())
-          this.process_step = this.process_step_changed(ProcessStep.EditSkeleton)
-        })
+      this.load_model_step.begin()
+    }
 
-        // if skeleton helper existed because we are going back to this
-        if (this.skeleton_helper !== undefined) {
-          this.scene.remove(this.skeleton_helper)
-        }
+    if (this.process_step === ProcessStep.LoadSkeleton) {
+      // add event listener. TODO: put this in the load skeleton process step
+      this.load_skeleton_step.addEventListener('skeletonLoaded', () => {
+        this.edit_skeleton_step.load_original_armature_from_model(this.load_skeleton_step.armature())
+        this.process_step = this.process_step_changed(ProcessStep.EditSkeleton)
+      })
 
-        // need to change the texture display to normal material in
-        this.mesh_preview_display_type = ModelPreviewDisplay.Textured
-        this.changed_model_preview_display(this.mesh_preview_display_type)
+      // if skeleton helper existed because we are going back to this
+      if (this.skeleton_helper !== undefined) {
+        this.scene.remove(this.skeleton_helper)
+      }
 
-        // initializing all the load skeleton step stuff
-        this.scene.add(this.load_model_step.model_meshes())
-        process_step = ProcessStep.LoadSkeleton
+      // need to change the texture display to normal material in
+      this.mesh_preview_display_type = ModelPreviewDisplay.Textured
+      this.changed_model_preview_display(this.mesh_preview_display_type)
 
-        // we generate a preview skeleton on this step, and we don't want
-        // the user to start trying to edit the skeleton at this point
-        this.transform_controls.enabled = false
+      // initializing all the load skeleton step stuff
+      this.scene.add(this.load_model_step.model_meshes())
 
-        // finish initialization and add origin markers
-        // this needs to happen at the end since it is expecting the mesh data
-        this.load_skeleton_step.begin()
-        break
-      case ProcessStep.EditSkeleton:
-        this.load_skeleton_step?.dispose()
+      // we generate a preview skeleton on this step, and we don't want
+      // the user to start trying to edit the skeleton at this point
+      this.transform_controls.enabled = false
 
-        this.regenerate_skeleton_helper(this.edit_skeleton_step.skeleton())
-        process_step = ProcessStep.EditSkeleton
-        this.edit_skeleton_step.begin()
-        this.edit_skeleton_step.setup_scene(this.scene)
-        this.transform_controls.enabled = true
-        this.transform_controls.setMode(this.transform_controls_type) // 'translate', 'rotate'
+      // finish initialization and add origin markers
+      // this needs to happen at the end since it is expecting the mesh data
+      this.load_skeleton_step.begin()
+    }
 
-        this.skeleton_helper?.setJointsVisible(true)
+    if (this.process_step === ProcessStep.EditSkeleton) {
+      this.load_skeleton_step?.dispose()
 
-        this.mesh_preview_display_type = ModelPreviewDisplay.WeightPainted
-        this.changed_model_preview_display(this.mesh_preview_display_type) // show weight painted mesh by default
-        break
-      case ProcessStep.BindPose:
-        this.process_step = ProcessStep.BindPose
-        this.transform_controls.enabled = false // shouldn't be editing bones
-        this.calculate_skin_weighting_for_models()
-        this.scene.add(...this.weight_skin_step.final_skinned_meshes()) // add final skinned mesh to scene
-        this.weight_skin_step.weight_painted_mesh_group().visible = false // hide weight painted mesh
-        this.process_step_changed(ProcessStep.AnimationsListing)
-        break
-      case ProcessStep.AnimationsListing:
-        this.process_step = ProcessStep.AnimationsListing
-        this.animations_listing_step.begin(this.load_skeleton_step.skeleton_type(), this.load_skeleton_step.skeleton_scale())
+      this.regenerate_skeleton_helper(this.edit_skeleton_step.skeleton())
+      process_step = ProcessStep.EditSkeleton
+      this.edit_skeleton_step.begin()
+      this.edit_skeleton_step.setup_scene(this.scene)
+      this.transform_controls.enabled = true
+      this.transform_controls.setMode(this.transform_controls_type) // 'translate', 'rotate'
 
-        // update reference of skeleton helper to use the final skinned mesh
-        this.regenerate_skeleton_helper(this.weight_skin_step.skeleton())
-        this.skeleton_helper?.setJointsVisible(false) // no need to show joints during
+      this.skeleton_helper?.setJointsVisible(true)
 
-        // hide skeleton by default in animations listing step
-        if (this.ui.dom_show_skeleton_checkbox !== null) {
-          this.ui.dom_show_skeleton_checkbox.checked = false
-        }
+      this.mesh_preview_display_type = ModelPreviewDisplay.WeightPainted
+      this.changed_model_preview_display(this.mesh_preview_display_type) // show weight painted mesh by default
+    }
 
-        // Show/hide A-Pose correction options based on skeleton type
-        this.update_a_pose_options_visibility()
+    if (this.process_step === ProcessStep.BindPose) {
+      this.transform_controls.enabled = false // shouldn't be editing bones
+      this.calculate_skin_weighting_for_models()
+      this.scene.add(...this.weight_skin_step.final_skinned_meshes()) // add final skinned mesh to scene
+      this.weight_skin_step.weight_painted_mesh_group().visible = false // hide weight painted mesh
+      this.process_step_changed(ProcessStep.AnimationsListing)
+    }
 
-        this.animations_listing_step.load_and_apply_default_animation_to_skinned_mesh(this.weight_skin_step.final_skinned_meshes())
+    if (this.process_step === ProcessStep.AnimationsListing) {
+      this.process_step = ProcessStep.AnimationsListing
+      this.animations_listing_step.begin(this.load_skeleton_step.skeleton_type(), this.load_skeleton_step.skeleton_scale())
 
-        if (this.skeleton_helper !== undefined) {
-          this.skeleton_helper.hide() // hide skeleton helper in animations listing step
-        }
+      // update reference of skeleton helper to use the final skinned mesh
+      this.regenerate_skeleton_helper(this.weight_skin_step.skeleton())
+      this.skeleton_helper?.setJointsVisible(false) // no need to show joints during
 
-        break
+      // hide skeleton by default in animations listing step
+      if (this.ui.dom_show_skeleton_checkbox !== null) {
+        this.ui.dom_show_skeleton_checkbox.checked = false
+      }
+
+      // Show/hide A-Pose correction options based on skeleton type
+      this.update_a_pose_options_visibility()
+
+      this.animations_listing_step.load_and_apply_default_animation_to_skinned_mesh(this.weight_skin_step.final_skinned_meshes())
+
+      if (this.skeleton_helper !== undefined) {
+        this.skeleton_helper.hide() // hide skeleton helper in animations listing step
+      }
     }
 
     // when we change steps, we are re-creating the skeleeton and helper
     // so the current transform control reference will be lost/give an error
     this.transform_controls.detach()
 
-    return process_step
+    return this.process_step
   } // end process_step_changed()
 
   private animate (): void {

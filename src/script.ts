@@ -250,6 +250,8 @@ export class Bootstrap {
 
     /**********
      * MAIN PROCESS FLOW LOGIC
+     * I am doing else if here since the bindpose step changes the step at the end
+     * we don't want to trigger the animation listing too early since it is the case after
      *********/
     if (this.process_step === ProcessStep.LoadModel) {
       // reset the state in the case of coming back to this step
@@ -262,8 +264,7 @@ export class Bootstrap {
 
       this.load_model_step.begin()
     }
-
-    if (this.process_step === ProcessStep.LoadSkeleton) {
+    else if (this.process_step === ProcessStep.LoadSkeleton) {
       // add event listener. TODO: put this in the load skeleton process step
       this.load_skeleton_step.addEventListener('skeletonLoaded', () => {
         this.edit_skeleton_step.load_original_armature_from_model(this.load_skeleton_step.armature())
@@ -290,8 +291,7 @@ export class Bootstrap {
       // this needs to happen at the end since it is expecting the mesh data
       this.load_skeleton_step.begin()
     }
-
-    if (this.process_step === ProcessStep.EditSkeleton) {
+    else if (this.process_step === ProcessStep.EditSkeleton) {
       this.load_skeleton_step?.dispose()
 
       this.regenerate_skeleton_helper(this.edit_skeleton_step.skeleton())
@@ -306,16 +306,14 @@ export class Bootstrap {
       this.mesh_preview_display_type = ModelPreviewDisplay.WeightPainted
       this.changed_model_preview_display(this.mesh_preview_display_type) // show weight painted mesh by default
     }
-
-    if (this.process_step === ProcessStep.BindPose) {
+    else if (this.process_step === ProcessStep.BindPose) {
       this.transform_controls.enabled = false // shouldn't be editing bones
       this.calculate_skin_weighting_for_models()
       this.scene.add(...this.weight_skin_step.final_skinned_meshes()) // add final skinned mesh to scene
       this.weight_skin_step.weight_painted_mesh_group().visible = false // hide weight painted mesh
       this.process_step_changed(ProcessStep.AnimationsListing)
     }
-
-    if (this.process_step === ProcessStep.AnimationsListing) {
+    else if (this.process_step === ProcessStep.AnimationsListing) {
       this.process_step = ProcessStep.AnimationsListing
       this.animations_listing_step.begin(this.load_skeleton_step.skeleton_type(), this.load_skeleton_step.skeleton_scale())
 
@@ -485,10 +483,6 @@ export class Bootstrap {
     // when we have are in the "Weight Painted" display mode
     this.weight_skin_step.calculate_weights_for_all_mesh_data(true)
 
-    // TODO: maybe way to update references instead of removing and adding?
-    // this.remove_skinned_meshes_from_scene() // clear any existing skinned meshes in the scene
-    // this.scene.add(...this.weight_skin_step.final_skinned_meshes())
-
     // remember our skeleton position before we do the skinning process
     // that way if we revert to try again...we will have the original positions/rotations
     this.load_model_step.model_meshes().visible = false // hide our unskinned mesh after we have done the skinning process
@@ -496,16 +490,7 @@ export class Bootstrap {
     // re-define skeleton helper to use the skinned mesh)
     if (this.weight_skin_step.skeleton() === undefined) {
       console.warn('Tried to regenerate skeleton helper, but skeleton is undefined!')
-      return
     }
-
-    // we might want to test out the binding algorithm to see various hitboxes
-    // if we are doing debugging, go to that view, if no debugging, go straight to thd animation listing step
-    if (this.edit_skeleton_step.show_debugging()) {
-      return
-    }
-
-    console.log('What does our scene look like after we are done skinning:', this.scene)
   }
 
   public test_bone_weighting_success (): boolean {

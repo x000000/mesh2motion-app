@@ -145,14 +145,15 @@
 
 
                         <!-- scale skeleton to get it close to the model size -->
-                        <div style="display: flex; flex-direction: row; align-items: center;">
-                            <label style="display:inline-flex">Scale skeleton</label>
-                            <span class="material-symbols-outlined" data-tippy-content="Adjust the overall scale of the skeleton">help</span>
-                        </div>
-
-                        <div style="display: flex; flex-direction: row; gap: 1rem; justify-content: flex-start; align-items: center;">
-                            <span id="scale-skeleton-percentage-display">100%</span>
-                            <input id="scale-skeleton-input" style="flex-grow: 1;" type="range" min=".20" max="1.80" value="1.0" step="0.01" />
+                         <div id="scale-skeleton-controls" style="display: none; flex-direction: column;">
+                            <div style="display: flex; flex-direction: row; align-items: center;">
+                                <label style="display:inline-flex">Scale skeleton</label>
+                                <span class="material-symbols-outlined" data-tippy-content="Adjust the overall scale of the skeleton">help</span>
+                            </div>
+                            <div style="display: flex; flex-direction: row; gap: 1rem; justify-content: flex-start; align-items: center;">
+                                <span id="scale-skeleton-percentage-display">100%</span>
+                                <input id="scale-skeleton-input" style="flex-grow: 1;" type="range" min=".20" max="1.80" value="1.0" step="0.01" />
+                            </div>
                         </div>
 
 

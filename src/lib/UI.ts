@@ -31,6 +31,7 @@ export class UI {
   // scale skeleton contols
   dom_scale_skeleton_input: HTMLInputElement | null = null
   dom_scale_skeleton_percentage_display: HTMLElement | null = null
+  dom_scale_skeleton_controls: HTMLElement | null = null
 
   // edit skeleton UI step controls
   dom_selected_bone_label: HTMLElement | null = null
@@ -125,6 +126,7 @@ export class UI {
     // scaling the skeleton option
     this.dom_scale_skeleton_input = document.querySelector('#scale-skeleton-input')
     this.dom_scale_skeleton_percentage_display = document.querySelector('#scale-skeleton-percentage-display')
+    this.dom_scale_skeleton_controls = document.querySelector('#scale-skeleton-controls')
 
     // UI controls for working with skinned mesh
     this.dom_skinned_mesh_tools = document.querySelector('#skinned-step-tools')

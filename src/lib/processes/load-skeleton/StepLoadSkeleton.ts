@@ -120,8 +120,8 @@ export class StepLoadSkeleton extends EventTarget {
     if (this.ui.dom_skeleton_drop_type !== null) {
       this.ui.dom_skeleton_drop_type.addEventListener('change', () => {
         // get selected value from skeleton options
-        const skeleton_selection = this.ui.dom_skeleton_drop_type.options
-        this.skeleton_t = skeleton_selection[skeleton_selection.selectedIndex].value as SkeletonType
+        // const skeleton_selection = this.ui.dom_skeleton_drop_type.options
+        // this.skeleton_t = skeleton_selection[skeleton_selection.selectedIndex].value as SkeletonType
 
         // hand options only apply to human skeletons, so we need to show/hide when skeleton type changes
         this.toggle_ui_hand_skeleton_options()
@@ -130,6 +130,9 @@ export class StepLoadSkeleton extends EventTarget {
         if (this.has_select_skeleton_ui_option()) {
           this.ui.dom_skeleton_drop_type?.options.remove(0)
         }
+
+        // show the scale skeleton options in case they are hidden
+        this.ui.dom_scale_skeleton_controls!.style.display = 'flex'
 
         // load the preview skeleton
         // need to get the file name for the correct skeleton

@@ -133,7 +133,8 @@ export class StepLoadSkeleton extends EventTarget {
 
         // load the preview skeleton
         // need to get the file name for the correct skeleton
-        add_preview_skeleton(this._main_scene, this.skeleton_file_path(), this.hand_skeleton_type()).then(() => {
+        // we pass the skeleton scale in the case where we set a skeleton, change scale, then change the skeleton
+        add_preview_skeleton(this._main_scene, this.skeleton_file_path(), this.hand_skeleton_type(), this.skeleton_scale()).then(() => {
           // enable the ability to progress to next step
           this.allow_proceeding_to_next_step(true)
         }).catch((err) => {
@@ -195,7 +196,8 @@ export class StepLoadSkeleton extends EventTarget {
     // when hand skeleton type changes. update the preview skeleton
     this.ui.dom_hand_skeleton_selection?.addEventListener('change', () => {
       // rebuild the preview skeleton with the new hand skeleton type
-      add_preview_skeleton(this._main_scene, this.skeleton_file_path(), this.hand_skeleton_type()).catch((err) => {
+      // make sure we keep existing scale if we made a change to that
+      add_preview_skeleton(this._main_scene, this.skeleton_file_path(), this.hand_skeleton_type(), this.skeleton_scale()).catch((err) => {
         console.error('error loading preview skeleton: ', err)
       })
     })

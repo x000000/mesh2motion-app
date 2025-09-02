@@ -285,7 +285,6 @@ export class Bootstrap {
         this.process_step = ProcessStep.BindPose
         this.transform_controls.enabled = false // shouldn't be editing bones
         this.calculate_skin_weighting_for_models()
-        // this.regenerate_skeleton_helper(this.weight_skin_step.skeleton())
         this.scene.add(...this.weight_skin_step.final_skinned_meshes()) // add final skinned mesh to scene
         this.weight_skin_step.weight_painted_mesh_group().visible = false // hide weight painted mesh
         this.process_step_changed(ProcessStep.AnimationsListing)
@@ -294,7 +293,9 @@ export class Bootstrap {
         this.process_step = ProcessStep.AnimationsListing
         this.animations_listing_step.begin(this.load_skeleton_step.skeleton_type(), this.load_skeleton_step.skeleton_scale())
 
-        this.skeleton_helper?.setJointsVisible(false)
+        // update reference of skeleton helper to use the final skinned mesh
+        this.regenerate_skeleton_helper(this.weight_skin_step.skeleton())
+        this.skeleton_helper?.setJointsVisible(false) // no need to show joints during
 
         // hide skeleton by default in animations listing step
         if (this.ui.dom_show_skeleton_checkbox !== null) {

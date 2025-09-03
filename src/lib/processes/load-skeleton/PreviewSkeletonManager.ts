@@ -4,7 +4,6 @@ import type GLTFResult from './interfaces/GLTFResult'
 import { type HandSkeletonType, SkeletonType } from '../../enums/SkeletonType'
 import { HandHelper } from './HandHelper'
 
-
 const skeleton_group_name: string = 'preview_skeleton_group'
 
 // need a function that will add a preview skeleton to the scene
@@ -14,13 +13,12 @@ export async function add_preview_skeleton (root: Scene, skeleton_file_path: Ske
   hand_skeleton_type: HandSkeletonType, skeleton_scale: number = 1.0): Promise<Object3D<Object3DEventMap>> {
   remove_preview_skeleton(root)
 
-  // create new group for the preview skeleton
-  let preview_skeleton_group = root.getObjectByName(skeleton_group_name) as Group
-  if (!preview_skeleton_group) {
-    preview_skeleton_group = new Group()
-    preview_skeleton_group.name = skeleton_group_name
-    root.add(preview_skeleton_group)
-  }
+  // always create a new group for the preview skeleton
+  // checking if a preview skeleton exist before occasionally
+  // caused duplicate skeletons to appear on the scene
+  const preview_skeleton_group = new Group()
+  preview_skeleton_group.name = skeleton_group_name
+  root.add(preview_skeleton_group)
 
   // need some logic to load the actual skeleton based on the type
   // we can only see the skeleton helper, so jwe will add that to the group

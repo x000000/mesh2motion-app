@@ -149,6 +149,13 @@ export class AnimationSearch extends EventTarget {
         case SkeletonType.Bird:
           preview_folder = 'bird'
           break
+        case SkeletonType.Dragon:
+          preview_folder = 'dragon'
+          break
+        default:
+          preview_folder = 'error'
+          console.error('Unknown skeleton type for animation previews. Update AnimationSearch.ts switch statement.')
+          break
       }
 
       const anim_name: string = animation_clip.name

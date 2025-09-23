@@ -1,5 +1,5 @@
 import { UI } from '../../UI.ts'
-import { ZipGLTFLoader } from './ZipGLTFLoader.ts'
+import { ModelZipLoader } from './ModelZipLoader.ts'
 import { Box3 } from 'three/src/math/Box3.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js'
@@ -162,6 +162,7 @@ export class StepLoadModel extends EventTarget {
         this.process_loaded_scene(loaded_scene)
       })
     } else if (file_extension === 'zip') {
+      console.log('ZIP file can contain GLTF+BIN model data')
       this.handle_zip_file(model_file_path)
     } else {
       console.error('Unsupported file format to load. Only acccepts FBX, (ZIP)GLTF+BIN, GLB:', model_file_path)
@@ -173,32 +174,37 @@ export class StepLoadModel extends EventTarget {
    * supporting both data URLs and ArrayBuffer input.
    */
   private handle_zip_file (model_file_path: string | ArrayBuffer | null): void {
-    // Handle loading a ZIP file with GLTF data inside it
-    const handle_zip = (buffer: ArrayBuffer): void => {
-      const zip_loader = new ZipGLTFLoader(this.gltf_loader)
-      zip_loader.load_from_zip(buffer, (scene) => {
-        this.process_loaded_scene(scene) // loaded successfully...continue
-      }, (err: Error) => {
-        console.error('Failed to load GLTF from ZIP:', err)
-        new ModalDialog('Failed to load GLTF from ZIP: ', err?.message || err).show()
-      }).catch((err: Error) => {
-        console.error('Error loading ZIP:', err)
-        new ModalDialog('Error loading ZIP: ', err?.message || err).show()
-      })
+    const zip_loader = new ModelZipLoader()
+
+    // internal async function that loads the ZIP from an ArrayBuffer
+    const handle_zip = async (buffer: ArrayBuffer): Promise<void> => {
+      try {
+        const scene = await zip_loader.loadModelFromZip(buffer)
+        console.log('Model loaded from ZIP:', scene)
+        this.process_loaded_scene(scene)
+      } catch (err) {
+        // if no GLTF file found, or other error, show dialog
+        console.error('Failed to load model from ZIP:', err)
+        new ModalDialog('Failed to load model from ZIP: ', err?.message || err).show()
+      }
     }
 
-    // support both data URLs
+    // load in the zip and send the array buffer data to the loader
     if (typeof model_file_path === 'string' && model_file_path.startsWith('data:')) {
       fetch(model_file_path)
-        .then(async res => await res.arrayBuffer())
-        .then(buffer => { handle_zip(buffer) })
-        .catch((err: Error) => {
+        .then(async res => await res.arrayBuffer()) // convert to ArrayBuffer for processing
+        .then(buffer => handle_zip(buffer).catch((err) => {
+          const msg = (err && typeof err === 'object' && 'message' in err) ? err.message : String(err)
+          console.error('Failed to load model from ZIP:', err)
+          new ModalDialog('Failed to load model from ZIP: ', msg).show()
+        }))
+        .catch((err) => {
+          const msg = (err && typeof err === 'object' && 'message' in err) ? err.message : String(err)
           console.error('Failed to fetch ZIP data:', err)
-          new ModalDialog('Failed to fetch ZIP data: ', err?.message || err).show()
+          new ModalDialog('Failed to fetch ZIP data: ', msg).show()
         })
-    } else if (model_file_path instanceof ArrayBuffer) {
-      handle_zip(model_file_path)
     } else {
+      // ZIP file is corrupted??
       const msg = 'ZIP file data is not in a supported format'
       console.error(msg)
       new ModalDialog('ZIP file error decompressing: ', msg).show()

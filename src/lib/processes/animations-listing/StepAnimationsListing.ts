@@ -5,7 +5,8 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
 import {
   type AnimationClip, AnimationMixer, Quaternion, Vector3, type SkinnedMesh, type QuaternionKeyframeTrack,
-  type KeyframeTrack, type AnimationAction, type Object3D, Bone
+  type KeyframeTrack, type AnimationAction, type Object3D, Bone,
+  Skeleton
 } from 'three'
 
 import { SkeletonType } from '../../enums/SkeletonType.ts'
@@ -125,6 +126,11 @@ export class StepAnimationsListing extends EventTarget {
       case SkeletonType.Bird:
         animations_to_load_filepaths = ['animations/bird-animations.glb']
         break
+      case SkeletonType.Dragon:
+        animations_to_load_filepaths = ['animations/dragon-animations.glb']
+        break
+      default:
+        console.error('Unknown skeleton type for loading animations. Add GLB file to animation listing process')
     }
 
     this.gltf_animation_loader = new GLTFLoader()

@@ -1,6 +1,7 @@
 import {
   Vector3, Group, Raycaster, type Bone, Mesh,
-  MeshBasicMaterial, DoubleSide
+  MeshBasicMaterial, DoubleSide,
+  BufferAttribute
 } from 'three'
 
 import { Utility } from '../Utilities.js'
@@ -14,10 +15,27 @@ import { Generators } from '../Generators.js'
   * This adds extra logic to target ares in the arms and hips to help with assigning weights
  */
 export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver {
+  /**
+   * Returns an array of vertex indices whose weights do not sum to 1.0 (within a small epsilon).
+   */
+  public find_vertices_with_incorrect_weight_sum (skin_weights: number[]): number[] {
+    const epsilon: number = 1e-4 // very small number to signify close enough to 0
+    const incorrect_vertices: number[] = []
+    const vertex_count = this.geometry_vertex_count()
+    for (let i = 0; i < vertex_count; i++) {
+      const offset = i * 4
+      const sum = skin_weights[offset] + skin_weights[offset + 1] + skin_weights[offset + 2] + skin_weights[offset + 3]
+      if (Math.abs(sum - 1.0) > epsilon) {
+        incorrect_vertices.push(i)
+      }
+    }
+    return incorrect_vertices
+  }
+
   private readonly points_to_show_for_debugging: Vector3[] = []
 
   // cache objects to help speed up calculations
-  private cached_bone_positions: Vector3[] = [] // bone positions don't change
+  // private cached_bone_positions: Vector3[] = [] // bone positions don't change
   private cached_median_child_bone_positions: Vector3[] = [] // position between bone and its child
 
   private readonly bone_object_to_index = new Map<Bone, number>() // map to get the index of the bone object
@@ -26,6 +44,108 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
   // each index will be a bone index. the value will be a list of vertex indices that belong to that bone
   private readonly bones_vertex_segmentation: number[][] = []
 
+  /**
+   * Builds a spatial adjacency map for the mesh vertices using geometry's index (faces).
+   * Returns an array of Sets, where each Set contains the indices of neighboring vertices.
+   * This is important for operations like smoothing
+   */
+  private build_vertex_adjacency (): Array<Set<number>> {
+    const vertex_count = this.geometry_vertex_count()
+
+    // Initialize adjacency list
+    // Each vertex will have a set of neighboring vertices
+    const adjacency: Array<Set<number>> = Array.from({ length: vertex_count }, () => new Set<number>())
+
+    const index_attribute: BufferAttribute | null = this.geometry.index // This contains list of a faces
+    if (index_attribute === null) return adjacency // No faces, fallback to empty adjacency
+
+    const indices = index_attribute.array
+    for (let i = 0; i < indices.length; i += 3) {
+      const a = indices[i]; const b = indices[i + 1]; const c = indices[i + 2]
+      adjacency[a].add(b); adjacency[a].add(c)
+      adjacency[b].add(a); adjacency[b].add(c)
+      adjacency[c].add(a); adjacency[c].add(b)
+    }
+    return adjacency
+  }
+
+  /**
+     * Smooths skin weights at the boundary between bone influences using spatial adjacency.
+     * When a joint change occurs, it is a sharp transition since first skinning pass only assigns 100% to one bone.
+     * For each vertex, if a (spatial) neighbor has a different primary bone and both have 100% influence,
+     * blend their weights to 50/50 between the two bones.
+     */
+  private smooth_bone_weight_boundaries (skin_indices: number[], skin_weights: number[]): void {
+    const vertex_count = this.geometry_vertex_count()
+    const adjacency = this.build_vertex_adjacency()
+    const visited = new Set<string>()
+
+    // Build a map of shared vertices (those with identical positions)
+    const position_to_indices = new Map<string, number[]>()
+    for (let i = 0; i < vertex_count; i++) {
+      const pos = this.geometry.attributes.position
+      const x = pos.getX(i); const y = pos.getY(i); const z = pos.getZ(i)
+      const key = `${x.toFixed(6)},${y.toFixed(6)},${z.toFixed(6)}`
+      if (!position_to_indices.has(key)) position_to_indices.set(key, [])
+      position_to_indices.get(key)!.push(i)
+    }
+
+    // Iterate through each vertex and its neighbors
+    // looking for rigid 100% weight vertices that are next to other rigid 100% weight vertices
+    // and blend their weights to 50/50 between the two bones
+    // poor man's blending by the joint areas so it is less rigid
+    for (let i = 0; i < vertex_count; i++) {
+      const offsetA = i * 4
+      const boneA = skin_indices[offsetA]
+      const weightA = skin_weights[offsetA]
+      if (weightA !== 1.0) continue
+      for (const j of adjacency[i]) {
+        const offsetB = j * 4
+        const boneB = skin_indices[offsetB]
+        const weightB = skin_weights[offsetB]
+        if (boneA === boneB || weightB !== 1.0) continue
+        // Only blend once per pair
+        const key = i < j ? `${i},${j}` : `${j},${i}`
+        if (visited.has(key)) continue
+        visited.add(key)
+
+        // Find all shared vertices for i and j
+        const posA = this.geometry.attributes.position
+        const xA = posA.getX(i); const yA = posA.getY(i); const zA = posA.getZ(i)
+        const shared_keyA = `${xA.toFixed(6)},${yA.toFixed(6)},${zA.toFixed(6)}`
+        const sharedA = position_to_indices.get(shared_keyA) || [i]
+
+        const xB = posA.getX(j); const yB = posA.getY(j); const zB = posA.getZ(j)
+        const shared_keyB = `${xB.toFixed(6)},${yB.toFixed(6)},${zB.toFixed(6)}`
+        const sharedB = position_to_indices.get(shared_keyB) || [j]
+
+        // Blend all shared vertices for i and j
+        for (const idx of sharedA) {
+          const off = idx * 4
+          skin_indices[off + 0] = boneA
+          skin_indices[off + 1] = boneB
+          skin_weights[off + 0] = 0.5
+          skin_weights[off + 1] = 0.5
+          skin_indices[off + 2] = 0
+          skin_indices[off + 3] = 0
+          skin_weights[off + 2] = 0
+          skin_weights[off + 3] = 0
+        }
+        for (const idx of sharedB) {
+          const off = idx * 4
+          skin_indices[off + 0] = boneB
+          skin_indices[off + 1] = boneA
+          skin_weights[off + 0] = 0.5
+          skin_weights[off + 1] = 0.5
+          skin_indices[off + 2] = 0
+          skin_indices[off + 3] = 0
+          skin_weights[off + 2] = 0
+          skin_weights[off + 3] = 0
+        }
+      }
+    }
+  }
+
   public calculate_indexes_and_weights (): number[][] {
     // There can be multiple objects that need skinning, so
     // this will make sure we have a clean slate by putting it in function
@@ -33,20 +153,15 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
     const skin_weights: number[] = []
 
     // create cached items for all the vertex calculations later
-    this.cached_bone_positions = this.get_bone_master_data().map(b => Utility.world_position_from_object(b))
+    // this.cached_bone_positions = this.get_bone_master_data().map(b => Utility.world_position_from_object(b))
     this.cached_median_child_bone_positions = this.get_bone_master_data().map(b => this.midpoint_to_child(b))
 
     this.get_bone_master_data().forEach((b, idx) => this.bone_object_to_index.set(b, idx))
     this.distance_to_bottom_of_hip = this.calculate_distance_to_bottom_of_hip()
 
     console.time('calculate_closest_bone_weights')
-    // add more blended weighting for non-human meshes for better deformation
-    if (this.skeleton_type === SkeletonType.Human || this.skeleton_type === SkeletonType.Quadraped) {
-      // mutates (assigns) skin_indices and skin_weights
-      this.calculate_median_bone_weights(skin_indices, skin_weights)
-    } else {
-      this.calculate_bone_segment_weights(skin_indices, skin_weights)
-    }
+    this.calculate_median_bone_weights(skin_indices, skin_weights)
+    this.smooth_bone_weight_boundaries(skin_indices, skin_weights)
     console.timeEnd('calculate_closest_bone_weights')
 
     if (this.show_debug) {
@@ -54,103 +169,36 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
       this.points_to_show_for_debugging.length = 0 // Clear the points after adding to the scene
     }
 
+    // find out if any weights aren't adding up to 1.0
+    // go through each incorrect weight influence. Fill in the 0.00 weight with the remaining weght so
+    // all the weights add up to 1.0
+    this.normalize_weights_with_incorrect_vertices(skin_weights)
+
+    console.log('do we have any leftover incorrect weights ', this.find_vertices_with_incorrect_weight_sum(skin_weights))
+
     return [skin_indices, skin_weights]
   }
 
-  private calculate_bone_segment_weights (skin_indices: number[], skin_weights: number[]): void {
-    const bone_count: number = this.get_bone_master_data().length
-    const number_influence_bones: number = 4 // number of bones to blend
+  private normalize_weights_with_incorrect_vertices (all_skin_weights: number[]): void {
+    const vertices_that_do_not_have_influences_adding_to_one: number[] = this.find_vertices_with_incorrect_weight_sum(all_skin_weights)
+    for (const vertex_index of vertices_that_do_not_have_influences_adding_to_one) {
+      const offset = vertex_index * 4
 
-    for (let i = 0; i < this.geometry_vertex_count(); i++) {
-      const vertex_position = new Vector3().fromBufferAttribute(this.geometry.attributes.position, i)
-
-      // store influence for each bone
-      const influences: Array<{ bone: number, distance: number }> = []
-
-      // loop through each bone and calculate distance to the vertex
-      // if the bone has no children, treat it as a point
-      // if the bone has children, treat it as a segment and project the vertex onto the segment
-      // this will help with assigning weights to the bones that are closer to the vertex
-      for (let bone_index = 0; bone_index < bone_count; bone_index++) {
-        const bone = this.get_bone_master_data()[bone_index]
-        const bone_position = this.cached_bone_positions[bone_index]
-
-
-        // abort if the bone is the root. we don't want to assign weights to the root bone
-        if (bone.name === 'root') {
-          continue // skip the root bone and continue to the next bone
-        }
-
-        // skip right-side bones for left side vertices
-        // good for close fittings like feet that are close together
-        if (bone.name.toLowerCase().includes('_r') === true && vertex_position.x > 0) continue
-        if (bone.name.toLowerCase().includes('_l') === true && vertex_position.x < 0) continue
-
-        // End bone: treat as a point
-        if (bone.children.length === 0) {
-          const dist = vertex_position.distanceTo(bone_position)
-          influences.push({ bone: bone_index, distance: dist })
-          continue
-        }
-
-        const child = bone.children[0] as Bone
-        const child_idx = this.bone_object_to_index.get(child)
-        if (child_idx === undefined) {
-          continue // Skip if child bone is not in the map
-        }
-
-        // Child bone: treat as a segment
-        const child_position = this.cached_bone_positions[child_idx]
-
-        // Project vertex onto bone segment
-        // Projects the vertex onto the bone segment direction (scalar projection).
-        const seg_vec: Vector3 = child_position.clone().sub(bone_position)
-        const seg_len: number = seg_vec.length()
-        const seg_dir: Vector3 = seg_vec.clone().normalize()
-        const v_vec: Vector3 = vertex_position.clone().sub(bone_position)
-        let proj: number = v_vec.dot(seg_dir)
-        proj = Math.max(0, Math.min(seg_len, proj))
-        const closest_point = bone_position.clone().add(seg_dir.multiplyScalar(proj))
-        const dist = vertex_position.distanceTo(closest_point)
-        influences.push({ bone: bone_index, distance: dist })
-      }
-
-      // Sort by distance and pick N closest
-      influences.sort((a, b) => a.distance - b.distance)
-
-      // some areas like feet get weird if too many bones influence them
-      // this target them based on the skeleton's bone name
-      const closest_bone: Bone = this.bones_master_data[influences[0].bone]
-      // closest_bone.name.toLowerCase().includes('leg') === true ||
-      const bone_requires_one_influence = closest_bone.name.toLowerCase().includes('foot') === true ||
-        closest_bone.name.toLowerCase().includes('toes') === true
-      if (bone_requires_one_influence) {
-        const offset = i * 4
-        skin_indices[offset + 0] = influences[0].bone
-        skin_weights[offset + 0] = 1.0
-        // Zero out the other influences
-        skin_indices[offset + 1] = 0
-        skin_indices[offset + 2] = 0
-        skin_indices[offset + 3] = 0
-        skin_weights[offset + 1] = 0
-        skin_weights[offset + 2] = 0
-        skin_weights[offset + 3] = 0
-        continue
-      }
-
-      // do weight assigning
-      let selected: Array< { bone: number, distance: number } > = influences.slice(0, number_influence_bones)
-      const weights = selected.map(inf => 1 / (inf.distance + 1e-4)) // avoid div by zero
+      // if the weight is 0.00, then we can assign the remaining weights to the other bones
+      const weights = [
+        all_skin_weights[offset],
+        all_skin_weights[offset + 1],
+        all_skin_weights[offset + 2],
+        all_skin_weights[offset + 3]
+      ]
       const weight_sum = weights.reduce((a, b) => a + b, 0)
+      const weight_per_index: number = (1 - weight_sum) / 3.0
+      console.log(weight_per_index)
 
-      // Assign to skin_indices/skin_weights
-      for (let j = 0; j < 4; j++) {
-        if (selected[j]) {
-          skin_indices[i * 4 + j] = selected[j].bone
-          skin_weights[i * 4 + j] = weights[j] / weight_sum
-        } else {
-          skin_indices[i * 4 + j] = 0
-          skin_weights[i * 4 + j] = 0
+      // assign the weights all at once
+      for (let i = 0; i < 4; i++) {
+        if (weights[i] !== 0) {
+          all_skin_weights[offset + i] += weight_per_index
         }
       }
     }
@@ -207,7 +255,7 @@ export default class SolverDistanceChildTargeting extends AbstractAutoSkinSolver
 
         // hip bones should have custom logic for distance. If the distance is too far away we should ignore it
         // This will help with hips when left/right legs could be closer than knee bones
-        if (this.skeleton_type === SkeletonType.Human && bone.name.includes('hips') === true) {
+        if (this.skeleton_type === SkeletonType.Human && bone.name.includes('hips')) {
           // if the intersection point is lower than the vertex position, that means the vertex is below
           // the hips area, and is part of the left or right leg...ignore that result
           if (this.distance_to_bottom_of_hip !== null && this.distance_to_bottom_of_hip < vertex_position.y) {

@@ -65,7 +65,7 @@
                     </label>
                     <input id="model-upload" type="file" name="file-upload" accept=".glb, .zip, .fbx" />
 
-                    <span class="material-symbols-outlined" data-tippy-content="GLB and FBX preferred. ZIP is for GLTF that includes BIN and textures separately.">help</span>
+                    <span class="material-symbols-outlined" data-tippy-content="GLB and FBX preferred. ZIP is for GLTF+BIN and textures separately. DAE+textures is also supported in ZIP format.">help</span>
 
 
                     <div style="text-align: center; font-size: 1.5rem">or</div>
@@ -73,9 +73,10 @@
                     <div class="alternate-background-section">
                         <p style="margin: 0">Reference model:</p>
                         <select id="model-selection">
-                            <option value="models/human-mannequin.glb">Human</option>
-                            <option value="models/fox.glb">Fox</option>
-                            <option value="models/seagull.glb">Bird</option>
+                            <option value="models/model-human.glb">Human</option>
+                            <option value="models/model-fox.glb">Fox</option>
+                            <option value="models/model-bird.glb">Bird</option>
+                            <option value="models/model-dragon.glb">Dragon</option>
                         </select>
                         <button id="load-model-button">Load</button>
                     </div>
@@ -123,6 +124,7 @@
                                 <option value="human">Human</option>
                                 <option value="quadraped">4 Leg Creature</option>
                                 <option value="bird">Bird</option>
+                                <option value="dragon">Dragon</option>
                             </select>
                         </div>
 

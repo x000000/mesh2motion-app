@@ -9,39 +9,48 @@ const skeleton_group_name: string = 'preview_skeleton_group'
 // need a function that will add a preview skeleton to the scene
 // this will remove any existing preview skeleton first
 // and then add the new one based on the selected type
-export async function add_preview_skeleton (root: Scene, skeleton_file_path: SkeletonType, 
-  hand_skeleton_type: HandSkeletonType, skeleton_scale: number = 1.0): Promise<Object3D<Object3DEventMap>> {
-  remove_preview_skeleton(root)
+export async function add_preview_skeleton (
+  root: Scene,
+  skeleton_file_path: SkeletonType,
+  hand_skeleton_type: HandSkeletonType,
+  skeleton_scale: number = 1.0
+): Promise<Object3D<Object3DEventMap>> {
+  let preview_skeleton_group = root.getObjectByName(skeleton_group_name) as Group | undefined
 
-  // always create a new group for the preview skeleton
-  // checking if a preview skeleton exist before occasionally
-  // caused duplicate skeletons to appear on the scene
-  const preview_skeleton_group = new Group()
+  // Check if preview skeleton group exists and matches requested skeleton
+  if (preview_skeleton_group !== undefined) {
+    // Read previous skeleton info from userData
+    const previous_file_path = preview_skeleton_group.userData.skeleton_file_path
+    const previous_hand_type = preview_skeleton_group.userData.hand_skeleton_type
+    if (previous_file_path === skeleton_file_path && previous_hand_type === hand_skeleton_type) {
+      // Only update scale
+      preview_skeleton_group.scale.set(skeleton_scale, skeleton_scale, skeleton_scale)
+      // Return the first child (should be loaded_scene)
+      return preview_skeleton_group.children[0]
+    } else {
+      // Remove old skeleton group
+      remove_preview_skeleton(root)
+    }
+  }
+
+  // Create new preview skeleton group
+  preview_skeleton_group = new Group()
   preview_skeleton_group.name = skeleton_group_name
+  // Store current skeleton info for future comparison
+  preview_skeleton_group.userData.skeleton_file_path = skeleton_file_path
+  preview_skeleton_group.userData.hand_skeleton_type = hand_skeleton_type
   root.add(preview_skeleton_group)
 
-  // need some logic to load the actual skeleton based on the type
-  // we can only see the skeleton helper, so jwe will add that to the group
+  // Load and customize skeleton
   const loaded_scene: Object3D<Object3DEventMap> = await load_skeleton(skeleton_file_path)
-
-  // console.log('loaded skeleton file path: ', loaded_scene, hand_skeleton_type)
-
-  // skeleton customization options here. Right now only for humans and hands
   if (skeleton_file_path === SkeletonType.Human) {
-    // apply hand skeleton modifications for human skeletons
     const helper = new HandHelper()
     helper.modify_hand_skeleton(loaded_scene, hand_skeleton_type)
   }
-
-  // need to convert the loaded scene into a custom skeleton helper
   const skeleton_helper = new SkeletonHelper(loaded_scene.children[0])
   skeleton_helper.name = 'preview_skeleton'
   preview_skeleton_group.add(skeleton_helper)
-
-  // apply skeleton scaling
   preview_skeleton_group.scale.set(skeleton_scale, skeleton_scale, skeleton_scale)
-
-  // finally add the preview skeleton group to the final scene
   root.add(preview_skeleton_group)
   return loaded_scene
 }
@@ -56,7 +65,7 @@ async function load_skeleton (file_path: string): Promise<Object3D<Object3DEvent
 // need a function that will remove the preview skeleton from the scene
 export function remove_preview_skeleton (root: Scene): void {
   const skeleton_group = root.getObjectByName(skeleton_group_name)
-  if (skeleton_group !== undefined && skeleton_group.parent) {
+  if ((skeleton_group?.parent) != null) {
     skeleton_group.parent.remove(skeleton_group)
   }
 }

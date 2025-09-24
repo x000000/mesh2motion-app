@@ -57,15 +57,16 @@
 
                     <!-- <p class="step-instructions">Supports GLB, GLTF, FBX</p> -->
 
-                    <label for="model-upload" class="button"  >
+                    <label for="model-upload" class="button" data-tippy-content="GLB and FBX preferred. ZIP is for GLTF+BIN and textures separately. DAE+textures is also supported in ZIP format." >
                         <span class="button-icon-group">
                             <span class="material-symbols-outlined" >upload</span>
                             <span>Upload</span>
+                            <span class="material-symbols-outlined" >help</span>
                         </span>
                     </label>
                     <input id="model-upload" type="file" name="file-upload" accept=".glb, .zip, .fbx" />
 
-                    <span class="material-symbols-outlined" data-tippy-content="GLB and FBX preferred. ZIP is for GLTF+BIN and textures separately. DAE+textures is also supported in ZIP format.">help</span>
+                    
 
 
                     <div style="text-align: center; font-size: 1.5rem">or</div>

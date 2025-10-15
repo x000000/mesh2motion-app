@@ -1,0 +1,6 @@
+.model-selection-section {
+    display: flex;
+    flex-direction: row;
+    position: fixed;
+    right: 15%;
+}

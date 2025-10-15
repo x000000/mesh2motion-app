@@ -29,6 +29,8 @@ export class StepAnimationsListing extends EventTarget {
   private current_playing_index: number = 0
   private skeleton_type: SkeletonType = SkeletonType.Human
 
+  private animations_file_path: string = 'animations/'
+
   // retrieved from load skeleton step
   // we will use this to scale all position animation keyframes (uniform scale)
   private skeleton_scale: number = 1.0
@@ -37,6 +39,10 @@ export class StepAnimationsListing extends EventTarget {
 
   // Animation search functionality
   public animation_search: AnimationSearch | null = null
+
+  public set_animations_file_path (path: string): void {
+    this.animations_file_path = path
+  }
 
   /**
    * The amount to raise the arms.
@@ -118,20 +124,25 @@ export class StepAnimationsListing extends EventTarget {
     let animations_to_load_filepaths: string[] = []
     switch (this.skeleton_type) {
       case SkeletonType.Human:
-        animations_to_load_filepaths = ['animations/human-base-animations.glb', 'animations/human-addon-animations.glb']
+        animations_to_load_filepaths = [this.animations_file_path + 'human-base-animations.glb', 
+          this.animations_file_path + 'human-addon-animations.glb']
         break
       case SkeletonType.Quadraped:
-        animations_to_load_filepaths = ['animations/quad-creature-animations.glb']
+        animations_to_load_filepaths = [this.animations_file_path + 'quad-creature-animations.glb']
         break
       case SkeletonType.Bird:
-        animations_to_load_filepaths = ['animations/bird-animations.glb']
+        animations_to_load_filepaths = [this.animations_file_path + 'bird-animations.glb']
         break
       case SkeletonType.Dragon:
-        animations_to_load_filepaths = ['animations/dragon-animations.glb']
+        animations_to_load_filepaths = [this.animations_file_path + 'dragon-animations.glb']
         break
       default:
         console.error('Unknown skeleton type for loading animations. Add GLB file to animation listing process')
     }
+
+    // if we call this load animations externally (like marketing page)
+    // we might need to modify the location paths for these to reference the correct part
+
 
     this.gltf_animation_loader = new GLTFLoader()
 

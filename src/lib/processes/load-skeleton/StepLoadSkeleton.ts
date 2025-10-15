@@ -21,8 +21,21 @@ export class StepLoadSkeleton extends EventTarget {
   // to prevent large offsets
   private skeleton_scale_percentage: number = 1.0
 
+  // this was invented since this value is stored on a DOM element
+  // this helps the marketing page set the type and doesn't rely on a DOM value
+  // probably could refactor this a bit to be cleaner later.
+  private manual_set_skeleton_type: SkeletonType = SkeletonType.None
+
   public skeleton_type (): SkeletonType {
+    if (this.skeleton_file_path() === SkeletonType.None) {
+      return this.manual_set_skeleton_type
+    }
+
     return this.skeleton_file_path() // this is actually the type/filepath combo
+  }
+
+  public set_skeleton_type (type: SkeletonType): void {
+    this.manual_set_skeleton_type = type
   }
 
   // The edit skeleton step will use this to scale the skeleton when loading editable skeleton
@@ -155,46 +168,8 @@ export class StepLoadSkeleton extends EventTarget {
           return
         }
 
-        // load skeleton from GLB file
-        this.loader.load(this.skeleton_file_path(), (gltf: GLTFResult) => {
-          // traverse scene and find first bone object
-          // we will go to the parent and mark that as the original armature
-          let armature_found = false
-          let original_armature: Object3D = new Object3D()
-
-          gltf.scene.traverse((child: Object3D) => {
-            // Note: three.js removes punctuation characters from names object names like `-` and `.` for sanitization
-            // Our 3D source files will need to account fo this if we are relying on that later for parsing
-            // https://discourse.threejs.org/t/avoid-dots-and-colons-being-deleted-from-models-name/15304/2
-            if (child.type === 'Bone' && !armature_found) {
-              armature_found = true
-
-              if (child.parent != null) {
-                original_armature = child.parent
-              } else {
-                console.warn('could not find armature parent while loading skeleton')
-              }
-            }
-          })
-
-          this.loaded_armature = original_armature.clone()
-          this.loaded_armature.name = 'Loaded Armature'
-
-          // Apply hand skeleton modifications for human skeletons
-          if (this.skeleton_file_path() === SkeletonType.Human) {
-            const helper = new HandHelper()
-            helper.modify_hand_skeleton(this.loaded_armature, this.hand_skeleton_type())
-          }
-
-          // reset the armature to 0,0,0 in case it is off for some reason
-          this.loaded_armature.position.set(0, 0, 0)
-          this.loaded_armature.updateWorldMatrix(true, true)
-
-          // scale the armature to what we picked using the scale slider/preview
-          this.loaded_armature.scale.set(this.skeleton_scale(), this.skeleton_scale(), this.skeleton_scale())
-
-          this.dispatchEvent(new CustomEvent('skeletonLoaded', { detail: this.loaded_armature }))
-        })
+        // add back loading information here
+        this.load_skeleton_file(this.skeleton_file_path())
       })
     }// end if statement
 
@@ -219,6 +194,49 @@ export class StepLoadSkeleton extends EventTarget {
       add_preview_skeleton(this._main_scene, this.skeleton_file_path(), this.hand_skeleton_type(), this.skeleton_scale_percentage).catch((err) => {
         console.error('error loading preview skeleton: ', err)
       })
+    })
+  }
+
+  public load_skeleton_file (file_path: string): void {
+    // load skeleton from GLB file
+    this.loader.load(file_path, (gltf: GLTFResult) => {
+      // traverse scene and find first bone object
+      // we will go to the parent and mark that as the original armature
+      let armature_found = false
+      let original_armature: Object3D = new Object3D()
+
+      gltf.scene.traverse((child: Object3D) => {
+        // Note: three.js removes punctuation characters from names object names like `-` and `.` for sanitization
+        // Our 3D source files will need to account fo this if we are relying on that later for parsing
+        // https://discourse.threejs.org/t/avoid-dots-and-colons-being-deleted-from-models-name/15304/2
+        if (child.type === 'Bone' && !armature_found) {
+          armature_found = true
+
+          if (child.parent != null) {
+            original_armature = child.parent
+          } else {
+            console.warn('could not find armature parent while loading skeleton')
+          }
+        }
+      })
+
+      this.loaded_armature = original_armature.clone()
+      this.loaded_armature.name = 'Loaded Armature'
+
+      // Apply hand skeleton modifications for human skeletons
+      if (this.skeleton_file_path() === SkeletonType.Human) {
+        const helper = new HandHelper()
+        helper.modify_hand_skeleton(this.loaded_armature, this.hand_skeleton_type())
+      }
+
+      // reset the armature to 0,0,0 in case it is off for some reason
+      this.loaded_armature.position.set(0, 0, 0)
+      this.loaded_armature.updateWorldMatrix(true, true)
+
+      // scale the armature to what we picked using the scale slider/preview
+      this.loaded_armature.scale.set(this.skeleton_scale(), this.skeleton_scale(), this.skeleton_scale())
+
+      this.dispatchEvent(new CustomEvent('skeletonLoaded', { detail: this.loaded_armature }))
     })
   }
 

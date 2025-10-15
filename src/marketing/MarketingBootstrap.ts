@@ -1,3 +1,4 @@
+import { ProcessStep } from '../lib/enums/ProcessStep'
 import { SkeletonType } from '../lib/enums/SkeletonType'
 import { Mesh2MotionEngine } from '../Mesh2MotionEngine'
 
@@ -44,12 +45,15 @@ export class MarketingBootstrap {
       this.setup_model_buttons()
 
       this.mesh2motion_engine.load_model_step.addEventListener('modelLoaded', () => {
-        console.log('model has been loaded')
+        // this (this.skeleton_type) value contains the filename for the skeleton rig
+        this.mesh2motion_engine.load_skeleton_step.load_skeleton_file('../' + this.skeleton_type)
+        this.mesh2motion_engine.load_skeleton_step.set_skeleton_type(this.skeleton_type)
 
-        // load associated skeleton
-        // ths  (this.skeleton_type) value contains the filename for the skeleton rig
-        // this.mesh2motion_engine.load_skeleton_step.load
-
+        this.mesh2motion_engine.load_skeleton_step.addEventListener('skeletonLoaded', () => {
+          // need to automatically finish the edit skeleton step and move onto the next step
+          this.mesh2motion_engine.animations_listing_step.set_animations_file_path('../animations/')
+          this.mesh2motion_engine.process_step_changed(ProcessStep.BindPose)
+        })
       })
     })
   }

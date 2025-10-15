@@ -20,7 +20,7 @@ import os
 base_dir  = r"C:\git\ModelMotionizer\static\blender\rigs"
 
 # Define the rig type/folder
-rig_type = "fox"
+rig_type = "dragon"
 
 
 # DO NOT NEED TO CHANGE BELOW THIS LINE
@@ -52,5 +52,7 @@ bpy.ops.export_scene.gltf(
     export_animations=True,
     export_nla_strips=False,  # Export actions instead of NLA strips
     use_selection=True,
-    use_visible=True # hides bone shape collection objects
+    export_yup=True, # Blender uses Z-up, three.js uses Y-up
+    export_def_bones=True, # only export deformation bones
+    use_visible=True, # hides bone shape collection objects
 )

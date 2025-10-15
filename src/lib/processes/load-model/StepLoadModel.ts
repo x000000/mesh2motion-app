@@ -148,7 +148,7 @@ export class StepLoadModel extends EventTarget {
     return file_extension
   }
 
-  private load_model_file (model_file_path: string | ArrayBuffer | null, file_extension: string): void {
+  public load_model_file (model_file_path: string | ArrayBuffer | null, file_extension: string): void {
     if (file_extension === 'fbx') {
       console.log('Loading FBX model:', model_file_path)
       this.fbx_loader.load(model_file_path as string, (fbx) => {

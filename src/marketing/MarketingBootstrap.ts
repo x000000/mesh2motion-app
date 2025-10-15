@@ -1,6 +1,13 @@
+import { SkeletonType } from '../lib/enums/SkeletonType'
+import { Mesh2MotionEngine } from '../Mesh2MotionEngine'
+
 export class MarketingBootstrap {
+  private readonly mesh2motion_engine: Mesh2MotionEngine
+  private skeleton_type: SkeletonType = SkeletonType.None
+
   constructor () {
-    this.add_event_listners()
+    this.mesh2motion_engine = new Mesh2MotionEngine()
+    this.add_event_listeners()
   }
 
   public setup_model_buttons (): void {
@@ -10,34 +17,40 @@ export class MarketingBootstrap {
     const bird_button = document.getElementById('load-bird-model-button')
     const dragon_button = document.getElementById('load-dragon-model-button')
 
-    // <option value="models/model-human.glb">Human</option>
-    // <option value="models/model-fox.glb">Fox</option>
-    // <option value="models/model-bird.glb">Bird</option>
-    // <option value="models/model-dragon.glb">Dragon</option>
-
-    if (human_button != null) {
-      human_button?.addEventListener('click', () => {
-        console.log('Human model button clicked')
-      })
-    }
+    human_button?.addEventListener('click', () => {
+      this.mesh2motion_engine.load_model_step.load_model_file('../models/model-human.glb', 'glb')
+      this.skeleton_type = SkeletonType.Human
+    })
 
     fox_button?.addEventListener('click', () => {
-      console.log('Fox model button clicked')
+      this.mesh2motion_engine.load_model_step.load_model_file('../models/model-fox.glb', 'glb')
+      this.skeleton_type = SkeletonType.Quadraped
     })
 
     bird_button?.addEventListener('click', () => {
-      console.log('Bird model button clicked')
+      this.mesh2motion_engine.load_model_step.load_model_file('../models/model-bird.glb', 'glb')
+      this.skeleton_type = SkeletonType.Bird
     })
 
     dragon_button?.addEventListener('click', () => {
-      console.log('Dragon model button clicked')
+      this.mesh2motion_engine.load_model_step.load_model_file('../models/model-dragon.glb', 'glb')
+      this.skeleton_type = SkeletonType.Dragon
     })
   }
 
-  public add_event_listners (): void {
+  public add_event_listeners (): void {
     // event after the DOM is fully loaded for HTML elements
     document.addEventListener('DOMContentLoaded', () => {
       this.setup_model_buttons()
+
+      this.mesh2motion_engine.load_model_step.addEventListener('modelLoaded', () => {
+        console.log('model has been loaded')
+
+        // load associated skeleton
+        // ths  (this.skeleton_type) value contains the filename for the skeleton rig
+        // this.mesh2motion_engine.load_skeleton_step.load
+
+      })
     })
   }
 }

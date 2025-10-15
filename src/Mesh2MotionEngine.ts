@@ -32,7 +32,7 @@ import { TransformControlType } from './lib/enums/TransformControlType.ts'
 import { ThemeManager } from './lib/ThemeManager.ts'
 import { ModalDialog } from './lib/ModalDialog.ts'
 
-export class Bootstrap {
+export class Mesh2MotionEngine {
   public readonly camera = Generators.create_camera()
   public readonly renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
   public controls: OrbitControls | undefined = undefined
@@ -530,7 +530,4 @@ export class Bootstrap {
   public show_contributors_dialog (): void {
     new ModalDialog('Contributors', Generators.get_contributors_list()).show()
   }
-} // end Bootstrap class
-
-// Create an instance of the Bootstrap class when the script is loaded
-const app = new Bootstrap()
+} // end Mesh2Motion Engine

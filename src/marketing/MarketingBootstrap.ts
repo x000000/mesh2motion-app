@@ -12,8 +12,28 @@ export class MarketingBootstrap {
   }
 
   public reset_to_beginning (): void {
+    // remove existing canvas element since we are starting over
+    const existing_canvas = document.querySelector('canvas')
+    if (existing_canvas != null) {
+      existing_canvas.remove()
+    }
+
     // reset data points and our current step of the process so we can continue
-    this.mesh2motion_engine.process_step_changed(ProcessStep.LoadModel)
+    this.mesh2motion_engine = new Mesh2MotionEngine()
+
+    // we are re-creating the engine, so need to manually add the event listeners again
+    this.mesh2motion_engine.load_model_step.addEventListener('modelLoaded', () => {
+      // this (this.skeleton_type) value contains the filename for the skeleton rig
+      this.mesh2motion_engine.load_skeleton_step.load_skeleton_file('../' + this.skeleton_type)
+      this.mesh2motion_engine.load_skeleton_step.set_skeleton_type(this.skeleton_type)
+
+      // need to automatically finish the edit skeleton step and move onto the next step
+      // this needs to be added after the load skeleton is done...since it expects a valid skeleton
+      this.mesh2motion_engine.load_skeleton_step.addEventListener('skeletonLoaded', () => {
+        this.mesh2motion_engine.animations_listing_step.set_animations_file_path('../animations/')
+        this.mesh2motion_engine.process_step_changed(ProcessStep.BindPose)
+      })
+    })
   }
 
   public setup_model_buttons (): void {
@@ -53,20 +73,6 @@ export class MarketingBootstrap {
   public add_event_listeners (): void {
     // event after the DOM is fully loaded for HTML elements
     document.addEventListener('DOMContentLoaded', () => {
-      // events to trigger after model and skeleton are loaded
-      this.mesh2motion_engine.load_model_step.addEventListener('modelLoaded', () => {
-        // this (this.skeleton_type) value contains the filename for the skeleton rig
-        this.mesh2motion_engine.load_skeleton_step.load_skeleton_file('../' + this.skeleton_type)
-        this.mesh2motion_engine.load_skeleton_step.set_skeleton_type(this.skeleton_type)
-
-        // need to automatically finish the edit skeleton step and move onto the next step
-        // this needs to be added after the load skeleton is done...since it expects a valid skeleton
-        this.mesh2motion_engine.load_skeleton_step.addEventListener('skeletonLoaded', () => {
-          this.mesh2motion_engine.animations_listing_step.set_animations_file_path('../animations/')
-          this.mesh2motion_engine.process_step_changed(ProcessStep.BindPose)
-        })
-      })
-
       this.setup_model_buttons() // automatically trigger the human once we begin for the default
     }) // end the DOMContentLoaded function
   }

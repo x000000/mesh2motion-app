@@ -68,7 +68,6 @@ export class Mesh2MotionEngine {
   private environment_container: Group = new Group()
   private readonly eventListeners: EventListeners
 
-
   constructor () {
     this.eventListeners = new EventListeners(this)
     // helps resolve requestAnimationFrame calling animate() with wrong context

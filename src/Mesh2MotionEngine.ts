@@ -254,22 +254,10 @@ export class Mesh2MotionEngine {
      *********/
     if (this.process_step === ProcessStep.LoadModel) {
       // reset the state in the case of coming back to this step
-      if (this.load_model_step.model_meshes() !== undefined) {
-        const imported_model = this.scene.getObjectByName('Imported Model')
-        if (imported_model !== null) {
-          this.scene.remove(imported_model)
-        }
-      }
-
+      this.remove_imported_model()
       this.load_model_step.begin()
     }
     else if (this.process_step === ProcessStep.LoadSkeleton) {
-      // add event listener. TODO: put this in the load skeleton process step
-      this.load_skeleton_step.addEventListener('skeletonLoaded', () => {
-        this.edit_skeleton_step.load_original_armature_from_model(this.load_skeleton_step.armature())
-        this.process_step = this.process_step_changed(ProcessStep.EditSkeleton)
-      })
-
       // if skeleton helper existed because we are going back to this
       if (this.skeleton_helper !== undefined) {
         this.scene.remove(this.skeleton_helper)
@@ -308,7 +296,10 @@ export class Mesh2MotionEngine {
     else if (this.process_step === ProcessStep.BindPose) {
       this.transform_controls.enabled = false // shouldn't be editing bones
       this.calculate_skin_weighting_for_models()
+
+      this.remove_skinned_meshes_from_scene() // clean up in case we had skinned meshes in scene previously
       this.scene.add(...this.weight_skin_step.final_skinned_meshes()) // add final skinned mesh to scene
+
       this.weight_skin_step.weight_painted_mesh_group().visible = false // hide weight painted mesh
       this.process_step_changed(ProcessStep.AnimationsListing)
     }
@@ -341,6 +332,7 @@ export class Mesh2MotionEngine {
 
     return this.process_step
   } // end process_step_changed()
+
 
   private animate (): void {
     requestAnimationFrame(this.animate)
@@ -440,10 +432,28 @@ export class Mesh2MotionEngine {
   }
 
   public remove_skinned_meshes_from_scene (): void {
-    const existing_skinned_meshes = this.scene.children.filter((child: THREE.Object3D) => child.name === 'Skinned Mesh')
+    const existing_skinned_meshes = this.scene.children.filter((child: THREE.Object3D) => child.name.includes('Skinned Mesh'))
     existing_skinned_meshes.forEach((existing_skinned_mesh: THREE.Object3D) => {
       Utility.remove_object_with_children(existing_skinned_mesh)
     })
+  }
+
+  public remove_imported_model (): void {
+    if (this.load_model_step.model_meshes() !== undefined) {
+      const imported_model = this.scene.getObjectByName('Imported Model')
+      if (imported_model !== null) {
+        this.scene.remove(imported_model)
+      }
+    }
+  }
+
+  public remove_weight_painted_mesh_preview (): void {
+    if (this.load_model_step.model_meshes() !== undefined) {
+      const weight_painted_mesh = this.scene.getObjectByName('Weight Painted Mesh Preview')
+      if (weight_painted_mesh !== null) {
+        this.scene.remove(weight_painted_mesh)
+      }
+    }
   }
 
   public regenerate_weight_painted_preview_mesh (): void {

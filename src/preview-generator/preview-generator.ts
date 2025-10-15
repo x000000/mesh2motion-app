@@ -163,7 +163,7 @@ class PreviewGenerator {
     // zip up all the video results and download everything
     await this.generate_zip()
 
-    console.log('finishe successfully')
+    console.log('finished successfully')
   }
 
   private async process_animation_clip (): Promise<void> {

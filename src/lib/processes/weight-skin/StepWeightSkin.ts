@@ -135,7 +135,7 @@ export class StepWeightSkin extends EventTarget {
     this.all_mesh_materials.push(material)
   }
 
-  public create_skinned_mesh (geometry: BufferGeometry, material: Material): SkinnedMesh {
+  public create_skinned_mesh (geometry: BufferGeometry, material: Material, idx: number): SkinnedMesh {
     if (this.binding_skeleton === undefined) {
       console.warn('Tried to create_skinned_mesh() but binding_skeleton is undefined!')
       return
@@ -143,7 +143,7 @@ export class StepWeightSkin extends EventTarget {
 
     // create skinned mesh
     const skinned_mesh: SkinnedMesh = new SkinnedMesh(geometry, material)
-    skinned_mesh.name = 'Skinned Mesh'
+    skinned_mesh.name = 'Skinned Mesh ' + idx.toString()
     skinned_mesh.castShadow = true // skinned mesh won't update right if this is false
 
     // do the binding for the mesh to the skelleton
@@ -205,7 +205,7 @@ export class StepWeightSkin extends EventTarget {
       const associated_material: Material = this.all_mesh_materials[idx]
 
       // create skined mesh from the geometry and material
-      const temp_skinned_mesh: SkinnedMesh = this.create_skinned_mesh(geometry_data, associated_material)
+      const temp_skinned_mesh: SkinnedMesh = this.create_skinned_mesh(geometry_data, associated_material, idx)
       this.skinned_meshes.push(temp_skinned_mesh) // add to skinned meshes references
 
       // re-generate the weight painted mesh display if needed

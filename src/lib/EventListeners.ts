@@ -1,15 +1,20 @@
-import { type Bootstrap } from '../script'
+import { type Mesh2MotionEngine } from '../Mesh2MotionEngine'
 import { ModelPreviewDisplay } from './enums/ModelPreviewDisplay'
 import { ProcessStep } from './enums/ProcessStep'
 import { Utility } from './Utilities'
 
 export class EventListeners {
-  constructor (private readonly bootstrap: Bootstrap) {}
+  constructor (private readonly bootstrap: Mesh2MotionEngine) {}
 
   public addEventListeners (): void {
     // monitor theme changes
     this.bootstrap.theme_manager.addEventListener('theme-changed', (event: any) => {
       this.bootstrap.regenerate_floor_grid()
+    })
+
+    this.bootstrap.load_skeleton_step.addEventListener('skeletonLoaded', () => {
+      this.bootstrap.edit_skeleton_step.load_original_armature_from_model(this.bootstrap.load_skeleton_step.armature())
+      this.bootstrap.process_step = this.bootstrap.process_step_changed(ProcessStep.EditSkeleton)
     })
 
     // Listen for skeleton transformation events to update UI and visuals
@@ -31,7 +36,6 @@ export class EventListeners {
       event.preventDefault()
       this.bootstrap.show_contributors_dialog()
     })
-
 
     // listen for view helper changes
     document.getElementById('view-control-hitbox')?.addEventListener('pointerdown', (event: PointerEvent) => {

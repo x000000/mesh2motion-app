@@ -11,31 +11,45 @@ export class MarketingBootstrap {
     this.add_event_listeners()
   }
 
+  private change_active_skeleton (active_dom_button: HTMLElement): void {
+    // remove the active classes from all buttons in .model-selection-section
+    const model_buttons = document.querySelectorAll('.model-selection-section button')
+    model_buttons.forEach((button) => {
+      button.classList.remove('active-button')
+    })
+
+    active_dom_button.classList.add('active-button')
+  }
+
   public setup_model_buttons (): void {
     // add click events for each button type
-    const human_button = document.getElementById('load-human-model-button')
-    const fox_button = document.getElementById('load-fox-model-button')
-    const bird_button = document.getElementById('load-bird-model-button')
-    const dragon_button = document.getElementById('load-dragon-model-button')
+    const human_button: HTMLElement | null = document.getElementById('load-human-model-button')
+    const fox_button: HTMLElement | null = document.getElementById('load-fox-model-button')
+    const bird_button: HTMLElement | null = document.getElementById('load-bird-model-button')
+    const dragon_button: HTMLElement | null = document.getElementById('load-dragon-model-button')
 
     human_button?.addEventListener('click', () => {
       this.mesh2motion_engine.load_model_step.load_model_file('../models/model-human.glb', 'glb')
       this.skeleton_type = SkeletonType.Human
+      this.change_active_skeleton(human_button)
     })
 
     fox_button?.addEventListener('click', () => {
       this.mesh2motion_engine.load_model_step.load_model_file('../models/model-fox.glb', 'glb')
       this.skeleton_type = SkeletonType.Quadraped
+      this.change_active_skeleton(fox_button)
     })
 
     bird_button?.addEventListener('click', () => {
       this.mesh2motion_engine.load_model_step.load_model_file('../models/model-bird.glb', 'glb')
       this.skeleton_type = SkeletonType.Bird
+      this.change_active_skeleton(bird_button)
     })
 
     dragon_button?.addEventListener('click', () => {
       this.mesh2motion_engine.load_model_step.load_model_file('../models/model-dragon.glb', 'glb')
       this.skeleton_type = SkeletonType.Dragon
+      this.change_active_skeleton(dragon_button)
     })
 
     human_button?.click() // load human by default to start us out

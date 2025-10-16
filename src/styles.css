@@ -10,6 +10,9 @@
   --bg-primary: #2b4353;
   --bg-alternate: #426074;
   --bg-tertiary: #7a97aa;
+
+  --nav-background: #1c3445;
+  --nav-active-item-bg: #4f6074;
   
   --button-primary-bg: rgb(175, 58, 190);
   --button-alternate-bg: rgba(175, 58, 190, 0.521);
@@ -19,6 +22,8 @@
 
   --radio-button-group-bg: rgb(81, 114, 151);
   --radio-button-group-hover: rgb(37, 65, 97);
+
+  --navigation-height: 60px;
 }
 
 /* Light theme */
@@ -26,6 +31,9 @@
   --text-primary: #2c3e50;
   --text-alternate: #96a5ac;
   --link-color: #3b6081;
+
+  --nav-background: #d9e5ee;
+  --nav-active-item-bg: #b9d2d6;
 
   --bg-primary: #ecf0f1;
   --bg-alternate: #bac9d2;
@@ -46,6 +54,34 @@ body.light-theme img[src$=".svg"] ,
 body.light-theme img[src$=".png"] {
   filter: invert(0.7);
 }
+
+nav {
+    width: 100vw;
+    height: var(--navigation-height);
+    background: var(--nav-background);
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid grey;
+    position: relative;
+    z-index: 1;
+}
+nav a, nav span {
+    font-size: 1.2rem;
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    height: var(--navigation-height);
+    padding: 0 2rem;
+    transition: 0.5s all ease;
+    line-height: 100%;
+}
+
+nav .active-nav-item, nav a:hover {
+    background: var(--nav-active-item-bg);
+    text-decoration: none;
+}
+
 
 
 /* this was just a star (*) selector, but dark reader extension cannot parse that and crashes 
@@ -308,7 +344,7 @@ option {
     background: radial-gradient(circle, var(--bg-alternate) 0%, var(--bg-primary) 100%);
 
     box-shadow: 1px 1px 8px 0px var(--bg-primary);
-    top: 0;
+    top: var(--navigation-height);
     right: 0;
     border-left: 1px solid var(--bg-tertiary);
     padding: 0.5rem;
@@ -396,12 +432,6 @@ input[type="file"] {
 }
 
 #github-logo {
-position: fixed;
-    top: 50px;
-    left: 5px;
-    display: flex;
-    column-gap: 6px;
-    align-items: center;
     transition: opacity 0.5s ease-in-out;
     text-decoration: none;
     padding: 0.5rem;
@@ -450,9 +480,11 @@ position: fixed;
 
 #header-ui {
     display: flex;
-    gap: 0;
-    flex-direction: row;
+    gap: 0.5rem;
+    flex-direction: column;
     position: fixed;
+    left: 5px;
+    bottom: 140px;
 }
 
 .step-instructions {
@@ -514,21 +546,16 @@ position: fixed;
 }
 
 /* Theme toggle button styles */
-#theme-toggle-container {
-    position: fixed;
-    top: 6rem;
-    left: 1rem;
-}
-
 #theme-toggle {
-    background: var(--bg-primary);
-    border: 1px solid var(--text-primary);
-    border-radius: 70px;
-    padding: 0.5rem;
+    background: none;
+    border: none;
     cursor: pointer;
     display: flex;
     align-items: center;
     transition: all 0.2s ease;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 0;
 }
 
 #theme-toggle:hover {
@@ -536,8 +563,9 @@ position: fixed;
 }
 
 #theme-toggle .theme-icon {
-    font-size: 20px;
+    font-size: 30px;
     transition: transform 0.2s ease;
+    padding: 0;
 }
 
 #theme-toggle:hover .theme-icon {
@@ -562,14 +590,7 @@ position: fixed;
     font-size: 90%;
 }
 
-#attribution-link {
-    color: var(--text-primary);
-    text-decoration: underline;
-    position: absolute;
-    top: 4.1rem;
-    left: 6em;
-    font-size: 90%;
-}
-#attribution-link:hover {
-    text-decoration: none;
+
+#current-animation-name {
+    font-size: 1.4rem;
 }

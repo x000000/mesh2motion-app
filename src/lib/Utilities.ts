@@ -334,4 +334,9 @@ export class Utility {
     }
     return value_numeric
   }
+
+  static enum_from_value<TEnum extends Record<string, TVal>, TVal> (val: TVal, enumType: TEnum) {
+    const enumName = (Object.keys(enumType) as Array<keyof TEnum>).find(k => enumType[k] === val)
+    return enumName === undefined ? undefined : enumType[enumName]
+  }
 }

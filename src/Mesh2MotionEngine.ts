@@ -29,6 +29,7 @@ import { CustomSkeletonHelper } from './lib/CustomSkeletonHelper.ts'
 import { EventListeners } from './lib/EventListeners.ts'
 import { ModelPreviewDisplay } from './lib/enums/ModelPreviewDisplay.ts'
 import { TransformControlType } from './lib/enums/TransformControlType.ts'
+import { TransformSpace } from './lib/enums/TransformSpace.ts'
 import { ThemeManager } from './lib/ThemeManager.ts'
 import { ModalDialog } from './lib/ModalDialog.ts'
 
@@ -62,6 +63,7 @@ export class Mesh2MotionEngine {
   // when editing the skeleton, what type of mesh will we see
   public mesh_preview_display_type: ModelPreviewDisplay = ModelPreviewDisplay.WeightPainted
   public transform_controls_type: TransformControlType = TransformControlType.Translation
+  public transform_space_type: TransformSpace = TransformSpace.Global
 
   private readonly clock = new THREE.Clock()
 
@@ -381,6 +383,15 @@ export class Mesh2MotionEngine {
       default:
         console.warn(`Unknown transform mode selected: ${radio_button_selected}`)
         break
+    }
+  }
+
+  public changed_transform_controls_space (radio_button_selected: TransformSpace | undefined): void {
+    if (radio_button_selected) {
+      this.transform_space_type = radio_button_selected
+      this.transform_controls.setSpace(radio_button_selected as 'world' | 'local')
+    } else {
+      console.warn(`Unknown transform space selected`)
     }
   }
 

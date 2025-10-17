@@ -1,6 +1,7 @@
 import { type Mesh2MotionEngine } from '../Mesh2MotionEngine'
 import { ModelPreviewDisplay } from './enums/ModelPreviewDisplay'
 import { ProcessStep } from './enums/ProcessStep'
+import { TransformSpace } from './enums/TransformSpace'
 import { Utility } from './Utilities'
 
 export class EventListeners {
@@ -166,6 +167,17 @@ export class EventListeners {
       }
 
       this.bootstrap.changed_transform_controls_mode(radio_button_selected)
+    })
+
+    this.bootstrap.ui.dom_transform_space_radio_group?.addEventListener('change', (event: Event) => {
+      const radio_button_selected: string | null = event.target?.value
+
+      if (radio_button_selected === null) {
+        console.warn('Null radio button selected for transform space change')
+        return
+      }
+
+      this.bootstrap.changed_transform_controls_space(Utility.enum_from_value(radio_button_selected, TransformSpace))
     })
 
     // changing the 3d model preview while editing the skeleton bones

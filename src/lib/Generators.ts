@@ -22,10 +22,11 @@ export class Generators {
   static get_contributors_list (): string {
     // Return a list of contributors
     return `
-    <div style="text-align: start">
-      <p><span style="font-size: 120%">Scott Petrovic</span> - Project Maintainer</p>
-      <p><span style="font-size: 120%">Quatnerius</span> - Human model, rig, and animations</p>
-    </div>
+      <p>Scott Petrovic: Project Maintainer</p>
+      <p>Quatnerius: Human model, rig, and animations. <a href="http://quaternius.com/" target="_blank" rel="noopener noreferrer">quaternius.com</a></p>
+      <hr/>
+      <p>For instructions on submitting animations or contributing to the project, see the <a href="https://github.com/your-repo/contributing">contribution guide</a>.</p>
+
     `
   }
 

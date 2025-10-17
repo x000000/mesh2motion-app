@@ -1,3 +1,7 @@
+.modal-dialog-content hr {
+  margin: 3rem 0;
+}
+
 .modal-dialog-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -13,19 +17,27 @@
   padding: 2em;
   border-radius: 8px;
   box-shadow: 0 2px 16px rgba(0,0,0,0.2);
-  max-width: 400px;
+    max-width: 41rem;
   text-align: center;
 }
 
+.modal-dialog-content p {
+  margin-bottom: 2rem;
+}
+
 .modal-dialog-content h2 {
-  margin-top: 0;
+  margin: 0;
+  margin-bottom: 3rem;
   color: var(--text-primary);
-  font-size: 140%;
+  font-size: 2.0rem;
   display: block;
 }
 
-.modal-dialog-content p {
+.modal-dialog-content * {
    color: var(--text-primary);
+   font-size: 1.4rem;
+   margin: 0.5rem;
+   line-height: 1.7rem;
 }
 
 .modal-dialog-close {

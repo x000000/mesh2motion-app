@@ -25,8 +25,9 @@ export class Generators {
       <p>Scott Petrovic: Project Maintainer</p>
       <p>Quatnerius: Human model, rig, and animations. <a href="http://quaternius.com/" target="_blank" rel="noopener noreferrer">quaternius.com</a></p>
       <hr/>
-      <p>For instructions on submitting animations or contributing to the project, see the <a href="https://github.com/your-repo/contributing">contribution guide</a>.</p>
-
+      <p>For instructions on submitting animations or contributing to the project, see the 
+        <a href="https://github.com/scottpetrovic/mesh2motion-app/blob/main/CONTRIBUTOR.md" target="_blank">Contribution Guide</a>.
+      </p>
     `
   }
 

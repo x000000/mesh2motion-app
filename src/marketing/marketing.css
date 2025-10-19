@@ -18,11 +18,11 @@
 }
 
 .model-selection-section button {
-    height: 5rem;
+    height: 3rem;
     background: none;
     box-shadow: none;
     border-radius: 0;
-    border: 2px solid var(--button-primary-bg);
+    border: 1px solid var(--button-primary-bg);
     background-color: var(--nav-background);
 }
 .model-selection-section button:hover {
@@ -35,7 +35,7 @@ button.active-button {
 }
 
 #animations-items {
-    max-height: calc(100vh - 18rem);
+    max-height: calc(100vh - 14rem);
 }
 
 #animation-listing-count {

@@ -23,7 +23,7 @@
   --radio-button-group-bg: rgb(81, 114, 151);
   --radio-button-group-hover: rgb(37, 65, 97);
 
-  --navigation-height: 60px;
+  --navigation-height: 40px;
 }
 
 /* Light theme */
@@ -67,7 +67,7 @@ nav {
     z-index: 1;
 }
 nav a, nav span {
-    font-size: 1.2rem;
+    font-size: 1rem;
     display: inline-flex;
     align-items: center;
     text-decoration: none;
@@ -592,5 +592,4 @@ input[type="file"] {
 
 
 #current-animation-name {
-    font-size: 1.4rem;
 }

@@ -39,8 +39,7 @@ export class Generators {
     const floor_material = new MeshPhongMaterial({
       color: floor_color,
       wireframe: false,
-      transparent: true,
-      opacity: 0.9,
+      transparent: false,
       shininess: 0.0,
       specular: 0.0
     })

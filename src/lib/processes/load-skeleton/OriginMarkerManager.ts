@@ -2,15 +2,15 @@ import { type Object3D, Mesh, SphereGeometry, MeshBasicMaterial, type Scene, Gro
 
 const ORIGIN_MARKER_GROUP_NAME: string = 'origin_marker_group'
 
-export function add_origin_markers (root: Scene): void {
-  remove_origin_markers(root)
+export function add_origin_markers (root: Scene, skeleton_root: Scene): void {
+  remove_origin_markers(skeleton_root)
 
   // Create a group to hold all markers
-  let marker_group = root.getObjectByName(ORIGIN_MARKER_GROUP_NAME) as Group
+  let marker_group = skeleton_root.getObjectByName(ORIGIN_MARKER_GROUP_NAME) as Group
   if (!marker_group) {
     marker_group = new Group()
     marker_group.name = ORIGIN_MARKER_GROUP_NAME
-    root.add(marker_group)
+    skeleton_root.add(marker_group)
   }
 
   // with the root scene, there is a group called "Imported Model" that contains

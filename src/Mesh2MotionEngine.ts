@@ -46,6 +46,7 @@ export class Mesh2MotionEngine {
 
   // has UI elements on the HTML page that we will reference/use
   public scene: Scene
+  public skeleton_scene: Scene
   public theme_manager: ThemeManager
   public ui: UI
   public load_model_step: StepLoadModel
@@ -76,12 +77,13 @@ export class Mesh2MotionEngine {
     this.animate = this.animate.bind(this)
 
     this.scene = new Scene()
+    this.skeleton_scene = new Scene()
     this.theme_manager = new ThemeManager()
     this.ui = UI.getInstance()
 
     // setting up steps
     this.load_model_step = new StepLoadModel()
-    this.load_skeleton_step = new StepLoadSkeleton(this.scene)
+    this.load_skeleton_step = new StepLoadSkeleton(this.scene, this.skeleton_scene)
     this.edit_skeleton_step = new StepEditSkeleton()
     this.weight_skin_step = new StepWeightSkin()
     this.animations_listing_step = new StepAnimationsListing(this.theme_manager)
@@ -178,12 +180,12 @@ export class Mesh2MotionEngine {
   public regenerate_skeleton_helper (new_skeleton: Skeleton, helper_name = 'Skeleton Helper'): void {
     // if skeleton helper exists...remove it
     if (this.skeleton_helper !== undefined) {
-      this.scene.remove(this.skeleton_helper)
+      this.skeleton_scene.remove(this.skeleton_helper)
     }
 
     this.skeleton_helper = new CustomSkeletonHelper(new_skeleton.bones[0], { linewidth: 4, color: 0x4e7d58 })
     this.skeleton_helper.name = helper_name
-    this.scene.add(this.skeleton_helper)
+    this.skeleton_scene.add(this.skeleton_helper)
   }
 
   public update_a_pose_options_visibility (): void {
@@ -262,7 +264,7 @@ export class Mesh2MotionEngine {
     else if (this.process_step === ProcessStep.LoadSkeleton) {
       // if skeleton helper existed because we are going back to this
       if (this.skeleton_helper !== undefined) {
-        this.scene.remove(this.skeleton_helper)
+        this.skeleton_scene.remove(this.skeleton_helper)
       }
 
       // need to change the texture display to normal material in
@@ -347,6 +349,7 @@ export class Mesh2MotionEngine {
     }
 
     this.renderer.render(this.scene, this.camera)
+    this.renderer.render(this.skeleton_scene, this.camera)
 
     // view helper
     this.view_helper.render(this.renderer) // updates current viewport

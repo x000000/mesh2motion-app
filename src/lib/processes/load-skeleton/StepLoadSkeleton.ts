@@ -15,6 +15,7 @@ export class StepLoadSkeleton extends EventTarget {
 
   private _added_event_listeners: boolean = false
   private readonly _main_scene: Scene
+  private readonly _skeleton_scene: Scene
 
   // used to help scale animations later
   // this is useful since position keyframes will need to be scaled
@@ -44,9 +45,10 @@ export class StepLoadSkeleton extends EventTarget {
     return this.skeleton_scale_percentage
   }
 
-  constructor (main_scene: Scene) {
+  constructor (main_scene: Scene, skeleton_scene: Scene) {
     super()
     this._main_scene = main_scene
+    this._skeleton_scene = skeleton_scene
   }
 
   public begin (): void {
@@ -71,7 +73,7 @@ export class StepLoadSkeleton extends EventTarget {
     // when we come back to this step, there is a good chance we already selected a skeleton
     // so just use that and load the preview right when we enter this step
     if (!this.has_select_skeleton_ui_option()) {
-      add_preview_skeleton(this._main_scene, this.skeleton_file_path(),
+      add_preview_skeleton(this._skeleton_scene, this.skeleton_file_path(),
         this.hand_skeleton_type(), this.skeleton_scale_percentage).catch((err) => {
         console.error('error loading preview skeleton: ', err)
       })
@@ -81,7 +83,7 @@ export class StepLoadSkeleton extends EventTarget {
     this.toggle_ui_hand_skeleton_options()
 
     // add origin markers for debugging model loading issues
-    add_origin_markers(this._main_scene)
+    add_origin_markers(this._main_scene, this._skeleton_scene)
 
     // if there is a "select skeleton" option, disable proceeding
     // putting this check here helps us if we come back to this step later
@@ -93,12 +95,12 @@ export class StepLoadSkeleton extends EventTarget {
   }
 
   public regenerate_origin_markers (): void {
-    add_origin_markers(this._main_scene)
+    add_origin_markers(this._main_scene, this._skeleton_scene)
   }
 
   public dispose (): void {
-    remove_origin_markers(this._main_scene)
-    remove_preview_skeleton(this._main_scene)
+    remove_origin_markers(this._skeleton_scene)
+    remove_preview_skeleton(this._skeleton_scene)
   }
 
   private skeleton_file_path (): SkeletonType {
@@ -152,7 +154,7 @@ export class StepLoadSkeleton extends EventTarget {
         // load the preview skeleton
         // need to get the file name for the correct skeleton
         // we pass the skeleton scale in the case where we set a skeleton, change scale, then change the skeleton
-        add_preview_skeleton(this._main_scene, this.skeleton_file_path(), this.hand_skeleton_type(), this.skeleton_scale()).then(() => {
+        add_preview_skeleton(this._skeleton_scene, this.skeleton_file_path(), this.hand_skeleton_type(), this.skeleton_scale()).then(() => {
           // enable the ability to progress to next step
           this.allow_proceeding_to_next_step(true)
         }).catch((err) => {
@@ -177,7 +179,7 @@ export class StepLoadSkeleton extends EventTarget {
     this.ui.dom_hand_skeleton_selection?.addEventListener('change', () => {
       // rebuild the preview skeleton with the new hand skeleton type
       // make sure we keep existing scale if we made a change to that
-      add_preview_skeleton(this._main_scene, this.skeleton_file_path(), this.hand_skeleton_type(), this.skeleton_scale()).catch((err) => {
+      add_preview_skeleton(this._skeleton_scene, this.skeleton_file_path(), this.hand_skeleton_type(), this.skeleton_scale()).catch((err) => {
         console.error('error loading preview skeleton: ', err)
       })
     })
@@ -191,7 +193,7 @@ export class StepLoadSkeleton extends EventTarget {
       this.ui.dom_scale_skeleton_percentage_display!.textContent = display_value
 
       // re-add the preview skeleton with the new scale
-      add_preview_skeleton(this._main_scene, this.skeleton_file_path(), this.hand_skeleton_type(), this.skeleton_scale_percentage).catch((err) => {
+      add_preview_skeleton(this._skeleton_scene, this.skeleton_file_path(), this.hand_skeleton_type(), this.skeleton_scale_percentage).catch((err) => {
         console.error('error loading preview skeleton: ', err)
       })
     })

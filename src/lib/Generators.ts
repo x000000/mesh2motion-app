@@ -39,7 +39,8 @@ export class Generators {
     const floor_material = new MeshPhongMaterial({
       color: floor_color,
       wireframe: false,
-      transparent: false,
+      transparent: true,
+      opacity: 0.7,
       shininess: 0.0,
       specular: 0.0
     })
@@ -50,6 +51,7 @@ export class Generators {
     floor_mesh.rotation.x = -Math.PI / 2
     floor_mesh.position.y = -0.01
     floor_mesh.receiveShadow = true
+    floor_mesh.renderOrder = -1 // fix to help put the floor behind the skeleton helper
 
     // xyz axes helper display
     const axes_helper = new AxesHelper(0.3)

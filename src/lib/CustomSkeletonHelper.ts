@@ -3,20 +3,19 @@
 // and ideas from
 // https://discourse.threejs.org/t/extend-skeletonhelper-to-accommodate-fat-lines-perhaps-with-linesegments2/59436/2
 
-import { Color, Matrix4, Vector2, Vector3, Points, PointsMaterial, BufferGeometry, Float32BufferAttribute, TextureLoader } from 'three'
-import { Line2, LineGeometry, LineMaterial } from 'three/examples/jsm/Addons.js'
+import { Color, Matrix4, Vector3, Points, PointsMaterial, BufferGeometry, Float32BufferAttribute, TextureLoader, LineSegments, LineBasicMaterial } from 'three'
 
 const _vector = /*@__PURE__*/ new Vector3()
 const _boneMatrix = /*@__PURE__*/ new Matrix4()
 const _matrixWorldInv = /*@__PURE__*/ new Matrix4()
 
-class CustomSkeletonHelper extends Line2 {
+class CustomSkeletonHelper extends LineSegments {
   private readonly joint_points: Points
   private readonly jointTexture = new TextureLoader().load('images/skeleton-joint-point.png')
 
   constructor (object: any, options = {}) {
     const bones = getBoneList(object)
-    const geometry = new LineGeometry()
+    const geometry = new BufferGeometry()
 
     const vertices = []
     const colors = []
@@ -32,17 +31,15 @@ class CustomSkeletonHelper extends Line2 {
         colors.push(color.r, color.g, color.b)
       }
     }
-    geometry.setPositions(vertices)
-    geometry.setColors(colors)
+    
+    geometry.setAttribute('position', new Float32BufferAttribute(vertices, 3))
+    geometry.setAttribute('color', new Float32BufferAttribute(colors, 3))
 
-    const material = new LineMaterial({
-      linewidth: options.linewidth || 0.005,
-      worldUnits: false,
+    const material = new LineBasicMaterial({
       vertexColors: true,
-      dashed: options.dashed || false,
-      alphaToCoverage: true,
-      resolution: new Vector2(window.innerWidth, window.innerHeight),
-      depthTest: false
+      depthTest: false,
+      depthWrite: false,
+      transparent: true
     })
 
     super(geometry, material)
@@ -79,8 +76,7 @@ class CustomSkeletonHelper extends Line2 {
     const pointPositions = this.joint_points.geometry.getAttribute('position')
 
     const geometry = this.geometry
-    const lineStart = geometry.getAttribute('instanceStart')
-    const lineEnd = geometry.getAttribute('instanceEnd')
+    const positions = geometry.getAttribute('position')
 
     _matrixWorldInv.copy(this.root.matrixWorld).invert()
 
@@ -94,18 +90,17 @@ class CustomSkeletonHelper extends Line2 {
       if (bone.parent && bone.parent.isBone) {
         _boneMatrix.multiplyMatrices(_matrixWorldInv, bone.parent.matrixWorld)
         _vector.setFromMatrixPosition(_boneMatrix)
-        lineStart.setXYZ(lineIndex, _vector.x, _vector.y, _vector.z)
+        positions.setXYZ(lineIndex * 2, _vector.x, _vector.y, _vector.z)
 
         _boneMatrix.multiplyMatrices(_matrixWorldInv, bone.matrixWorld)
         _vector.setFromMatrixPosition(_boneMatrix)
-        lineEnd.setXYZ(lineIndex, _vector.x, _vector.y, _vector.z)
+        positions.setXYZ(lineIndex * 2 + 1, _vector.x, _vector.y, _vector.z)
         lineIndex++
       }
     }
 
     pointPositions.needsUpdate = true
-    geometry.getAttribute('instanceStart').needsUpdate = true
-    geometry.getAttribute('instanceEnd').needsUpdate = true
+    positions.needsUpdate = true
 
     // Update bounding box and bounding sphere
     // otherwise the skeleton will be hidden when root bone on ground is off camera
